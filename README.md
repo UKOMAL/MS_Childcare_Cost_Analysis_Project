@@ -34,4 +34,29 @@ This dashboard provides interactive visualizations of childcare costs across dif
 
 ## 📈 Data Source
 
-The dashboard uses the National Database of Childcare Prices dataset. 
+The dashboard uses the National Database of Childcare Prices dataset.
+
+## 📁 Repository Structure
+
+```
+.
+├── docs/                  # GitHub Pages website files
+│   ├── index.html        # Main dashboard page
+│   ├── js/              # JavaScript files
+│   └── data/            # Processed data files
+├── data/                 # Raw data files
+├── figures/              # Generated visualizations
+├── documentation/        # Project documentation
+├── milestones/          # Project milestone submissions
+└── requirements.txt     # Python dependencies
+```
+
+## 🔧 Local Development
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Run the development server
+4. Open index.html in your browser 
