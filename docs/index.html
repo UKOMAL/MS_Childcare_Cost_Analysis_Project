@@ -13,26 +13,91 @@
     
     <!-- Custom CSS -->
     <style>
-        .viz-container {
-            margin: 20px 0;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
         }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .viz-container {
+            background-color: var(--card-background);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .viz-container:hover {
+            transform: translateY(-5px);
+        }
+
         .control-panel {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .form-label {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-select, .form-range {
+            border-color: var(--secondary-color);
+        }
+
+        .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25);
+        }
+
+        .alert {
+            border-radius: 10px;
+        }
+
+        .alert-danger {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+        }
+
+        /* Custom styling for visualization containers */
+        #mainViz, #timeSeriesViz, #supplementaryViz {
+            min-height: 400px;
+            width: 100%;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid px-4">
         <!-- Header -->
-        <header class="py-4">
-            <h1 class="text-center">Childcare Cost Analysis Dashboard</h1>
-            <p class="text-center text-muted">Interactive analysis of childcare costs across the United States</p>
+        <header class="dashboard-header text-center">
+            <h1 class="display-4">Childcare Cost Analysis Dashboard</h1>
+            <p class="lead">Interactive analysis of childcare costs across the United States</p>
         </header>
 
         <!-- Control Panel -->
@@ -66,7 +131,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="viz-container">
-                    <div id="mainViz" style="height: 600px;"></div>
+                    <div id="mainViz"></div>
                 </div>
             </div>
         </div>
@@ -75,12 +140,12 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="viz-container">
-                    <div id="timeSeriesViz" style="height: 400px;"></div>
+                    <div id="timeSeriesViz"></div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="viz-container">
-                    <div id="supplementaryViz" style="height: 400px;"></div>
+                    <div id="supplementaryViz"></div>
                 </div>
             </div>
         </div>
