@@ -4,7 +4,7 @@ An interactive dashboard analyzing childcare costs across the United States.
 
 ## 📊 Live Dashboard
 
-Visit the live dashboard: [Childcare Cost Analysis Dashboard](https://ukomal.github.io/-MS_Childcare_Cost_Analysis_Project/)
+Visit the live dashboard: [Childcare Cost Analysis Dashboard](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/)
 
 ## 📝 Description
 
