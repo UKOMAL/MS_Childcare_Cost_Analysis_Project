@@ -150,9 +150,10 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Fetching data from childcare_costs.json...');
-        // Use absolute path from repository root for GitHub Pages
-        const response = await fetch('/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json');
+        // Use relative path for GitHub Pages
+        const response = await fetch('../data/childcare_costs.json');
         if (!response.ok) {
+            console.error('Failed to fetch data:', response.status, response.statusText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
@@ -175,7 +176,7 @@ async function loadData() {
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        // Show error in the UI
+        // Show error in the UI with more detailed information
         const mainViz = document.getElementById('mainViz');
         if (mainViz) {
             mainViz.innerHTML = `
@@ -183,7 +184,7 @@ async function loadData() {
                     <h4>Error Loading Data</h4>
                     <p>${error.message}</p>
                     <p>Please check the browser console for more details.</p>
-                    <p><small>If you're seeing this error, please make sure the data file exists at the correct location.</small></p>
+                    <p><small>Attempted to load data from: ${window.location.origin}/data/childcare_costs.json</small></p>
                 </div>
             `;
         }
