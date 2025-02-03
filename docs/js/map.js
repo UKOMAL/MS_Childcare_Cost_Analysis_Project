@@ -11,12 +11,13 @@ function initMap(data) {
             locationmode: 'USA-states',
             locations: data.states,
             z: data.costs.infant,
-            text: data.states.map((state, i) => 
-                `State: ${state}<br>` +
-                `Infant Care Cost: $${data.costs.infant[i].toFixed(2)}<br>` +
-                `Cost Burden: ${data.metrics.cost_burden[i].toFixed(1)}%<br>` +
-                `Working Parents: ${data.metrics.working_parent_ratio[i].toFixed(1)}%`
-            ),
+            text: data.states.map((state, i) => {
+                const stateName = getStateName(state);
+                return `State: ${stateName}<br>` +
+                    `Infant Care Cost: $${data.costs.infant[i].toFixed(2)}<br>` +
+                    `Cost Burden: ${data.metrics.cost_burden[i].toFixed(1)}%<br>` +
+                    `Working Parents: ${data.metrics.working_parent_ratio[i].toFixed(1)}%`;
+            }),
             colorscale: 'Viridis',
             colorbar: {
                 title: 'Monthly Cost ($)',
@@ -32,7 +33,8 @@ function initMap(data) {
                 showlakes: true,
                 lakecolor: 'rgb(255,255,255)'
             },
-            height: 600
+            height: 600,
+            margin: { t: 50, l: 0, r: 0, b: 0 }
         };
 
         Plotly.newPlot('mainViz', mapData, layout);
@@ -100,25 +102,24 @@ function filterByCostRange(data, costRange) {
     };
 }
 
-// Helper function to convert state names to abbreviations
-function getStateAbbreviation(stateName) {
-    const stateAbbreviations = {
-        'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
-        'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE',
-        'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI', 'Idaho': 'ID',
-        'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA', 'Kansas': 'KS',
-        'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
-        'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS',
-        'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV',
-        'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM', 'New York': 'NY',
-        'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH', 'Oklahoma': 'OK',
-        'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
-        'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT',
-        'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV',
-        'Wisconsin': 'WI', 'Wyoming': 'WY'
+// Helper function to get state name from abbreviation
+function getStateName(abbr) {
+    const stateNames = {
+        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+        'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+        'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+        'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+        'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+        'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+        'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+        'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+        'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+        'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+        'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+        'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'District of Columbia'
     };
-    
-    return stateAbbreviations[stateName] || stateName;
+    return stateNames[abbr] || abbr;
 }
 
 // Create bubble overlay for cost burden

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     initTimeSeries(data);
     
     // Load state data
-    loadStates();
+    loadStates(data.states);
     
     // Event listeners for controls
     document.getElementById('stateSelect').addEventListener('change', () => updateVisualizations(data));
@@ -23,24 +23,33 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 // Load state data
-function loadStates() {
-    const states = [
-        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
-        "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
-        "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
-        "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
-        "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
-        "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia",
-        "Wisconsin", "Wyoming"
-    ];
+function loadStates(stateAbbreviations) {
+    const stateNames = {
+        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+        'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+        'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+        'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+        'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+        'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+        'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+        'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+        'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+        'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+        'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+        'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'District of Columbia'
+    };
     
     const stateSelect = document.getElementById('stateSelect');
-    states.forEach(state => {
-        const option = document.createElement('option');
-        option.value = state;
-        option.textContent = state;
-        stateSelect.appendChild(option);
+    stateSelect.innerHTML = '<option value="all">All States</option>';
+    
+    stateAbbreviations.forEach(abbr => {
+        if (stateNames[abbr]) {
+            const option = document.createElement('option');
+            option.value = abbr;
+            option.textContent = stateNames[abbr];
+            stateSelect.appendChild(option);
+        }
     });
 }
 
