@@ -144,4 +144,131 @@ function createVisualizations(data) {
         console.error('Error creating visualizations:', error);
         showError('Error creating visualizations. Please try again.');
     }
+}
+
+// Initialize Sankey diagram
+function initSankey(data) {
+    if (!data) return;
+    
+    try {
+        const sankeyData = prepareSankeyData(data);
+        Plotly.newPlot('mainViz', sankeyData.data, sankeyData.layout);
+    } catch (error) {
+        console.error('Error initializing Sankey diagram:', error);
+        showError('Error creating Sankey visualization');
+    }
+}
+
+// Initialize 3D scatter plot
+function init3DScatter(data) {
+    if (!data) return;
+    
+    try {
+        const scatterData = prepare3DData(data);
+        Plotly.newPlot('mainViz', scatterData.data, scatterData.layout);
+    } catch (error) {
+        console.error('Error initializing 3D scatter:', error);
+        showError('Error creating 3D visualization');
+    }
+}
+
+// Prepare Sankey data
+function prepareSankeyData(data) {
+    const nodes = [
+        { label: 'Infant Care' },
+        { label: 'Toddler Care' },
+        { label: 'Preschool' },
+        { label: 'Cost Burden' },
+        { label: 'Working Parents' }
+    ];
+
+    const links = [
+        { source: 0, target: 1, value: Math.abs(calculateCorrelation(data.costs.infant, data.costs.toddler)) * 100 },
+        { source: 1, target: 2, value: Math.abs(calculateCorrelation(data.costs.toddler, data.costs.preschool)) * 100 },
+        { source: 0, target: 3, value: Math.abs(calculateCorrelation(data.costs.infant, data.metrics.cost_burden)) * 100 },
+        { source: 3, target: 4, value: Math.abs(calculateCorrelation(data.metrics.cost_burden, data.metrics.working_parent_ratio)) * 100 }
+    ];
+
+    return {
+        data: [{
+            type: 'sankey',
+            orientation: 'h',
+            node: {
+                pad: 15,
+                thickness: 30,
+                line: { color: 'black', width: 0.5 },
+                label: nodes.map(n => n.label),
+                color: nodes.map(() => getRandomColor())
+            },
+            link: {
+                source: links.map(l => l.source),
+                target: links.map(l => l.target),
+                value: links.map(l => l.value)
+            }
+        }],
+        layout: {
+            title: 'Childcare Cost Flow Analysis',
+            font: { size: 12 },
+            height: 600
+        }
+    };
+}
+
+// Prepare 3D scatter data
+function prepare3DData(data) {
+    return {
+        data: [{
+            type: 'scatter3d',
+            mode: 'markers',
+            x: data.costs.infant,
+            y: data.metrics.cost_burden,
+            z: data.metrics.working_parent_ratio,
+            text: data.states,
+            marker: {
+                size: 8,
+                color: data.metrics.cost_burden,
+                colorscale: 'Viridis',
+                opacity: 0.8
+            },
+            hovertemplate:
+                '<b>%{text}</b><br>' +
+                'Infant Cost: $%{x:.2f}<br>' +
+                'Cost Burden: %{y:.1f}%<br>' +
+                'Working Parents: %{z:.1f}%'
+        }],
+        layout: {
+            title: '3D Analysis of Childcare Costs',
+            scene: {
+                xaxis: { title: 'Infant Care Cost ($)' },
+                yaxis: { title: 'Cost Burden (%)' },
+                zaxis: { title: 'Working Parents (%)' }
+            },
+            height: 600
+        }
+    };
+}
+
+// Calculate correlation between two arrays
+function calculateCorrelation(array1, array2) {
+    const n = array1.length;
+    if (n !== array2.length || n === 0) return 0;
+
+    const mean1 = array1.reduce((a, b) => a + b) / n;
+    const mean2 = array2.reduce((a, b) => a + b) / n;
+
+    const variance1 = array1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
+    const variance2 = array2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+
+    const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
+
+    return covariance / Math.sqrt(variance1 * variance2);
+}
+
+// Get random color
+function getRandomColor() {
+    const colors = [
+        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
 } 

@@ -1,75 +1,102 @@
 // Initialize the map visualization
-function initMap() {
-    const data = {
-        type: 'choropleth',
-        locationmode: 'USA-states',
-        locations: [],
-        z: [],
-        text: [],
-        colorscale: 'Viridis',
-        colorbar: {
-            title: 'Average Annual Cost ($)',
-            thickness: 20
-        }
-    };
+function initMap(data) {
+    if (!data) {
+        console.error('No data provided for map visualization');
+        return;
+    }
 
-    const layout = {
-        title: 'Childcare Costs by State',
-        geo: {
-            scope: 'usa',
-            showlakes: true,
-            lakecolor: 'rgb(255,255,255)'
-        },
-        height: 600
-    };
+    try {
+        const mapData = [{
+            type: 'choropleth',
+            locationmode: 'USA-states',
+            locations: data.states,
+            z: data.costs.infant,
+            text: data.states.map((state, i) => 
+                `State: ${state}<br>` +
+                `Infant Care Cost: $${data.costs.infant[i].toFixed(2)}<br>` +
+                `Cost Burden: ${data.metrics.cost_burden[i].toFixed(1)}%<br>` +
+                `Working Parents: ${data.metrics.working_parent_ratio[i].toFixed(1)}%`
+            ),
+            colorscale: 'Viridis',
+            colorbar: {
+                title: 'Monthly Cost ($)',
+                thickness: 20
+            },
+            hoverinfo: 'text'
+        }];
 
-    Plotly.newPlot('mainViz', [data], layout);
+        const layout = {
+            title: 'Childcare Costs by State',
+            geo: {
+                scope: 'usa',
+                showlakes: true,
+                lakecolor: 'rgb(255,255,255)'
+            },
+            height: 600
+        };
+
+        Plotly.newPlot('mainViz', mapData, layout);
+    } catch (error) {
+        console.error('Error creating map visualization:', error);
+        document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error creating map visualization</div>';
+    }
 }
 
 // Update map based on filters
-function updateMap(selectedState, costRange) {
-    // Sample data structure
-    const stateData = {
-        locations: ['NY', 'CA', 'TX', 'FL', 'IL'],
-        values: [24000, 22000, 18000, 19000, 20000],
-        texts: [
-            'New York: $24,000',
-            'California: $22,000',
-            'Texas: $18,000',
-            'Florida: $19,000',
-            'Illinois: $20,000'
-        ]
-    };
+function updateMap(selectedState, costRange, data) {
+    if (!data) return;
 
-    // Filter data based on selected state and cost range
-    let filteredData = filterMapData(stateData, selectedState, costRange);
-
-    // Update the map
-    Plotly.update('mainViz', {
-        locations: [filteredData.locations],
-        z: [filteredData.values],
-        text: [filteredData.texts]
-    });
+    try {
+        const filteredData = filterMapData(data, selectedState, costRange);
+        initMap(filteredData);
+    } catch (error) {
+        console.error('Error updating map:', error);
+    }
 }
 
 // Filter map data based on selection
 function filterMapData(data, selectedState, costRange) {
     if (selectedState === 'all') {
-        return data;
+        return filterByCostRange(data, costRange);
     }
 
-    // Convert state name to abbreviation
-    const stateAbbr = getStateAbbreviation(selectedState);
-    const index = data.locations.indexOf(stateAbbr);
-
-    if (index === -1) {
-        return data;
-    }
+    const stateIndex = data.states.indexOf(selectedState);
+    if (stateIndex === -1) return data;
 
     return {
-        locations: [data.locations[index]],
-        values: [data.values[index]],
-        texts: [data.texts[index]]
+        states: [data.states[stateIndex]],
+        costs: {
+            infant: [data.costs.infant[stateIndex]],
+            toddler: [data.costs.toddler[stateIndex]],
+            preschool: [data.costs.preschool[stateIndex]]
+        },
+        metrics: {
+            annual_cost: [data.metrics.annual_cost[stateIndex]],
+            cost_burden: [data.metrics.cost_burden[stateIndex]],
+            working_parent_ratio: [data.metrics.working_parent_ratio[stateIndex]]
+        }
+    };
+}
+
+// Filter data by cost range
+function filterByCostRange(data, costRange) {
+    const maxCost = Math.max(...data.costs.infant);
+    const threshold = (costRange / 500) * maxCost;
+
+    const indices = data.costs.infant.map((cost, i) => cost <= threshold ? i : -1).filter(i => i !== -1);
+
+    return {
+        states: indices.map(i => data.states[i]),
+        costs: {
+            infant: indices.map(i => data.costs.infant[i]),
+            toddler: indices.map(i => data.costs.toddler[i]),
+            preschool: indices.map(i => data.costs.preschool[i])
+        },
+        metrics: {
+            annual_cost: indices.map(i => data.metrics.annual_cost[i]),
+            cost_burden: indices.map(i => data.metrics.cost_burden[i]),
+            working_parent_ratio: indices.map(i => data.metrics.working_parent_ratio[i])
+        }
     };
 }
 
