@@ -7,4 +7,7 @@ __pycache__/
 # Keep PDFs and DOCXs locally but not in GitHub
 *.pdf
 *.docx
-~$*.docx 
+~$*.docx
+
+# Keep AI checker script locally
+check_ai_content.py 
