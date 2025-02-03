@@ -18,7 +18,7 @@ function initMap(data) {
             locations: locations,
             z: z,
             text: text,
-            hoverinformation: 'text',
+            hoverinfo: 'text',
             colorscale: 'Viridis',
             colorbar: {
                 title: 'Monthly Cost ($)',
@@ -37,7 +37,10 @@ function initMap(data) {
             geo: {
                 scope: 'usa',
                 showlakes: true,
-                lakecolor: 'rgb(255,255,255)'
+                lakecolor: 'rgb(255,255,255)',
+                projection: {
+                    type: 'albers usa'
+                }
             },
             width: 1000,
             height: 600,
@@ -47,7 +50,9 @@ function initMap(data) {
                 b: 0,
                 t: 30,
                 pad: 4
-            }
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
         };
 
         Plotly.newPlot('mainViz', mapData, layout);
