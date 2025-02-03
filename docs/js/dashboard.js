@@ -150,7 +150,9 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Starting data loading process...');
-        const dataUrl = './data/childcare_costs.json';
+        const baseUrl = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
+        const dataUrl = baseUrl + 'data/childcare_costs.json';
+        console.log('Base URL:', baseUrl);
         console.log('Attempting to fetch data from:', dataUrl);
         
         const response = await fetch(dataUrl);
