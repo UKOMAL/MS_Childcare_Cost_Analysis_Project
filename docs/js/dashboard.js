@@ -150,8 +150,9 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Fetching data from childcare_costs.json...');
-        // Use relative path for GitHub Pages
-        const response = await fetch('../data/childcare_costs.json');
+        // Use absolute path from the repository root for GitHub Pages
+        const baseUrl = '/MS_Childcare_Cost_Analysis_Project';
+        const response = await fetch(`${baseUrl}/data/childcare_costs.json`);
         if (!response.ok) {
             console.error('Failed to fetch data:', response.status, response.statusText);
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -184,7 +185,7 @@ async function loadData() {
                     <h4>Error Loading Data</h4>
                     <p>${error.message}</p>
                     <p>Please check the browser console for more details.</p>
-                    <p><small>Attempted to load data from: ${window.location.origin}/data/childcare_costs.json</small></p>
+                    <p><small>Attempted to load data from: ${window.location.origin}/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json</small></p>
                 </div>
             `;
         }
