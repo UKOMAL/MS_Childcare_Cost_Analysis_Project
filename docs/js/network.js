@@ -223,4 +223,16 @@ function addEdgeTraces(nodes, edges) {
 
         Plotly.addTraces('mainViz', trace);
     });
-} 
+}
+
+// Export the functions
+export {
+    initNetwork,
+    updateNetwork,
+    calculateCorrelation,
+    getRandomColor,
+    getEdgeColor,
+    createForceGraph,
+    calculateNodePositions,
+    addEdgeTraces
+}; 

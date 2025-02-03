@@ -204,4 +204,14 @@ function createBubbleOverlay(data) {
     };
 
     Plotly.addTraces('mainViz', bubbleData);
-} 
+}
+
+// Export the functions
+export {
+    initMap,
+    updateMap,
+    filterMapData,
+    filterByCostRange,
+    getStateName,
+    createBubbleOverlay
+}; 

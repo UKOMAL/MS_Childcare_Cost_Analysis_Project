@@ -1,3 +1,7 @@
+// Import visualization modules
+import { initMap, updateMap } from './map.js';
+import { initNetwork, updateNetwork } from './network.js';
+
 // Dashboard initialization and control logic
 document.addEventListener('DOMContentLoaded', async function() {
     try {
@@ -7,21 +11,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         const data = await loadData();
         if (!data) {
             console.error('Failed to load data');
-            document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error loading data. Please check the console for details.</div>';
+            showError('Failed to load data. Please check the console for details.');
             return;
         }
-        console.log('Data loaded successfully:', data);
+        console.log('Data loaded successfully');
         
-        // Initialize map visualization
-        console.log('Initializing map...');
+        // Initialize visualizations
         initMap(data);
-        
-        // Initialize time series
-        console.log('Initializing time series...');
-        initTimeSeries(data);
+        initNetwork(data);
         
         // Load state data
-        console.log('Loading states...');
         loadStates(data.states);
         
         // Set initial cost range value
@@ -29,24 +28,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         const costRange = document.getElementById('costRange');
         costRange.max = Math.ceil(maxCost);
         costRange.value = maxCost;
-        console.log('Cost range set:', maxCost);
         
         // Event listeners for controls
-        console.log('Setting up event listeners...');
-        document.getElementById('stateSelect').addEventListener('change', () => {
-            console.log('State selected:', document.getElementById('stateSelect').value);
-            updateVisualizations(data);
-        });
-        
-        document.getElementById('costRange').addEventListener('input', () => {
-            console.log('Cost range changed:', document.getElementById('costRange').value);
-            updateVisualizations(data);
-        });
-        
-        document.getElementById('vizType').addEventListener('change', () => {
-            console.log('Visualization type changed:', document.getElementById('vizType').value);
-            switchVisualization(data);
-        });
+        setupEventListeners(data);
         
         console.log('Dashboard initialization complete');
     } catch (error) {
@@ -54,6 +38,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         showError('Error initializing dashboard. Please check the console for details.');
     }
 });
+
+// Setup event listeners
+function setupEventListeners(data) {
+    document.getElementById('stateSelect').addEventListener('change', () => {
+        updateVisualizations(data);
+    });
+    
+    document.getElementById('costRange').addEventListener('input', () => {
+        updateVisualizations(data);
+    });
+    
+    document.getElementById('vizType').addEventListener('change', () => {
+        switchVisualization(data);
+    });
+}
 
 // Load state data
 function loadStates(stateAbbreviations) {
@@ -150,23 +149,16 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Starting data loading process...');
-        const baseUrl = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
-        const dataUrl = baseUrl + 'data/childcare_costs.json';
-        console.log('Base URL:', baseUrl);
-        console.log('Attempting to fetch data from:', dataUrl);
+        const response = await fetch('/data/childcare_costs.json');
         
-        const response = await fetch(dataUrl);
         if (!response.ok) {
-            console.error('Failed to fetch data:', response.status, response.statusText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Data loaded successfully:', data);
         
         // Validate data structure
         if (!data.states || !data.costs || !data.metrics) {
-            console.error('Invalid data structure:', data);
             throw new Error('Invalid data structure: missing required fields');
         }
         
@@ -182,19 +174,7 @@ async function loadData() {
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        // Show error in the UI with more detailed information
-        const mainViz = document.getElementById('mainViz');
-        if (mainViz) {
-            mainViz.innerHTML = `
-                <div class="alert alert-danger">
-                    <h4>Error Loading Data</h4>
-                    <p>${error.message}</p>
-                    <p>Please check the browser console for more details.</p>
-                    <p><small>Current URL: ${window.location.href}</small></p>
-                    <p><small>Attempted to load data from: ${new URL('./data/childcare_costs.json', window.location.href).href}</small></p>
-                </div>
-            `;
-        }
+        showError('Error loading data', `${error.message}. Current URL: ${window.location.href}`);
         return null;
     }
 }
