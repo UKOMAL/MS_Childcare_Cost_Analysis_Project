@@ -1,62 +1,128 @@
 // Initialize the network visualization
-function initNetwork() {
-    // Sample network data
-    const nodes = [
-        { id: 'infant_cost', label: 'Infant Care Cost', value: 30 },
-        { id: 'toddler_cost', label: 'Toddler Care Cost', value: 25 },
-        { id: 'preschool_cost', label: 'Preschool Cost', value: 20 },
-        { id: 'household_income', label: 'Household Income', value: 35 },
-        { id: 'population', label: 'Population', value: 15 }
-    ];
+function initNetwork(data) {
+    if (!data) {
+        console.error('No data provided for network visualization');
+        return;
+    }
 
-    const edges = [
-        { from: 'infant_cost', to: 'toddler_cost', value: 0.92 },
-        { from: 'toddler_cost', to: 'preschool_cost', value: 0.88 },
-        { from: 'infant_cost', to: 'preschool_cost', value: 0.85 },
-        { from: 'household_income', to: 'infant_cost', value: 0.65 },
-        { from: 'household_income', to: 'population', value: 0.45 }
-    ];
+    try {
+        // Create nodes from the data
+        const nodes = [
+            { id: 'infant_cost', label: 'Infant Care Cost', value: Math.max(...data.costs.infant) },
+            { id: 'toddler_cost', label: 'Toddler Care Cost', value: Math.max(...data.costs.toddler) },
+            { id: 'preschool_cost', label: 'Preschool Cost', value: Math.max(...data.costs.preschool) },
+            { id: 'cost_burden', label: 'Cost Burden', value: Math.max(...data.metrics.cost_burden) },
+            { id: 'working_parents', label: 'Working Parents', value: Math.max(...data.metrics.working_parent_ratio) }
+        ];
 
-    const data = [{
-        type: 'sankey',
-        orientation: 'h',
-        node: {
-            pad: 15,
-            thickness: 30,
-            line: {
-                color: 'black',
-                width: 0.5
+        // Calculate correlations for edges
+        const edges = [
+            { from: 'infant_cost', to: 'toddler_cost', value: calculateCorrelation(data.costs.infant, data.costs.toddler) },
+            { from: 'toddler_cost', to: 'preschool_cost', value: calculateCorrelation(data.costs.toddler, data.costs.preschool) },
+            { from: 'infant_cost', to: 'cost_burden', value: calculateCorrelation(data.costs.infant, data.metrics.cost_burden) },
+            { from: 'cost_burden', to: 'working_parents', value: calculateCorrelation(data.metrics.cost_burden, data.metrics.working_parent_ratio) }
+        ];
+
+        // Create the network visualization
+        const sankeyData = [{
+            type: 'sankey',
+            orientation: 'h',
+            node: {
+                pad: 15,
+                thickness: 30,
+                line: {
+                    color: 'black',
+                    width: 0.5
+                },
+                label: nodes.map(n => n.label),
+                color: nodes.map(() => getRandomColor())
             },
-            label: nodes.map(n => n.label),
-            color: 'blue'
-        },
-        link: {
-            source: edges.map(e => nodes.findIndex(n => n.id === e.from)),
-            target: edges.map(e => nodes.findIndex(n => n.id === e.to)),
-            value: edges.map(e => e.value * 100)
-        }
-    }];
+            link: {
+                source: edges.map(e => nodes.findIndex(n => n.id === e.from)),
+                target: edges.map(e => nodes.findIndex(n => n.id === e.to)),
+                value: edges.map(e => Math.abs(e.value) * 100),
+                color: edges.map(e => getEdgeColor(e.value))
+            }
+        }];
 
-    const layout = {
-        title: 'Childcare Cost Relationships Network',
-        font: {
-            size: 12
-        },
-        height: 600
-    };
+        const layout = {
+            title: 'Childcare Cost Relationships Network',
+            font: { size: 12 },
+            height: 600,
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        };
 
-    Plotly.newPlot('mainViz', data, layout);
+        Plotly.newPlot('mainViz', sankeyData, layout);
+    } catch (error) {
+        console.error('Error creating network visualization:', error);
+        document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error creating network visualization</div>';
+    }
+}
+
+// Calculate correlation between two arrays
+function calculateCorrelation(array1, array2) {
+    const n = array1.length;
+    if (n !== array2.length || n === 0) return 0;
+
+    const mean1 = array1.reduce((a, b) => a + b) / n;
+    const mean2 = array2.reduce((a, b) => a + b) / n;
+
+    const variance1 = array1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
+    const variance2 = array2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+
+    const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
+
+    return covariance / Math.sqrt(variance1 * variance2);
+}
+
+// Get random color for nodes
+function getRandomColor() {
+    const colors = [
+        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+        '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Get edge color based on correlation value
+function getEdgeColor(correlation) {
+    const value = Math.abs(correlation);
+    return `rgba(31, 119, 180, ${value})`;
 }
 
 // Update network based on filters
-function updateNetwork(selectedState, costRange) {
-    // In a real implementation, this would filter the network data based on selection
-    // For now, we'll just update the title to show the selection
-    const layout = {
-        title: `Childcare Cost Relationships - ${selectedState === 'all' ? 'All States' : selectedState}`
-    };
+function updateNetwork(selectedState, costRange, data) {
+    if (!data || !selectedState) return;
 
-    Plotly.relayout('mainViz', layout);
+    try {
+        const filteredData = filterDataByState(data, selectedState);
+        initNetwork(filteredData);
+    } catch (error) {
+        console.error('Error updating network:', error);
+    }
+}
+
+// Filter data by state
+function filterDataByState(data, selectedState) {
+    if (selectedState === 'all') return data;
+
+    const stateIndex = data.states.indexOf(selectedState);
+    if (stateIndex === -1) return data;
+
+    return {
+        states: [data.states[stateIndex]],
+        costs: {
+            infant: [data.costs.infant[stateIndex]],
+            toddler: [data.costs.toddler[stateIndex]],
+            preschool: [data.costs.preschool[stateIndex]]
+        },
+        metrics: {
+            annual_cost: [data.metrics.annual_cost[stateIndex]],
+            cost_burden: [data.metrics.cost_burden[stateIndex]],
+            working_parent_ratio: [data.metrics.working_parent_ratio[stateIndex]]
+        }
+    };
 }
 
 // Create force-directed graph
