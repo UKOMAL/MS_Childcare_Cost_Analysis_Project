@@ -6,10 +6,11 @@ function initMap(data) {
     }
 
     try {
+        console.log('Creating map with data:', data);
         const locations = data.states;
         const z = data.costs.infant.map(cost => cost || 0); // Handle NaN values
         const text = locations.map((state, i) => 
-            `${state}<br>Monthly Cost: $${z[i] ? z[i].toFixed(2) : 'No data'}`
+            `${getStateName(state)}<br>Monthly Cost: $${z[i] ? z[i].toFixed(2) : 'No data'}`
         );
 
         const mapData = [{
@@ -22,7 +23,10 @@ function initMap(data) {
             colorscale: 'Viridis',
             colorbar: {
                 title: 'Monthly Cost ($)',
-                thickness: 20
+                thickness: 20,
+                len: 0.9,
+                y: 0.5,
+                yanchor: 'middle'
             },
             marker: {
                 line: {
@@ -33,30 +37,45 @@ function initMap(data) {
         }];
 
         const layout = {
-            title: 'Childcare Costs by State',
+            title: {
+                text: 'Childcare Costs by State',
+                y: 0.95
+            },
             geo: {
                 scope: 'usa',
                 showlakes: true,
                 lakecolor: 'rgb(255,255,255)',
                 projection: {
                     type: 'albers usa'
-                }
+                },
+                showland: true,
+                landcolor: 'rgb(250,250,250)',
+                countrycolor: 'rgb(204,204,204)'
             },
-            width: 1000,
-            height: 600,
+            autosize: true,
+            height: 550,
             margin: {
-                l: 0,
-                r: 0,
-                b: 0,
-                t: 30,
-                pad: 4
+                l: 10,
+                r: 10,
+                b: 10,
+                t: 40,
+                pad: 0
             },
             paper_bgcolor: 'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)'
         };
 
-        Plotly.newPlot('mainViz', mapData, layout);
-        console.log('Map visualization created successfully');
+        const config = {
+            responsive: true,
+            displayModeBar: false
+        };
+
+        console.log('Plotting map with data:', { mapData, layout });
+        Plotly.newPlot('mainViz', mapData, layout, config).then(() => {
+            console.log('Map plotted successfully');
+        }).catch(err => {
+            console.error('Error plotting map:', err);
+        });
     } catch (error) {
         console.error('Error creating map visualization:', error);
         document.getElementById('mainViz').innerHTML = 

@@ -155,16 +155,21 @@ async function loadData() {
             ? '/MS_Childcare_Cost_Analysis_Project'
             : '';
         
-        const response = await fetch(`${baseUrl}/data/childcare_costs.json`);
+        const dataUrl = `${baseUrl}/data/childcare_costs.json`;
+        console.log('Attempting to fetch data from:', dataUrl);
+        
+        const response = await fetch(dataUrl);
         if (!response.ok) {
             console.error('Failed to fetch data:', response.status, response.statusText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json();
         console.log('Data loaded successfully:', data);
         
         // Validate data structure
         if (!data.states || !data.costs || !data.metrics) {
+            console.error('Invalid data structure:', data);
             throw new Error('Invalid data structure: missing required fields');
         }
         
