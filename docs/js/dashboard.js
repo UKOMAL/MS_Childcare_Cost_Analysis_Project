@@ -150,24 +150,60 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Fetching data from childcare_costs.json...');
-        const response = await fetch('data/childcare_costs.json');
+        // Use absolute path from repository root for GitHub Pages
+        const response = await fetch('/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Data fetched successfully');
+        console.log('Data loaded successfully:', data);
+        
+        // Validate data structure
+        if (!data.states || !data.costs || !data.metrics) {
+            throw new Error('Invalid data structure: missing required fields');
+        }
+        
+        // Clean up NaN values
+        Object.keys(data.costs).forEach(key => {
+            data.costs[key] = data.costs[key].map(val => isNaN(val) ? null : val);
+        });
+        
+        Object.keys(data.metrics).forEach(key => {
+            data.metrics[key] = data.metrics[key].map(val => isNaN(val) ? null : val);
+        });
+        
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        showError('Error loading data. Please check your connection and try again.');
+        // Show error in the UI
+        const mainViz = document.getElementById('mainViz');
+        if (mainViz) {
+            mainViz.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error Loading Data</h4>
+                    <p>${error.message}</p>
+                    <p>Please check the browser console for more details.</p>
+                    <p><small>If you're seeing this error, please make sure the data file exists at the correct location.</small></p>
+                </div>
+            `;
+        }
         return null;
     }
 }
 
-// Show error message
-function showError(message) {
+// Show error message with details
+function showError(message, details = '') {
+    console.error(message, details);
     const mainViz = document.getElementById('mainViz');
-    mainViz.innerHTML = `<div class="alert alert-danger" role="alert">${message}</div>`;
+    if (mainViz) {
+        mainViz.innerHTML = `
+            <div class="alert alert-danger">
+                <h4>Error</h4>
+                <p>${message}</p>
+                ${details ? `<p><small>${details}</small></p>` : ''}
+            </div>
+        `;
+    }
 }
 
 // Initialize data and create visualizations
