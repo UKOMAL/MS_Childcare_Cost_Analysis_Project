@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Childcare Cost Analysis Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        .viz-container {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="py-4">
+            <h1 class="text-center">Childcare Cost Analysis Dashboard</h1>
+            <p class="text-center text-muted">Interactive analysis of childcare costs across the United States</p>
+        </header>
+
+        <!-- Control Panel -->
+        <div class="row">
+            <div class="col-12 control-panel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="stateSelect" class="form-label">Select State</label>
+                        <select id="stateSelect" class="form-select">
+                            <option value="all">All States</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="costRange" class="form-label">Cost Range</label>
+                        <input type="range" class="form-range" id="costRange" min="0" max="500" step="10">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="vizType" class="form-label">Visualization Type</label>
+                        <select id="vizType" class="form-select">
+                            <option value="map">Geographic Map</option>
+                            <option value="network">Network Analysis</option>
+                            <option value="sankey">Cost Flow</option>
+                            <option value="3d">3D Analysis</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Visualization -->
+        <div class="row">
+            <div class="col-12">
+                <div class="viz-container">
+                    <div id="mainViz" style="height: 600px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplementary Visualizations -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="viz-container">
+                    <div id="timeSeriesViz" style="height: 400px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="viz-container">
+                    <div id="supplementaryViz" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/dashboard.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/timeseries.js"></script>
+</body>
+</html> 
