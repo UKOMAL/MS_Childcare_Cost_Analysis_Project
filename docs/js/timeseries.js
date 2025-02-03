@@ -1,77 +1,165 @@
-// Initialize the time series visualization
-function initTimeSeries() {
-    // Sample time series data
-    const years = ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018'];
-    const infantCosts = [12000, 12500, 13000, 13800, 14500, 15200, 16000, 17000, 18000, 19000, 20000];
-    const toddlerCosts = [11000, 11400, 12000, 12600, 13200, 13800, 14500, 15300, 16200, 17000, 18000];
-    const preschoolCosts = [10000, 10300, 10800, 11400, 12000, 12500, 13200, 14000, 14800, 15500, 16500];
+// Initialize time series visualization
+function initTimeSeries(data) {
+    if (!data || !data.costs || !data.states) {
+        console.error('Invalid data structure for time series visualization');
+        return;
+    }
 
-    const data = [
-        {
-            x: years,
-            y: infantCosts,
-            type: 'scatter',
-            mode: 'lines+markers',
-            name: 'Infant Care',
-            line: {
-                width: 3,
-                shape: 'spline'
-            }
-        },
-        {
-            x: years,
-            y: toddlerCosts,
-            type: 'scatter',
-            mode: 'lines+markers',
-            name: 'Toddler Care',
-            line: {
-                width: 3,
-                shape: 'spline'
-            }
-        },
-        {
-            x: years,
-            y: preschoolCosts,
-            type: 'scatter',
-            mode: 'lines+markers',
-            name: 'Preschool',
-            line: {
-                width: 3,
-                shape: 'spline'
-            }
-        }
-    ];
+    try {
+        const states = data.states;
+        const traces = [];
 
-    const layout = {
-        title: 'Childcare Cost Trends (2008-2018)',
-        xaxis: {
-            title: 'Year',
-            showgrid: true
-        },
-        yaxis: {
-            title: 'Annual Cost ($)',
-            showgrid: true
-        },
-        height: 400,
-        showlegend: true,
-        legend: {
-            x: 1,
-            xanchor: 'right',
-            y: 1
-        }
-    };
+        // Create traces for each cost type
+        const costTypes = {
+            'Infant Care': data.costs.infant,
+            'Toddler Care': data.costs.toddler,
+            'Preschool': data.costs.preschool
+        };
 
-    Plotly.newPlot('timeSeriesViz', data, layout);
+        Object.entries(costTypes).forEach(([label, costs]) => {
+            traces.push({
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: label,
+                x: states,
+                y: costs,
+                text: costs.map((cost, i) => 
+                    `${states[i]}<br>${label}: $${cost ? cost.toFixed(2) : 'No data'}`
+                ),
+                hoverinfo: 'text',
+                line: {
+                    width: 2
+                },
+                marker: {
+                    size: 6
+                }
+            });
+        });
+
+        const layout = {
+            title: 'Childcare Costs Comparison',
+            xaxis: {
+                title: 'States',
+                tickangle: 45,
+                automargin: true
+            },
+            yaxis: {
+                title: 'Monthly Cost ($)',
+                automargin: true
+            },
+            height: 500,
+            margin: {
+                l: 60,
+                r: 30,
+                b: 80,
+                t: 50,
+                pad: 4
+            },
+            showlegend: true,
+            legend: {
+                x: 1,
+                xanchor: 'right',
+                y: 1
+            },
+            hovermode: 'closest'
+        };
+
+        Plotly.newPlot('timeSeriesViz', traces, layout);
+        console.log('Time series visualization created successfully');
+    } catch (error) {
+        console.error('Error creating time series visualization:', error);
+        document.getElementById('timeSeriesViz').innerHTML = 
+            '<div class="alert alert-danger">Error creating time series visualization. Please check the console for details.</div>';
+    }
 }
 
 // Update time series based on filters
-function updateTimeSeries(selectedState, costRange) {
-    // In a real implementation, this would filter the time series data based on selection
-    const layout = {
-        title: `Childcare Cost Trends (2008-2018) - ${selectedState === 'all' ? 'All States' : selectedState}`
-    };
+function updateTimeSeries(selectedState, costRange, data) {
+    if (!data || !data.states) return;
 
-    Plotly.relayout('timeSeriesViz', layout);
+    try {
+        let filteredData = {...data};
+        
+        if (selectedState !== 'all') {
+            const stateIndex = data.states.indexOf(selectedState);
+            if (stateIndex !== -1) {
+                filteredData = {
+                    states: [data.states[stateIndex]],
+                    costs: {
+                        infant: [data.costs.infant[stateIndex]],
+                        toddler: [data.costs.toddler[stateIndex]],
+                        preschool: [data.costs.preschool[stateIndex]]
+                    }
+                };
+            }
+        }
+
+        // Filter by cost range
+        const maxCost = parseFloat(costRange);
+        const validIndices = filteredData.states.map((_, i) => 
+            !isNaN(filteredData.costs.infant[i]) && 
+            filteredData.costs.infant[i] <= maxCost ? i : -1
+        ).filter(i => i !== -1);
+
+        filteredData = {
+            states: validIndices.map(i => filteredData.states[i]),
+            costs: {
+                infant: validIndices.map(i => filteredData.costs.infant[i]),
+                toddler: validIndices.map(i => filteredData.costs.toddler[i]),
+                preschool: validIndices.map(i => filteredData.costs.preschool[i])
+            }
+        };
+
+        initTimeSeries(filteredData);
+    } catch (error) {
+        console.error('Error updating time series:', error);
+    }
+}
+
+// Filter time series data based on selection
+function filterTimeSeriesData(data, selectedState, costRange) {
+    if (selectedState === 'all') {
+        return filterByCostRange(data, costRange);
+    }
+
+    const stateIndex = data.states.indexOf(selectedState);
+    if (stateIndex === -1) return data;
+
+    return {
+        states: [data.states[stateIndex]],
+        costs: {
+            infant: [data.costs.infant[stateIndex]],
+            toddler: [data.costs.toddler[stateIndex]],
+            preschool: [data.costs.preschool[stateIndex]]
+        },
+        metrics: {
+            annual_cost: [data.metrics.annual_cost[stateIndex]],
+            cost_burden: [data.metrics.cost_burden[stateIndex]],
+            working_parent_ratio: [data.metrics.working_parent_ratio[stateIndex]]
+        }
+    };
+}
+
+// Filter data by cost range
+function filterByCostRange(data, costRange) {
+    const maxCost = Math.max(...data.costs.infant);
+    const threshold = (costRange / 500) * maxCost;
+
+    const indices = data.costs.infant.map((cost, i) => cost <= threshold ? i : -1).filter(i => i !== -1);
+
+    return {
+        states: indices.map(i => data.states[i]),
+        costs: {
+            infant: indices.map(i => data.costs.infant[i]),
+            toddler: indices.map(i => data.costs.toddler[i]),
+            preschool: indices.map(i => data.costs.preschool[i])
+        },
+        metrics: {
+            annual_cost: indices.map(i => data.metrics.annual_cost[i]),
+            cost_burden: indices.map(i => data.metrics.cost_burden[i]),
+            working_parent_ratio: indices.map(i => data.metrics.working_parent_ratio[i])
+        }
+    };
 }
 
 // Add cost burden overlay

@@ -1,29 +1,35 @@
 // Initialize the map visualization
 function initMap(data) {
-    if (!data) {
-        console.error('No data provided for map visualization');
+    if (!data || !data.states || !data.costs || !data.costs.infant) {
+        console.error('Invalid data structure for map visualization');
         return;
     }
 
     try {
+        const locations = data.states;
+        const z = data.costs.infant.map(cost => cost || 0); // Handle NaN values
+        const text = locations.map((state, i) => 
+            `${state}<br>Monthly Cost: $${z[i] ? z[i].toFixed(2) : 'No data'}`
+        );
+
         const mapData = [{
             type: 'choropleth',
             locationmode: 'USA-states',
-            locations: data.states,
-            z: data.costs.infant,
-            text: data.states.map((state, i) => {
-                const stateName = getStateName(state);
-                return `State: ${stateName}<br>` +
-                    `Infant Care Cost: $${data.costs.infant[i].toFixed(2)}<br>` +
-                    `Cost Burden: ${data.metrics.cost_burden[i].toFixed(1)}%<br>` +
-                    `Working Parents: ${data.metrics.working_parent_ratio[i].toFixed(1)}%`;
-            }),
+            locations: locations,
+            z: z,
+            text: text,
+            hoverinformation: 'text',
             colorscale: 'Viridis',
             colorbar: {
                 title: 'Monthly Cost ($)',
                 thickness: 20
             },
-            hoverinfo: 'text'
+            marker: {
+                line: {
+                    color: 'rgb(255,255,255)',
+                    width: 2
+                }
+            }
         }];
 
         const layout = {
@@ -33,23 +39,54 @@ function initMap(data) {
                 showlakes: true,
                 lakecolor: 'rgb(255,255,255)'
             },
+            width: 1000,
             height: 600,
-            margin: { t: 50, l: 0, r: 0, b: 0 }
+            margin: {
+                l: 0,
+                r: 0,
+                b: 0,
+                t: 30,
+                pad: 4
+            }
         };
 
         Plotly.newPlot('mainViz', mapData, layout);
+        console.log('Map visualization created successfully');
     } catch (error) {
         console.error('Error creating map visualization:', error);
-        document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error creating map visualization</div>';
+        document.getElementById('mainViz').innerHTML = 
+            '<div class="alert alert-danger">Error creating map visualization. Please check the console for details.</div>';
     }
 }
 
 // Update map based on filters
 function updateMap(selectedState, costRange, data) {
-    if (!data) return;
+    if (!data || !data.states) return;
 
     try {
-        const filteredData = filterMapData(data, selectedState, costRange);
+        let filteredData = {...data};
+        
+        if (selectedState !== 'all') {
+            const stateIndex = data.states.indexOf(selectedState);
+            if (stateIndex !== -1) {
+                filteredData = {
+                    states: [data.states[stateIndex]],
+                    costs: {
+                        infant: [data.costs.infant[stateIndex]],
+                        toddler: [data.costs.toddler[stateIndex]],
+                        preschool: [data.costs.preschool[stateIndex]]
+                    }
+                };
+            }
+        }
+
+        // Filter by cost range
+        const maxCost = parseFloat(costRange);
+        filteredData.states = filteredData.states.filter((_, i) => 
+            !isNaN(filteredData.costs.infant[i]) && 
+            filteredData.costs.infant[i] <= maxCost
+        );
+
         initMap(filteredData);
     } catch (error) {
         console.error('Error updating map:', error);

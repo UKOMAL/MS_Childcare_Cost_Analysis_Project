@@ -1,25 +1,58 @@
 // Dashboard initialization and control logic
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load data first
-    const data = await loadData();
-    if (!data) {
-        console.error('Failed to load data');
-        document.getElementById('mainViz').innerHTML = '<p class="text-danger">Error loading data. Please try again later.</p>';
-        return;
+    try {
+        console.log('Initializing dashboard...');
+        
+        // Load data first
+        const data = await loadData();
+        if (!data) {
+            console.error('Failed to load data');
+            document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error loading data. Please check the console for details.</div>';
+            return;
+        }
+        console.log('Data loaded successfully:', data);
+        
+        // Initialize map visualization
+        console.log('Initializing map...');
+        initMap(data);
+        
+        // Initialize time series
+        console.log('Initializing time series...');
+        initTimeSeries(data);
+        
+        // Load state data
+        console.log('Loading states...');
+        loadStates(data.states);
+        
+        // Set initial cost range value
+        const maxCost = Math.max(...data.costs.infant.filter(cost => !isNaN(cost)));
+        const costRange = document.getElementById('costRange');
+        costRange.max = Math.ceil(maxCost);
+        costRange.value = maxCost;
+        console.log('Cost range set:', maxCost);
+        
+        // Event listeners for controls
+        console.log('Setting up event listeners...');
+        document.getElementById('stateSelect').addEventListener('change', () => {
+            console.log('State selected:', document.getElementById('stateSelect').value);
+            updateVisualizations(data);
+        });
+        
+        document.getElementById('costRange').addEventListener('input', () => {
+            console.log('Cost range changed:', document.getElementById('costRange').value);
+            updateVisualizations(data);
+        });
+        
+        document.getElementById('vizType').addEventListener('change', () => {
+            console.log('Visualization type changed:', document.getElementById('vizType').value);
+            switchVisualization(data);
+        });
+        
+        console.log('Dashboard initialization complete');
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showError('Error initializing dashboard. Please check the console for details.');
     }
-    
-    // Initialize visualizations with data
-    initMap(data);
-    initNetwork(data);
-    initTimeSeries(data);
-    
-    // Load state data
-    loadStates(data.states);
-    
-    // Event listeners for controls
-    document.getElementById('stateSelect').addEventListener('change', () => updateVisualizations(data));
-    document.getElementById('costRange').addEventListener('input', () => updateVisualizations(data));
-    document.getElementById('vizType').addEventListener('change', () => switchVisualization(data));
 });
 
 // Load state data
@@ -116,11 +149,13 @@ function switchVisualization(data) {
 // Load and process data
 async function loadData() {
     try {
-        const response = await fetch('./data/childcare_costs.json');
+        console.log('Fetching data from childcare_costs.json...');
+        const response = await fetch('data/childcare_costs.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        console.log('Data fetched successfully');
         return data;
     } catch (error) {
         console.error('Error loading data:', error);

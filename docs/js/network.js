@@ -1,79 +1,138 @@
-// Initialize the network visualization
+// Initialize network visualization
 function initNetwork(data) {
-    if (!data) {
-        console.error('No data provided for network visualization');
+    if (!data || !data.costs || !data.metrics) {
+        console.error('Invalid data structure for network visualization');
         return;
     }
 
     try {
-        // Create nodes from the data
         const nodes = [
-            { id: 'infant_cost', label: 'Infant Care Cost', value: Math.max(...data.costs.infant) },
-            { id: 'toddler_cost', label: 'Toddler Care Cost', value: Math.max(...data.costs.toddler) },
-            { id: 'preschool_cost', label: 'Preschool Cost', value: Math.max(...data.costs.preschool) },
-            { id: 'cost_burden', label: 'Cost Burden', value: Math.max(...data.metrics.cost_burden) },
-            { id: 'working_parents', label: 'Working Parents', value: Math.max(...data.metrics.working_parent_ratio) }
+            { id: 'infant', label: 'Infant Care', value: Math.max(...data.costs.infant.filter(x => !isNaN(x))) },
+            { id: 'toddler', label: 'Toddler Care', value: Math.max(...data.costs.toddler.filter(x => !isNaN(x))) },
+            { id: 'preschool', label: 'Preschool', value: Math.max(...data.costs.preschool.filter(x => !isNaN(x))) },
+            { id: 'burden', label: 'Cost Burden', value: Math.max(...data.metrics.cost_burden.filter(x => !isNaN(x))) },
+            { id: 'working', label: 'Working Parents', value: Math.max(...data.metrics.working_parent_ratio.filter(x => !isNaN(x))) }
         ];
 
-        // Calculate correlations for edges
         const edges = [
-            { from: 'infant_cost', to: 'toddler_cost', value: calculateCorrelation(data.costs.infant, data.costs.toddler) },
-            { from: 'toddler_cost', to: 'preschool_cost', value: calculateCorrelation(data.costs.toddler, data.costs.preschool) },
-            { from: 'infant_cost', to: 'cost_burden', value: calculateCorrelation(data.costs.infant, data.metrics.cost_burden) },
-            { from: 'cost_burden', to: 'working_parents', value: calculateCorrelation(data.metrics.cost_burden, data.metrics.working_parent_ratio) }
+            { from: 'infant', to: 'toddler', value: Math.abs(calculateCorrelation(data.costs.infant, data.costs.toddler)) },
+            { from: 'toddler', to: 'preschool', value: Math.abs(calculateCorrelation(data.costs.toddler, data.costs.preschool)) },
+            { from: 'infant', to: 'burden', value: Math.abs(calculateCorrelation(data.costs.infant, data.metrics.cost_burden)) },
+            { from: 'burden', to: 'working', value: Math.abs(calculateCorrelation(data.metrics.cost_burden, data.metrics.working_parent_ratio)) }
         ];
 
-        // Create the network visualization
-        const sankeyData = [{
-            type: 'sankey',
-            orientation: 'h',
-            node: {
-                pad: 15,
-                thickness: 30,
-                line: {
-                    color: 'black',
-                    width: 0.5
-                },
-                label: nodes.map(n => n.label),
-                color: nodes.map(() => getRandomColor())
-            },
-            link: {
-                source: edges.map(e => nodes.findIndex(n => n.id === e.from)),
-                target: edges.map(e => nodes.findIndex(n => n.id === e.to)),
-                value: edges.map(e => Math.abs(e.value) * 100),
-                color: edges.map(e => getEdgeColor(e.value))
+        const trace = {
+            type: 'scatter',
+            mode: 'markers+text',
+            x: nodes.map(node => node.value * Math.random()),  // Random x positions
+            y: nodes.map(node => node.value * Math.random()),  // Random y positions
+            text: nodes.map(node => node.label),
+            textposition: 'bottom center',
+            hoverinfo: 'text',
+            marker: {
+                size: nodes.map(node => Math.min(node.value, 50)),  // Cap the size
+                color: nodes.map((_, i) => `hsl(${(i * 360) / nodes.length}, 70%, 50%)`),
+                line: { width: 2, color: '#ffffff' }
             }
-        }];
-
-        const layout = {
-            title: 'Childcare Cost Relationships Network',
-            font: { size: 12 },
-            height: 600,
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)'
         };
 
-        Plotly.newPlot('mainViz', sankeyData, layout);
+        const edgeTraces = edges.map(edge => {
+            const fromNode = nodes.find(n => n.id === edge.from);
+            const toNode = nodes.find(n => n.id === edge.to);
+            return {
+                type: 'scatter',
+                mode: 'lines',
+                x: [fromNode.value * Math.random(), toNode.value * Math.random()],
+                y: [fromNode.value * Math.random(), toNode.value * Math.random()],
+                line: {
+                    width: edge.value * 5,  // Scale line width by correlation
+                    color: 'rgba(150,150,150,0.5)'
+                },
+                hoverinfo: 'text',
+                text: `Correlation: ${edge.value.toFixed(2)}`
+            };
+        });
+
+        const layout = {
+            title: 'Childcare Cost Network Analysis',
+            showlegend: false,
+            hovermode: 'closest',
+            margin: { t: 50, l: 50, r: 50, b: 50 },
+            xaxis: { showgrid: false, zeroline: false, showticklabels: false },
+            yaxis: { showgrid: false, zeroline: false, showticklabels: false },
+            width: 800,
+            height: 600
+        };
+
+        Plotly.newPlot('mainViz', [trace, ...edgeTraces], layout);
+        console.log('Network visualization created successfully');
     } catch (error) {
         console.error('Error creating network visualization:', error);
-        document.getElementById('mainViz').innerHTML = '<div class="alert alert-danger">Error creating network visualization</div>';
+        document.getElementById('mainViz').innerHTML = 
+            '<div class="alert alert-danger">Error creating network visualization. Please check the console for details.</div>';
     }
 }
 
 // Calculate correlation between two arrays
 function calculateCorrelation(array1, array2) {
-    const n = array1.length;
-    if (n !== array2.length || n === 0) return 0;
-
-    const mean1 = array1.reduce((a, b) => a + b) / n;
-    const mean2 = array2.reduce((a, b) => a + b) / n;
-
-    const variance1 = array1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
-    const variance2 = array2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
-
-    const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
-
+    // Filter out NaN values
+    const validPairs = array1.map((val, idx) => [val, array2[idx]])
+        .filter(pair => !isNaN(pair[0]) && !isNaN(pair[1]));
+    
+    if (validPairs.length < 2) return 0;
+    
+    const x = validPairs.map(pair => pair[0]);
+    const y = validPairs.map(pair => pair[1]);
+    
+    const n = x.length;
+    const mean1 = x.reduce((a, b) => a + b) / n;
+    const mean2 = y.reduce((a, b) => a + b) / n;
+    
+    const variance1 = x.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
+    const variance2 = y.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+    
+    if (variance1 === 0 || variance2 === 0) return 0;
+    
+    const covariance = x.reduce((a, b, i) => a + (b - mean1) * (y[i] - mean2), 0) / n;
     return covariance / Math.sqrt(variance1 * variance2);
+}
+
+// Update network based on filters
+function updateNetwork(selectedState, costRange, data) {
+    if (!data || !data.states) return;
+
+    try {
+        let filteredData = {...data};
+        
+        if (selectedState !== 'all') {
+            const stateIndex = data.states.indexOf(selectedState);
+            if (stateIndex !== -1) {
+                Object.keys(filteredData.costs).forEach(key => {
+                    filteredData.costs[key] = [filteredData.costs[key][stateIndex]];
+                });
+                Object.keys(filteredData.metrics).forEach(key => {
+                    filteredData.metrics[key] = [filteredData.metrics[key][stateIndex]];
+                });
+            }
+        }
+
+        // Filter by cost range
+        const maxCost = parseFloat(costRange);
+        const validIndices = filteredData.costs.infant
+            .map((cost, i) => (!isNaN(cost) && cost <= maxCost ? i : -1))
+            .filter(i => i !== -1);
+
+        Object.keys(filteredData.costs).forEach(key => {
+            filteredData.costs[key] = validIndices.map(i => filteredData.costs[key][i]);
+        });
+        Object.keys(filteredData.metrics).forEach(key => {
+            filteredData.metrics[key] = validIndices.map(i => filteredData.metrics[key][i]);
+        });
+
+        initNetwork(filteredData);
+    } catch (error) {
+        console.error('Error updating network:', error);
+    }
 }
 
 // Get random color for nodes
@@ -89,40 +148,6 @@ function getRandomColor() {
 function getEdgeColor(correlation) {
     const value = Math.abs(correlation);
     return `rgba(31, 119, 180, ${value})`;
-}
-
-// Update network based on filters
-function updateNetwork(selectedState, costRange, data) {
-    if (!data || !selectedState) return;
-
-    try {
-        const filteredData = filterDataByState(data, selectedState);
-        initNetwork(filteredData);
-    } catch (error) {
-        console.error('Error updating network:', error);
-    }
-}
-
-// Filter data by state
-function filterDataByState(data, selectedState) {
-    if (selectedState === 'all') return data;
-
-    const stateIndex = data.states.indexOf(selectedState);
-    if (stateIndex === -1) return data;
-
-    return {
-        states: [data.states[stateIndex]],
-        costs: {
-            infant: [data.costs.infant[stateIndex]],
-            toddler: [data.costs.toddler[stateIndex]],
-            preschool: [data.costs.preschool[stateIndex]]
-        },
-        metrics: {
-            annual_cost: [data.metrics.annual_cost[stateIndex]],
-            cost_burden: [data.metrics.cost_burden[stateIndex]],
-            working_parent_ratio: [data.metrics.working_parent_ratio[stateIndex]]
-        }
-    };
 }
 
 // Create force-directed graph
