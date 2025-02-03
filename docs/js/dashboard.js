@@ -149,13 +149,8 @@ function switchVisualization(data) {
 // Load and process data
 async function loadData() {
     try {
-        console.log('Fetching data from childcare_costs.json...');
-        // Get the base URL for GitHub Pages
-        const baseUrl = window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
-            ? '/MS_Childcare_Cost_Analysis_Project'
-            : '';
-        
-        const dataUrl = `${baseUrl}/data/childcare_costs.json`;
+        console.log('Starting data loading process...');
+        const dataUrl = './data/childcare_costs.json';
         console.log('Attempting to fetch data from:', dataUrl);
         
         const response = await fetch(dataUrl);
@@ -193,8 +188,8 @@ async function loadData() {
                     <h4>Error Loading Data</h4>
                     <p>${error.message}</p>
                     <p>Please check the browser console for more details.</p>
-                    <p><small>Current path: ${window.location.pathname}</small></p>
-                    <p><small>Attempted to load data from: ${window.location.origin}${window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') ? '/MS_Childcare_Cost_Analysis_Project' : ''}/data/childcare_costs.json</small></p>
+                    <p><small>Current URL: ${window.location.href}</small></p>
+                    <p><small>Attempted to load data from: ${new URL('./data/childcare_costs.json', window.location.href).href}</small></p>
                 </div>
             `;
         }
