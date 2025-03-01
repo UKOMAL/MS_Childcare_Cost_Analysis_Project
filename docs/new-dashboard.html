@@ -48,6 +48,46 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        .static-viz-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .viz-category {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        .viz-category h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .static-viz-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .static-viz-card:hover {
+            transform: translateY(-5px);
+        }
+        .static-viz-card img {
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .static-viz-card h4 {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .static-viz-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -105,6 +145,95 @@
                 <div class="col-md-9">
                     <div class="visualization-container">
                         <div id="mainViz" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Static Visualizations Section -->
+            <div class="static-viz-section mt-4">
+                <h2 class="text-center mb-4">Detailed Analysis Visualizations</h2>
+                
+                <!-- Geographical Analysis -->
+                <div class="viz-category mb-5">
+                    <h3>Geographical Analysis</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="img-fluid">
+                                <h4>State-wise Childcare Costs Distribution</h4>
+                                <p>Geographical distribution of childcare costs across the United States</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" class="img-fluid">
+                                <h4>Urban vs Rural Cost Comparison</h4>
+                                <p>Analysis of childcare costs in urban versus rural areas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trend Analysis -->
+                <div class="viz-category mb-5">
+                    <h3>Trend Analysis</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/time_series.png" alt="Time Series Analysis" class="img-fluid">
+                                <h4>Cost Trends Over Time</h4>
+                                <p>Historical trends in childcare costs (2010-2023)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/cost_trends.png" alt="Cost Trends" class="img-fluid">
+                                <h4>Cost Growth Patterns</h4>
+                                <p>Analysis of cost growth patterns across different regions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistical Analysis -->
+                <div class="viz-category mb-5">
+                    <h3>Statistical Analysis</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/correlation.png" alt="Correlation Analysis" class="img-fluid">
+                                <h4>Cost Correlation Analysis</h4>
+                                <p>Correlation between different factors affecting childcare costs</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/cost_distribution.png" alt="Cost Distribution" class="img-fluid">
+                                <h4>Cost Distribution Analysis</h4>
+                                <p>Statistical distribution of childcare costs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Infographics -->
+                <div class="viz-category mb-5">
+                    <h3>Key Insights Infographics</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/infographic_1.png" alt="Infographic 1" class="img-fluid">
+                                <h4>Cost Impact Overview</h4>
+                                <p>Key statistics and impacts of childcare costs</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="static-viz-card">
+                                <img src="images/infographic_2.png" alt="Infographic 2" class="img-fluid">
+                                <h4>Regional Comparisons</h4>
+                                <p>Regional variations and comparative analysis</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
