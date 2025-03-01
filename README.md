@@ -1,87 +1,74 @@
 # U.S. Childcare Cost Analysis Project
 
 ## Project Overview
-This project provides an interactive analysis of childcare costs across the United States, featuring both an interactive dashboard and a comprehensive case study. The project aims to help users understand the variations in childcare costs across different states and age groups.
+A comprehensive analysis of childcare costs across the United States, examining regional variations, trends, and socioeconomic impacts.
 
-## Features
-- **Interactive Dashboard**
-  - US Map visualization with state-by-state data
-  - Bar charts for cost comparisons
-  - Line charts for trend analysis
-  - Pie charts for cost distribution
-  - Scatter plots for variation analysis
-  - Data export functionality (CSV)
-  - Key insights panel
+## Key Features
 
-- **Enhanced Case Study**
-  - Comprehensive analysis of childcare costs
-  - Professional styling with banners and borders
-  - Interactive elements and hover effects
-  - Print-friendly layout
-  - Citations and methodology
+### Interactive Dashboard
+Access our interactive dashboard [here](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/new-dashboard.html) featuring:
+- State Choropleth Map
+- Female Labor Force Participation Map
+- Cost Spiral Analysis
+- Correlation Analysis
+- Regional Analysis
+- Cost Trends Visualization
 
-## Project Structure
-```
-docs/
-├── index.html              # Landing page
-├── new-dashboard.html      # Interactive dashboard
-├── enhanced-case-study.html# Detailed case study
-├── images/                 # Project images
-├── js/                    # JavaScript files
-└── data/                  # Data files
-```
+### Detailed Case Study
+View our in-depth case study [here](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/enhanced-case-study.html) containing:
 
-## Viewing the Project
-The project is hosted on GitHub Pages and can be accessed at:
-https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/
+#### Geographic Analysis
+- State-wise Cost Distribution Map
+- Female Labor Force Participation Analysis
 
-### Local Development
-1. Clone the repository:
-```bash
-git clone https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project.git
-```
-2. Navigate to the project directory:
-```bash
-cd MS_Childcare_Cost_Analysis_Project
-```
-3. Open `docs/index.html` in your web browser
+#### Cost Analysis
+- Cost Spiral Visualization
+- Family Cost Burden Analysis
 
-## Technologies Used
-- HTML5
-- CSS3 (with Bootstrap 5)
-- JavaScript
-- Plotly.js for visualizations
-- Python (for data processing)
+#### Trend Analysis
+- Historical Cost Trends (2010-2023)
+- Cost vs. Income Comparison
+
+#### Statistical Analysis
+- Factor Correlation Matrix
+- Cost Distribution Violin Plot
+
+#### Urban vs Rural Analysis
+- Urban-Rural Cost Comparison
+- Childcare Accessibility Map
+
+#### Impact Analysis
+- Workforce Participation Impact
+- Economic Impact Assessment
 
 ## Data Sources
 - U.S. Census Bureau
-- Child Care Aware of America
 - Bureau of Labor Statistics
+- Child Care Aware of America
+- State-level childcare licensing databases
 
-## Features Meeting Rubric Requirements
-1. **Data Visualization**
-   - Multiple chart types (map, bar, line, pie, scatter)
-   - Interactive elements
-   - Responsive design
-   - Data filtering options
+## Technologies Used
+- HTML5/CSS3
+- JavaScript
+- Plotly.js
+- Bootstrap 5
 
-2. **Analysis**
-   - Comprehensive case study
-   - Statistical analysis
-   - Trend identification
-   - Cost comparisons
+## How to Use
+1. Visit the GitHub Pages site: [https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/)
+2. Navigate to either the Interactive Dashboard or Detailed Case Study
+3. Explore the various visualizations and analyses
 
-3. **Technical Implementation**
-   - Clean, modular code
-   - Proper documentation
-   - Version control
-   - Responsive design
+## Repository Structure
+```
+docs/
+├── new-dashboard.html      # Interactive dashboard with real-time visualizations
+├── enhanced-case-study.html # Comprehensive analysis with all visualizations
+├── images/                 # Visualization images and assets
+└── styles/                # CSS stylesheets
+```
 
-4. **User Experience**
-   - Intuitive navigation
-   - Clear data presentation
-   - Interactive features
-   - Mobile responsiveness
+## Contributing
+Feel free to submit issues and enhancement requests.
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.

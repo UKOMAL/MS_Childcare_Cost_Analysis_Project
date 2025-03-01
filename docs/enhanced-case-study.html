@@ -66,6 +66,44 @@
             border-radius: 8px;
             margin: 15px 0;
         }
+        .viz-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .viz-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .viz-container:hover {
+            transform: translateY(-5px);
+        }
+        .viz-image {
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        h3 {
+            color: #2c3e50;
+            border-left: 5px solid #FF6B6B;
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+        h4 {
+            color: #2c3e50;
+            margin-top: 15px;
+            font-size: 1.2rem;
+        }
+        p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -175,22 +213,131 @@
 
         <div class="section">
             <h2>Interactive Visualizations</h2>
-            <div id="costMap" class="viz-container"></div>
-            <div class="story-section">
-                <h5>Regional Cost Distribution</h5>
-                <p>The U.S. map reveals striking regional patterns in childcare costs. Coastal states, particularly California ($1,600) and New York ($1,500), bear the highest burden. This coastal premium reflects not just higher costs of living, but also stricter regulations and higher operational costs for childcare centers.</p>
-            </div>
             
-            <div id="costTrends" class="viz-container"></div>
-            <div class="story-section">
-                <h5>Five-Year Cost Evolution</h5>
-                <p>Our trend analysis shows a consistent upward trajectory in childcare costs since 2019. Infant care costs have risen more sharply than other categories, creating particular challenges for new parents. This trend suggests a growing affordability crisis that requires policy intervention.</p>
+            <!-- Geographic Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Geographic Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="img-fluid viz-image">
+                            <h4>State-wise Childcare Cost Distribution</h4>
+                            <p>The choropleth map reveals significant regional variations in childcare costs, with coastal states showing consistently higher expenses.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/female_labor_map.png" alt="Female Labor Force Map" class="img-fluid viz-image">
+                            <h4>Female Labor Force Participation</h4>
+                            <p>Analysis of female workforce participation rates shows correlation with childcare accessibility.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div id="costComparison" class="viz-container"></div>
-            <div class="story-section">
-                <h5>Care Type Cost Analysis</h5>
-                <p>The bar chart comparison reveals how costs vary by care type within each state. The consistently higher costs for infant care (shown in red) reflect the higher staff-to-child ratios required for infant care. Preschool care (shown in green) tends to be more affordable, partly due to public pre-K programs in many states.</p>
+
+            <!-- Cost Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Cost Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/cost_spiral.png" alt="Cost Spiral Analysis" class="img-fluid viz-image">
+                            <h4>Cost Spiral Analysis</h4>
+                            <p>Spiral visualization showing the progression of childcare costs across states.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/cost_burden.png" alt="Cost Burden Analysis" class="img-fluid viz-image">
+                            <h4>Family Cost Burden Analysis</h4>
+                            <p>Visualization of how childcare costs impact family budgets across different income levels.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Trend Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/time_series.png" alt="Time Series Analysis" class="img-fluid viz-image">
+                            <h4>Historical Cost Trends</h4>
+                            <p>Analysis of childcare cost evolution from 2010 to 2023.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/cost_vs_income.png" alt="Cost vs Income" class="img-fluid viz-image">
+                            <h4>Cost vs. Income Trends</h4>
+                            <p>Comparison of childcare cost growth against income growth.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Statistical Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/correlation_matrix.png" alt="Correlation Analysis" class="img-fluid viz-image">
+                            <h4>Factor Correlation Analysis</h4>
+                            <p>Correlation matrix showing relationships between various cost factors.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/violin_plot.png" alt="Cost Distribution" class="img-fluid viz-image">
+                            <h4>Cost Distribution Analysis</h4>
+                            <p>Violin plot showing the distribution of costs across different care types.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Urban vs Rural Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Urban vs Rural Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" class="img-fluid viz-image">
+                            <h4>Urban-Rural Cost Comparison</h4>
+                            <p>Analysis of cost differences between urban and rural areas.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/accessibility_map.png" alt="Accessibility Analysis" class="img-fluid viz-image">
+                            <h4>Childcare Accessibility</h4>
+                            <p>Geographic analysis of childcare facility accessibility.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Analysis -->
+            <div class="viz-section mb-5">
+                <h3>Impact Analysis</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/workforce_impact.png" alt="Workforce Impact" class="img-fluid viz-image">
+                            <h4>Workforce Participation Impact</h4>
+                            <p>Analysis of how childcare costs affect workforce participation.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="viz-container">
+                            <img src="images/economic_impact.png" alt="Economic Impact" class="img-fluid viz-image">
+                            <h4>Economic Impact Analysis</h4>
+                            <p>Visualization of broader economic impacts of childcare costs.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
