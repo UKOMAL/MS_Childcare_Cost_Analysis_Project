@@ -154,42 +154,66 @@ function createEdges(data, nodes) {
 // Create node trace
 function createNodeTrace(nodes) {
     return {
-        type: 'scatter',
-        mode: 'markers+text',
         x: nodes.map(node => node.x),
         y: nodes.map(node => node.y),
-        text: nodes.map(node => node.label),
-        textposition: 'bottom center',
-        hoverinfo: 'text',
-        hovertext: nodes.map(node => 
-            `${node.label}<br>Value: ${node.value.toFixed(2)}`
-        ),
+        mode: 'markers+text',
         marker: {
-            size: nodes.map(node => Math.min(40, Math.max(20, node.value / 10))),
+            size: nodes.map(node => Math.max(20, Math.min(50, node.value / 10))),
             color: nodes.map(node => node.color),
-            line: { width: 2, color: '#ffffff' }
-        }
+            line: {
+                width: 2,
+                color: 'white'
+            },
+            opacity: 0.9,
+            sizemode: 'diameter'
+        },
+        text: nodes.map(node => node.label),
+        textposition: 'top center',
+        textfont: {
+            family: 'Arial, sans-serif',
+            size: 14,
+            color: '#2c3e50'
+        },
+        hoverinfo: 'text',
+        hovertext: nodes.map(node => `<b>${node.label}</b><br>Value: ${node.value.toFixed(2)}`),
+        name: 'Nodes',
+        type: 'scatter'
     };
 }
 
 // Create edge traces
 function createEdgeTraces(nodes, edges) {
     return edges.map(edge => {
-        const fromNode = nodes.find(n => n.id === edge.from);
-        const toNode = nodes.find(n => n.id === edge.to);
+        const source = nodes.find(node => node.id === edge.from);
+        const target = nodes.find(node => node.id === edge.to);
+        
+        if (!source || !target) {
+            console.error('Edge references unknown node:', edge);
+            return null;
+        }
+        
+        // Calculate edge width based on correlation strength
+        const width = Math.max(1, Math.abs(edge.value) * 8);
+        
+        // Determine color based on positive/negative correlation
+        const color = edge.value >= 0 ? 'rgba(44, 160, 44, 0.7)' : 'rgba(214, 39, 40, 0.7)';
+        
         return {
-            type: 'scatter',
+            x: [source.x, target.x],
+            y: [source.y, target.y],
             mode: 'lines',
-            x: [fromNode.x, toNode.x],
-            y: [fromNode.y, toNode.y],
             line: {
-                width: Math.max(1, edge.value * 10),
-                color: `rgba(150,150,150,${Math.max(0.2, edge.value)})`
+                width: width,
+                color: color,
+                shape: 'spline',
+                smoothing: 1.3
             },
             hoverinfo: 'text',
-            hovertext: `Correlation: ${edge.value.toFixed(2)}`
+            hovertext: `<b>${source.label} → ${target.label}</b><br>Correlation: ${edge.value.toFixed(2)}`,
+            name: `${source.label} - ${target.label}`,
+            type: 'scatter'
         };
-    });
+    }).filter(trace => trace !== null);
 }
 
 // Calculate correlation between two arrays
