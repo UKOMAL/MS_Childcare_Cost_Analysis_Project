@@ -18,11 +18,18 @@ async function initializeDashboard() {
             '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-3">Loading dashboard data...</p></div>';
         
         // Load data first
-        const data = await loadData();
-        if (!data) {
-            throw new Error('Failed to load data: Data is null or undefined');
+        let data;
+        try {
+            data = await loadData();
+            if (!data) {
+                throw new Error('Failed to load data: Data is null or undefined');
+            }
+            console.log('Data loaded successfully:', data);
+        } catch (dataError) {
+            console.error('Error loading data:', dataError);
+            showError('Data loading failed', dataError.message);
+            return false;
         }
-        console.log('Data loaded successfully:', data);
         
         // Store data globally
         globalData = data;
@@ -44,7 +51,7 @@ async function initializeDashboard() {
             loadStates(data.states);
             
             // Set initial cost range value
-            const validCosts = data.costs.infant.filter(cost => !isNaN(cost) && cost !== null);
+            const validCosts = data.costs.infant.filter(cost => cost !== null && !isNaN(cost));
             const maxCost = validCosts.length > 0 ? Math.max(...validCosts) : 1000;
             const costRange = document.getElementById('costRange');
             if (costRange) {
@@ -66,12 +73,12 @@ async function initializeDashboard() {
         } catch (vizError) {
             console.error('Error initializing visualizations:', vizError);
             showError('Visualization initialization failed', vizError.message);
-            throw new Error(`Visualization initialization failed: ${vizError.message}`);
+            return false;
         }
     } catch (error) {
         console.error('Error in dashboard initialization:', error);
         showError('Dashboard initialization failed', error.message);
-        throw error;
+        return false;
     }
 }
 
@@ -158,9 +165,14 @@ async function updateVisualizations() {
     }
     
     try {
-        const selectedState = document.getElementById('stateSelect')?.value || 'all';
-        const costRange = parseFloat(document.getElementById('costRange')?.value || 0);
-        const vizType = document.getElementById('vizType')?.value || 'map';
+        // Get filter values with fallbacks
+        const stateSelect = document.getElementById('stateSelect');
+        const costRangeInput = document.getElementById('costRange');
+        const vizTypeSelect = document.getElementById('vizType');
+        
+        const selectedState = stateSelect ? stateSelect.value : 'all';
+        const costRange = costRangeInput ? parseFloat(costRangeInput.value) : 0;
+        const vizType = vizTypeSelect ? vizTypeSelect.value : 'map';
         
         console.log('Updating visualizations with filters:', { selectedState, costRange, vizType });
         
@@ -174,25 +186,31 @@ async function updateVisualizations() {
         updateAverageMetrics(globalData);
         
         // Update the active visualization based on selected type
-        switch(vizType) {
-            case 'map':
-                await updateMap(selectedState, costRange, globalData);
-                break;
-            case 'network':
-                await updateNetwork(selectedState, costRange, globalData);
-                break;
-            case 'sankey':
-                await updateSankey(selectedState, costRange, globalData);
-                break;
-            case '3d':
-                await update3DScatter(selectedState, costRange, globalData);
-                break;
-            default:
-                console.warn(`Unknown visualization type: ${vizType}, defaulting to map`);
-                await updateMap(selectedState, costRange, globalData);
+        try {
+            switch(vizType) {
+                case 'map':
+                    await updateMap(selectedState, costRange, globalData);
+                    break;
+                case 'network':
+                    await updateNetwork(selectedState, costRange, globalData);
+                    break;
+                case 'sankey':
+                    await updateSankey(selectedState, costRange, globalData);
+                    break;
+                case '3d':
+                    await update3DScatter(selectedState, costRange, globalData);
+                    break;
+                default:
+                    console.warn(`Unknown visualization type: ${vizType}, defaulting to map`);
+                    await updateMap(selectedState, costRange, globalData);
+            }
+            
+            console.log('Visualizations updated successfully');
+        } catch (vizError) {
+            console.error(`Error updating ${vizType} visualization:`, vizError);
+            showError(`${vizType.charAt(0).toUpperCase() + vizType.slice(1)} visualization error`, 
+                      `Failed to update ${vizType} visualization: ${vizError.message}`);
         }
-        
-        console.log('Visualizations updated successfully');
     } catch (error) {
         console.error('Error updating visualizations:', error);
         showError('Visualization update failed', error.message);
@@ -292,18 +310,35 @@ async function loadData() {
             throw new Error('Invalid data structure: missing metrics data');
         }
         
-        // Clean and normalize data
+        // Clean and normalize data - improved handling of NaN values
         Object.keys(data.costs).forEach(key => {
-            data.costs[key] = data.costs[key].map(val => 
-                isNaN(val) || val === null ? null : parseFloat(val.toFixed(2))
-            );
+            data.costs[key] = data.costs[key].map(val => {
+                // Check for NaN, null, or undefined values
+                if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
+                    console.log(`Found null/NaN value in ${key} data, replacing with null`);
+                    return null;
+                }
+                return parseFloat(parseFloat(val).toFixed(2));
+            });
         });
         
         Object.keys(data.metrics).forEach(key => {
-            data.metrics[key] = data.metrics[key].map(val => 
-                isNaN(val) || val === null ? null : parseFloat(val.toFixed(2))
-            );
+            data.metrics[key] = data.metrics[key].map(val => {
+                // Check for NaN, null, or undefined values
+                if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
+                    console.log(`Found null/NaN value in ${key} metrics, replacing with null`);
+                    return null;
+                }
+                return parseFloat(parseFloat(val).toFixed(2));
+            });
         });
+        
+        // Add data validation log
+        console.log('Data validation summary:');
+        console.log('- States count:', data.states.length);
+        console.log('- Valid infant costs:', data.costs.infant.filter(c => c !== null).length);
+        console.log('- Valid toddler costs:', data.costs.toddler.filter(c => c !== null).length);
+        console.log('- Valid preschool costs:', data.costs.preschool.filter(c => c !== null).length);
         
         console.log('Data processed successfully');
         return data;
