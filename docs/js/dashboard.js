@@ -92,6 +92,13 @@ function updateVisualizations(data) {
         const costRange = document.getElementById('costRange').value;
         const vizType = document.getElementById('vizType').value;
         
+        // Update cost range value display
+        document.getElementById('costRangeValue').textContent = 
+            `$0 - $${costRange}`;
+        
+        // Update average metrics
+        updateAverageMetrics(data);
+        
         switch(vizType) {
             case 'map':
                 updateMap(selectedState, costRange, data);
@@ -346,4 +353,32 @@ function getRandomColor() {
         '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
     ];
     return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Calculate and display average metrics
+function updateAverageMetrics(data) {
+    if (!data || !data.costs || !data.metrics) return;
+
+    try {
+        // Calculate averages
+        const avgInfantCost = calculateAverage(data.costs.infant);
+        const avgCostBurden = calculateAverage(data.metrics.cost_burden);
+        const avgWorkingParents = calculateAverage(data.metrics.working_parent_ratio);
+
+        // Update UI
+        document.getElementById('avgInfantCost').textContent = 
+            `$${avgInfantCost.toFixed(2)}`;
+        document.getElementById('avgCostBurden').textContent = 
+            `${avgCostBurden.toFixed(1)}%`;
+        document.getElementById('avgWorkingParents').textContent = 
+            `${avgWorkingParents.toFixed(1)}%`;
+    } catch (error) {
+        console.error('Error updating average metrics:', error);
+    }
+}
+
+// Calculate average of array, excluding null/NaN values
+function calculateAverage(array) {
+    const validValues = array.filter(val => val !== null && !isNaN(val));
+    return validValues.reduce((a, b) => a + b, 0) / validValues.length;
 } 
