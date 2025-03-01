@@ -23,7 +23,7 @@ This project provides an interactive dashboard for visualizing and analyzing chi
 ## Viewing the Dashboard
 
 The dashboard is hosted on GitHub Pages and can be accessed at:
-[https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/new-dashboard.html](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/new-dashboard.html)
+[https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/complete-dashboard.html](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/complete-dashboard.html)
 
 ### Alternative Access Methods
 
