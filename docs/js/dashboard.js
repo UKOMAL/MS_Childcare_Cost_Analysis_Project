@@ -156,8 +156,14 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Starting data loading process...');
-        // Use relative path from base href
-        const response = await fetch('data/childcare_costs.json');
+        // Get the base URL for GitHub Pages
+        const baseUrl = window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
+            ? '/MS_Childcare_Cost_Analysis_Project/'
+            : '/';
+        const dataUrl = `${baseUrl}data/childcare_costs.json`;
+        
+        console.log('Attempting to load data from:', dataUrl);
+        const response = await fetch(dataUrl);
         console.log('Response status:', response.status);
         
         if (!response.ok) {
@@ -165,10 +171,11 @@ async function loadData() {
         }
         
         const data = await response.json();
-        console.log('Data loaded:', data);
+        console.log('Data loaded successfully:', data);
         
         // Validate data structure
-        if (!data.states || !data.costs || !data.metrics) {
+        if (!data || !data.states || !data.costs || !data.metrics) {
+            console.error('Invalid data structure:', data);
             throw new Error('Invalid data structure: missing required fields');
         }
         
@@ -188,7 +195,11 @@ async function loadData() {
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        showError('Error loading data', `${error.message}. Please check if the data file exists at: ${window.location.href}data/childcare_costs.json`);
+        showError('Error Loading Data', 
+            `Failed to load data: ${error.message}<br>
+            Current URL: ${window.location.href}<br>
+            Please check the browser console for more details.`
+        );
         return null;
     }
 }
@@ -381,4 +392,15 @@ function updateAverageMetrics(data) {
 function calculateAverage(array) {
     const validValues = array.filter(val => val !== null && !isNaN(val));
     return validValues.reduce((a, b) => a + b, 0) / validValues.length;
-} 
+}
+
+// Export necessary functions
+export {
+    initializeDashboard,
+    loadData,
+    updateVisualizations,
+    switchVisualization,
+    showError,
+    updateAverageMetrics,
+    calculateAverage
+}; 
