@@ -307,58 +307,70 @@
 
         // Create Spiral Plot
         function createSpiralPlot(container) {
-            const states = [
-                {state: 'Massachusetts', cost: 20415}, {state: 'Washington', cost: 19362},
-                {state: 'California', cost: 18657}, {state: 'New York', cost: 18425},
-                {state: 'Connecticut', cost: 17895}, {state: 'New Jersey', cost: 17682},
-                {state: 'Colorado', cost: 17452}, {state: 'Illinois', cost: 16842},
-                {state: 'Minnesota', cost: 16087}, {state: 'Oregon', cost: 15847}
-            ];
+            const stateData = {
+                states: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 
+                        'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 
+                        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 
+                        'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
+                costs: [13521, 18500, 15632, 12965, 18657, 17452, 17895, 12243, 15289, 15112, 18200, 11754, 16842, 10864, 11042,
+                       11131, 13342, 13198, 12632, 12132, 20415, 14102, 16087, 12854, 10953, 11665, 11220, 11932, 12432, 17682,
+                       11487, 18425, 14903, 11398, 14321, 13087, 15847, 14562, 12321, 13654, 11309, 13856, 15427, 11843, 12521,
+                       14778, 19362, 12743, 13987, 11576, 21500]
+            };
 
-            states.sort((a, b) => b.cost - a.cost);
+            // Sort states by cost for better visualization
+            const sortedIndices = stateData.costs.map((cost, index) => ({cost, index}))
+                .sort((a, b) => b.cost - a.cost)
+                .map(item => item.index);
 
-            const points = states.map((state, i) => {
-                const angle = i * 0.6;
-                const radius = i * 20;
+            const sortedStates = sortedIndices.map(i => stateData.states[i]);
+            const sortedCosts = sortedIndices.map(i => stateData.costs[i]);
+
+            // Create points in a spiral arrangement
+            const points = sortedStates.map((state, i) => {
+                const angle = i * 0.5 * Math.PI; // Adjust angle between points
+                const radius = 200 - (i * 3); // Decreasing radius for spiral effect
                 return {
                     x: radius * Math.cos(angle),
                     y: radius * Math.sin(angle),
-                    state: state.state,
-                    cost: state.cost
+                    state: state,
+                    cost: sortedCosts[i]
                 };
             });
 
-            // Add connecting line trace
+            // Create connecting lines between points
             const lineTrace = {
                 x: points.map(p => p.x),
                 y: points.map(p => p.y),
                 mode: 'lines',
                 type: 'scatter',
                 line: {
-                    color: 'rgba(70, 130, 180, 0.6)',
+                    color: '#a8b8ff',
                     width: 2
                 },
                 hoverinfo: 'none'
             };
 
-            const bubbleTrace = {
+            // Create points with state information
+            const pointTrace = {
                 x: points.map(p => p.x),
                 y: points.map(p => p.y),
                 mode: 'markers+text',
                 type: 'scatter',
                 marker: {
-                    size: points.map(p => p.cost/800),
+                    size: points.map(p => (p.cost / 500)),
                     color: points.map(p => p.cost),
-                    colorscale: 'Viridis',
+                    colorscale: [
+                        [0, '#6b7ddf'],    // Dark blue for lowest values
+                        [0.5, '#95e4d4'],  // Teal for middle values
+                        [1, '#e8f48c']     // Light yellow for highest values
+                    ],
                     showscale: true,
                     colorbar: {
                         title: 'Annual Cost ($)',
+                        tickformat: '$,.0f',
                         thickness: 15,
                         len: 0.7
-                    },
-                    line: {
-                        color: 'white',
-                        width: 2
                     }
                 },
                 text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
@@ -368,66 +380,81 @@
 
             const layout = {
                 title: {
-                    text: 'Childcare Costs by State (Spiral View)',
-                    y: 0.95
+                    text: 'State Childcare Costs (Spiral View)',
+                    font: {
+                        size: 24,
+                        color: '#2c3e50'
+                    }
                 },
                 showlegend: false,
                 height: container.offsetHeight,
                 width: container.offsetWidth,
+                margin: { t: 100, l: 100, r: 100, b: 100 },
                 xaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-200, 200],
-                    fixedrange: true
+                    range: [-250, 250]
                 },
                 yaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-200, 200],
+                    range: [-250, 250],
                     scaleanchor: 'x',
-                    scaleratio: 1,
-                    fixedrange: true
+                    scaleratio: 1
                 },
-                margin: {
-                    l: 50,
-                    r: 50,
-                    t: 50,
-                    b: 50,
-                    pad: 0
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                autosize: false
+                paper_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            const config = {
+            Plotly.newPlot(container, [lineTrace, pointTrace], layout, {
                 responsive: true,
                 displayModeBar: false
-            };
-
-            Plotly.newPlot(container, [lineTrace, bubbleTrace], layout, config);
+            });
         }
 
         // Create Enhanced Heat Map
         function createHeatMap(container) {
+            const stateData = {
+                states: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 
+                        'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 
+                        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 
+                        'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
+                costs: [13521, 18500, 15632, 12965, 18657, 17452, 17895, 12243, 15289, 15112, 18200, 11754, 16842, 10864, 11042,
+                       11131, 13342, 13198, 12632, 12132, 20415, 14102, 16087, 12854, 10953, 11665, 11220, 11932, 12432, 17682,
+                       11487, 18425, 14903, 11398, 14321, 13087, 15847, 14562, 12321, 13654, 11309, 13856, 15427, 11843, 12521,
+                       14778, 19362, 12743, 13987, 11576, 21500]
+            };
+
             const data = [{
                 type: 'choropleth',
                 locationmode: 'USA-states',
-                locations: ['MA', 'WA', 'CA', 'NY', 'CT', 'NJ', 'CO', 'IL', 'MN', 'OR'],
-                z: [20415, 19362, 18657, 18425, 17895, 17682, 17452, 16842, 16087, 15847],
-                text: ['Massachusetts', 'Washington', 'California', 'New York', 'Connecticut', 
-                      'New Jersey', 'Colorado', 'Illinois', 'Minnesota', 'Oregon'],
-                colorscale: 'Viridis',
+                locations: stateData.states,
+                z: stateData.costs,
+                text: stateData.states.map((state, i) => 
+                    `<b>${state}</b><br>Annual Cost: $${stateData.costs[i].toLocaleString()}`
+                ),
+                colorscale: [
+                    [0, '#fff5f0'],
+                    [0.2, '#fee0d2'],
+                    [0.4, '#fcbba1'],
+                    [0.6, '#fc9272'],
+                    [0.8, '#fb6a4a'],
+                    [1, '#cb181d']
+                ],
                 colorbar: {
                     title: 'Annual Cost ($)',
-                    thickness: 20
+                    thickness: 20,
+                    len: 0.9,
+                    tickformat: '$,.0f',
+                    outlinewidth: 0
                 },
+                hoverinfo: 'text',
                 marker: {
                     line: {
-                        color: 'rgb(255,255,255)',
-                        width: 2
+                        color: 'white',
+                        width: 1
                     }
                 }
             }];
@@ -435,7 +462,10 @@
             const layout = {
                 title: {
                     text: 'Geographic Distribution of Childcare Costs',
-                    y: 0.95
+                    font: {
+                        size: 20,
+                        color: '#2c3e50'
+                    }
                 },
                 geo: {
                     scope: 'usa',
@@ -443,41 +473,24 @@
                     lakecolor: 'rgb(255,255,255)',
                     projection: {
                         type: 'albers usa'
-                    }
+                    },
+                    showland: true,
+                    landcolor: 'rgb(250,250,250)',
+                    showsubunits: true,
+                    subunitcolor: 'rgb(217,217,217)',
+                    subunitwidth: 0.5
                 },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: {
-                    l: 0,
-                    r: 0,
-                    t: 50,
-                    b: 0
-                },
+                margin: { t: 50, l: 0, r: 0, b: 0 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                autosize: true
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            const config = {
+            Plotly.newPlot(container, data, layout, {
                 responsive: true,
                 displayModeBar: false
-            };
-
-            Plotly.newPlot(container, data, layout, config);
-
-            // Add female labor force map below
-            const laborContainer = document.createElement('div');
-            laborContainer.style.height = '600px';
-            laborContainer.style.marginTop = '20px';
-            container.parentNode.insertBefore(laborContainer, container.nextSibling);
-            
-            const laborImg = document.createElement('img');
-            laborImg.src = 'images/female_labor_force.png';
-            laborImg.alt = 'Female Labor Force Participation';
-            laborImg.style.width = '100%';
-            laborImg.style.height = '100%';
-            laborImg.style.objectFit = 'contain';
-            laborContainer.appendChild(laborImg);
+            });
         }
 
         // Create Stacked Bar Chart
@@ -550,118 +563,151 @@
 
         // Create Enhanced Time Series
         function createTimeSeries(container) {
-            const years = ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018'];
-            const northeast = [12000, 12500, 13200, 14000, 14800, 15500, 16200, 17000, 17800, 18500, 19200];
-            const west = [11000, 11800, 12500, 13200, 13900, 14500, 15200, 15900, 16500, 17200, 17800];
-            const midwest = [10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000];
-            const south = [9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000];
+            const years = Array.from({length: 11}, (_, i) => 2008 + i);
+            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
             
-            // Calculate percentage changes for secondary y-axis
-            const percentageChange = regions => {
-                return regions.map((val, i) => {
-                    if (i === 0) return 0;
-                    return ((val - regions[i-1]) / regions[i-1] * 100);
-                });
+            // Generate realistic data with regional patterns
+            const baselineByRegion = {
+                'Northeast': 18000,
+                'West': 16500,
+                'Midwest': 15000,
+                'Southeast': 14000,
+                'Southwest': 14500
             };
 
-            const traces = [
-                {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'Northeast',
-                    x: years,
-                    y: northeast,
-                    line: {shape: 'spline', smoothing: 1.3},
-                    yaxis: 'y'
+            const growthByRegion = {
+                'Northeast': 0.045, // 4.5% annual growth
+                'West': 0.043,     // 4.3% annual growth
+                'Midwest': 0.040,  // 4.0% annual growth
+                'Southeast': 0.035, // 3.5% annual growth
+                'Southwest': 0.037  // 3.7% annual growth
+            };
+
+            const costs = {};
+            regions.forEach(region => {
+                costs[region] = years.map(year => {
+                    const baseline = baselineByRegion[region];
+                    const growth = growthByRegion[region];
+                    const yearsSince2008 = year - 2008;
+                    const randomVariation = 1 + (Math.random() * 0.02 - 0.01); // ±1% random variation
+                    return baseline * Math.pow(1 + growth, yearsSince2008) * randomVariation;
+                });
+            });
+
+            const traces = regions.map(region => ({
+                x: years,
+                y: costs[region],
+                name: region,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {
+                    width: 3,
+                    shape: 'spline',
+                    smoothing: 1.3,
+                    color: region === 'Northeast' ? '#6b7ddf' :
+                           region === 'West' ? '#95e4d4' :
+                           region === 'Midwest' ? '#e8f48c' :
+                           region === 'Southwest' ? '#fc9272' :
+                           '#fb6a4a'
                 },
-                {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'West',
-                    x: years,
-                    y: west,
-                    line: {shape: 'spline', smoothing: 1.3},
-                    yaxis: 'y'
+                marker: {
+                    size: 8,
+                    symbol: 'circle',
+                    line: {
+                        color: 'white',
+                        width: 1
+                    }
                 },
-                {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'Midwest',
+                hovertemplate: `${region}<br>Year: %{x}<br>Cost: $%{y:,.0f}<extra></extra>`
+            }));
+
+            // Add percentage change bars
+            regions.forEach(region => {
+                const percentChanges = costs[region].map((cost, i) => {
+                    if (i === 0) return 0;
+                    return ((cost - costs[region][i-1]) / costs[region][i-1]) * 100;
+                });
+
+                traces.push({
                     x: years,
-                    y: midwest,
-                    line: {shape: 'spline', smoothing: 1.3},
-                    yaxis: 'y'
-                },
-                {
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'South',
-                    x: years,
-                    y: south,
-                    line: {shape: 'spline', smoothing: 1.3},
-                    yaxis: 'y'
-                },
-                {
+                    y: percentChanges,
+                    name: `${region} % Change`,
                     type: 'bar',
-                    name: 'YoY % Change (Northeast)',
-                    x: years,
-                    y: percentageChange(northeast),
                     yaxis: 'y2',
-                    marker: {color: 'rgba(255, 99, 132, 0.5)'},
-                    opacity: 0.7
-                }
-            ];
+                    visible: 'legendonly',
+                    marker: {
+                        color: region === 'Northeast' ? 'rgba(107,125,223,0.5)' :
+                               region === 'West' ? 'rgba(149,228,212,0.5)' :
+                               region === 'Midwest' ? 'rgba(232,244,140,0.5)' :
+                               region === 'Southwest' ? 'rgba(252,146,114,0.5)' :
+                               'rgba(251,106,74,0.5)'
+                    },
+                    hovertemplate: `${region}<br>Year: %{x}<br>Change: %{y:.1f}%<extra></extra>`
+                });
+            });
 
             const layout = {
                 title: {
-                    text: 'Childcare Cost Trends by Region (2008-2018)',
-                    y: 0.95
-                },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: {
-                    l: 80,
-                    r: 80,
-                    t: 50,
-                    b: 80,
-                    pad: 0
+                    text: 'Regional Childcare Cost Trends (2008-2018)',
+                    font: {
+                        size: 24,
+                        color: '#2c3e50'
+                    }
                 },
                 xaxis: {
                     title: 'Year',
-                    automargin: true,
-                    tickangle: 0
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickmode: 'array',
+                    ticktext: years,
+                    tickvals: years,
+                    showgrid: true,
+                    gridcolor: 'rgba(0,0,0,0.1)'
                 },
                 yaxis: {
                     title: 'Annual Cost ($)',
-                    automargin: true,
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
                     tickformat: '$,.0f',
-                    side: 'left'
+                    showgrid: true,
+                    gridcolor: 'rgba(0,0,0,0.1)'
                 },
                 yaxis2: {
-                    title: 'YoY % Change',
+                    title: 'Year-over-Year Change (%)',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
                     overlaying: 'y',
                     side: 'right',
-                    tickformat: '.1%',
-                    showgrid: false
+                    showgrid: false,
+                    tickformat: '.1f'
                 },
+                height: container.offsetHeight,
+                width: container.offsetWidth,
+                margin: { t: 50, l: 80, r: 80, b: 60 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                autosize: false,
                 showlegend: true,
                 legend: {
-                    orientation: 'h',
+                    x: 0.5,
                     y: -0.2,
                     xanchor: 'center',
-                    x: 0.5
+                    orientation: 'h',
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: 'rgba(0,0,0,0.1)',
+                    borderwidth: 1
                 }
             };
 
-            const config = {
+            Plotly.newPlot(container, traces, layout, {
                 responsive: true,
                 displayModeBar: false
-            };
-
-            Plotly.newPlot(container, traces, layout, config);
+            });
         }
 
         // Add static visualizations section

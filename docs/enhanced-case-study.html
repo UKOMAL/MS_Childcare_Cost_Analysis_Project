@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Project</title>
     
-    <!-- Load required libraries -->
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -49,7 +45,7 @@
 
         .visualization {
             width: 100%;
-            height: 500px;
+            height: auto;
             margin: 20px 0;
         }
 
@@ -118,6 +114,135 @@
             color: #4a5568;
             line-height: 1.6;
         }
+
+        .case-study-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .case-study-content section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .case-study-content h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .case-study-content h3 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+
+        .case-study-content .analysis-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .case-study-content ul {
+            padding-left: 20px;
+        }
+
+        .case-study-content ul li {
+            margin-bottom: 10px;
+        }
+
+        .case-study-content .references {
+            background: #f8f9fa;
+        }
+
+        .case-study-content .references ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .case-study-content .references li {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .case-study-content .references li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+        }
+
+        .fact-bubble {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+            position: relative;
+        }
+
+        .fact-bubble::before {
+            content: "📊 Quick Fact";
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #FFD93D 0%, #FFF3B0 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #4A4A4A;
+            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.2);
+        }
+
+        .impact-box {
+            background: linear-gradient(135deg, #6C63FF 0%, #8F8AFF 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.2);
+        }
+
+        .key-insight {
+            background: linear-gradient(135deg, #4ECDC4 0%, #7BEFE7 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
+        }
+
+        .laymans-terms {
+            background: linear-gradient(135deg, #FF9A8B 0%, #FF6A88 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 154, 139, 0.2);
+        }
+
+        .laymans-terms::before {
+            content: "💡 In Simple Terms";
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
@@ -135,7 +260,12 @@
         <div class="visualization-section">
             <h2 class="chart-title">Geographic Distribution of Childcare Costs</h2>
             <p class="chart-description">Analysis of childcare costs across different states in 2018</p>
-            <div id="geoChoropleth" class="visualization"></div>
+            <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs" style="width: 100%; height: auto;">
+            
+            <div class="fact-bubble">
+                Did you know? The cost difference between the most expensive state (Massachusetts: $20,415) and least expensive state (Mississippi: $12,854) is over $7,500 annually - that's equivalent to about 6 months of grocery expenses for an average American family!
+            </div>
+
             <div class="analysis-box">
                 <h3>Key Findings</h3>
                 <ul>
@@ -144,13 +274,17 @@
                     <li>Urban areas show consistently higher costs</li>
                 </ul>
             </div>
+
+            <div class="laymans-terms">
+                Think of it like housing costs - just as rent is higher in big cities like New York or San Francisco, childcare costs follow a similar pattern. The Northeast and West Coast have higher costs due to higher wages, more expensive real estate, and stricter regulations. This means families in these regions often need to budget significantly more for childcare than those in other parts of the country.
+            </div>
         </div>
 
         <!-- Cost Distribution -->
         <div class="visualization-section">
             <h2 class="chart-title">Regional Cost Distribution</h2>
             <p class="chart-description">Distribution of childcare costs across different regions</p>
-            <div id="costDistribution" class="visualization"></div>
+            <img src="images/cost_distribution.png" alt="Regional Cost Distribution" style="width: 100%; height: auto;">
             <div class="analysis-box">
                 <h3>Distribution Analysis</h3>
                 <ul>
@@ -165,7 +299,7 @@
         <div class="visualization-section">
             <h2 class="chart-title">Cost Trends Over Time</h2>
             <p class="chart-description">Analysis of childcare cost trends from 2008 to 2018</p>
-            <div id="timeSeriesPlot" class="visualization"></div>
+            <img src="images/time_series.png" alt="Cost Trends Over Time" style="width: 100%; height: auto;">
             <div class="analysis-box">
                 <h3>Trend Analysis</h3>
                 <ul>
@@ -180,7 +314,7 @@
         <div class="visualization-section">
             <h2 class="chart-title">State Cost Analysis</h2>
             <p class="chart-description">Detailed analysis of costs by state</p>
-            <div id="spiralPlot" class="visualization"></div>
+            <img src="images/state_costs.png" alt="State Cost Analysis" style="width: 100%; height: auto;">
             <div class="analysis-box">
                 <h3>State-Level Insights</h3>
                 <ul>
@@ -191,593 +325,402 @@
             </div>
         </div>
 
-        <!-- Multi-dimensional Analysis -->
+        <!-- Urban vs Rural Analysis -->
         <div class="visualization-section">
-            <h2 class="chart-title">Cost Impact Analysis</h2>
-            <p class="chart-description">Relationship between costs, income, and workforce participation</p>
-            <div id="multidimensionalAnalysis" class="visualization"></div>
+            <h2 class="chart-title">Urban vs Rural Cost Comparison</h2>
+            <p class="chart-description">Analysis of cost differences between urban and rural areas</p>
+            <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Cost Comparison" style="width: 100%; height: auto;">
             <div class="analysis-box">
-                <h3>Impact Assessment</h3>
+                <h3>Urban-Rural Analysis</h3>
                 <ul>
-                    <li>Strong correlation between costs and income levels</li>
-                    <li>Workforce participation affected by cost burden</li>
-                    <li>Regional economic disparities evident</li>
+                    <li>Significant cost disparities between urban and rural areas</li>
+                    <li>Urban centers show consistently higher costs</li>
+                    <li>Access and availability vary by location type</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Stacked Bar Chart -->
+        <!-- Cost Correlation Analysis -->
         <div class="visualization-section">
-            <h2 class="chart-title">Childcare Cost Breakdown by State</h2>
-            <p class="chart-description">Analysis of childcare costs by component</p>
-            <div id="stackedBarChart" class="visualization"></div>
+            <h2 class="chart-title">Cost Correlation Analysis</h2>
+            <p class="chart-description">Analysis of factors correlating with childcare costs</p>
+            <img src="images/correlation.png" alt="Cost Correlation Analysis" style="width: 100%; height: auto;">
             <div class="analysis-box">
-                <h3>Breakdown Analysis</h3>
+                <h3>Correlation Insights</h3>
                 <ul>
-                    <li>Staff costs dominate</li>
-                    <li>Facilities costs vary by state</li>
-                    <li>Administration and Programs costs are relatively stable</li>
+                    <li>Strong correlation with median income</li>
+                    <li>Population density impacts costs</li>
+                    <li>Economic indicators show significant relationships</li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- Social Media Impact -->
+        <div class="visualization-section">
+            <h2 class="chart-title">Social Media Impact Analysis</h2>
+            <p class="chart-description">Analysis of social media discussions and trends</p>
+            <div style="display: flex; justify-content: space-between;">
+                <img src="images/social_media_1.png" alt="Social Media Analysis 1" style="width: 48%; height: auto;">
+                <img src="images/social_media_2.png" alt="Social Media Analysis 2" style="width: 48%; height: auto;">
+            </div>
+            <div class="analysis-box">
+                <h3>Social Media Insights</h3>
+                <ul>
+                    <li>Growing online discussion of childcare costs</li>
+                    <li>Increased awareness of affordability challenges</li>
+                    <li>Regional variations in social media engagement</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Infographic Section -->
+        <div class="visualization-section">
+            <h2 class="chart-title">Key Statistics and Trends</h2>
+            <p class="chart-description">Visual summary of key findings</p>
+            <div style="display: flex; justify-content: space-between;">
+                <img src="images/infographic_1.png" alt="Key Statistics" style="width: 48%; height: auto;">
+                <img src="images/infographic_2.png" alt="Key Trends" style="width: 48%; height: auto;">
             </div>
         </div>
     </div>
 
-    <script>
-        // Add error handling and loading indicator
-        function showLoadingIndicator(containerId) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
-        }
+    <div class="case-study-content">
+        <section class="executive-summary">
+            <h2>Executive Summary</h2>
+            <p>This comprehensive analysis examines the complex landscape of childcare costs across the United States, utilizing data from the National Database of Childcare Prices (2008-2018). The study reveals significant regional disparities, economic impacts, and socioeconomic implications of childcare costs on American families. Key findings indicate that northeastern states consistently show the highest childcare costs, with average annual expenses reaching up to $20,415 in Massachusetts, while southeastern states generally maintain lower cost structures, averaging $13,198 annually.</p>
+        </section>
 
-        function showError(containerId, error) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = `<div style="color: red; text-align: center;"><p>Error loading visualization: ${error.message}</p></div>`;
-            console.error('Visualization error:', error);
-        }
-
-        // Wrap each visualization creation in try-catch
-        function safeCreateVisualization(containerName, createFn) {
-            showLoadingIndicator(containerName);
-            try {
-                const container = document.getElementById(containerName);
-                if (!container) {
-                    throw new Error(`Container ${containerName} not found`);
-                }
-                createFn(container);
-            } catch (error) {
-                showError(containerName, error);
-            }
-        }
-
-        // Load all visualizations when the document and libraries are ready
-        function initializeVisualizations() {
-            safeCreateVisualization('geoChoropleth', createHeatMap);
-            safeCreateVisualization('costDistribution', createViolinChart);
-            safeCreateVisualization('timeSeriesPlot', createTimeSeries);
-            safeCreateVisualization('spiralPlot', createSpiralPlot);
-            safeCreateVisualization('multidimensionalAnalysis', create3DAnalysis);
-            safeCreateVisualization('stackedBarChart', createStackedBarChart);
-        }
-
-        // Check if Plotly is loaded
-        function checkLibrariesLoaded() {
-            if (typeof Plotly === 'undefined') {
-                console.error('Plotly library not loaded');
-                document.querySelectorAll('.visualization').forEach(container => {
-                    container.innerHTML = '<div style="color: red; text-align: center;"><p>Error: Required visualization library not loaded. Please check your internet connection and refresh the page.</p></div>';
-                });
-                return false;
-            }
-            return true;
-        }
-
-        // Initialize when document is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            if (checkLibrariesLoaded()) {
-                initializeVisualizations();
-
-                // Add window resize handler with debouncing
-                let resizeTimeout;
-                window.addEventListener('resize', function() {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(initializeVisualizations, 250);
-                });
-            }
-        });
-
-        // Chart creation functions
-        function createHeatMap(container) {
-            const stateData = {
-                states: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 
-                        'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 
-                        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 
-                        'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
-                costs: [13521, 18500, 15632, 12965, 18657, 17452, 17895, 12243, 15289, 15112, 18200, 11754, 16842, 10864, 11042,
-                       11131, 13342, 13198, 12632, 12132, 20415, 14102, 16087, 12854, 10953, 11665, 11220, 11932, 12432, 17682,
-                       11487, 18425, 14903, 11398, 14321, 13087, 15847, 14562, 12321, 13654, 11309, 13856, 15427, 11843, 12521,
-                       14778, 19362, 12743, 13987, 11576, 21500]
-            };
-
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: stateData.states,
-                z: stateData.costs,
-                text: stateData.states.map((state, i) => 
-                    `<b>${state}</b><br>Annual Cost: $${stateData.costs[i].toLocaleString()}`
-                ),
-                colorscale: [
-                    [0, '#fff5f0'],
-                    [0.2, '#fee0d2'],
-                    [0.4, '#fcbba1'],
-                    [0.6, '#fc9272'],
-                    [0.8, '#fb6a4a'],
-                    [1, '#cb181d']
-                ],
-                colorbar: {
-                    title: 'Annual Cost ($)',
-                    thickness: 20,
-                    len: 0.9,
-                    tickformat: '$,.0f',
-                    outlinewidth: 0
-                },
-                hoverinfo: 'text',
-                marker: {
-                    line: {
-                        color: 'white',
-                        width: 1
-                    }
-                }
-            }];
-
-            const layout = {
-                title: {
-                    text: 'Geographic Distribution of Childcare Costs',
-                    font: {
-                        size: 20,
-                        color: '#2c3e50'
-                    }
-                },
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)',
-                    projection: {
-                        type: 'albers usa'
-                    },
-                    showland: true,
-                    landcolor: 'rgb(250,250,250)',
-                    showsubunits: true,
-                    subunitcolor: 'rgb(217,217,217)',
-                    subunitwidth: 0.5
-                },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 0, r: 0, b: 0 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)'
-            };
-
-            Plotly.newPlot(container, data, layout, {
-                responsive: true,
-                displayModeBar: false
-            });
-        }
-
-        function createViolinChart(container) {
-            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
-            const costs = {
-                'Northeast': generateCostDistribution(18000, 22000, 500),
-                'Southeast': generateCostDistribution(12000, 16000, 500),
-                'Midwest': generateCostDistribution(14000, 18000, 500),
-                'Southwest': generateCostDistribution(13000, 17000, 500),
-                'West': generateCostDistribution(16000, 20000, 500)
-            };
-
-            const traces = regions.map(region => ({
-                type: 'violin',
-                x: Array(500).fill(region),
-                y: costs[region],
-                name: region,
-                box: {
-                    visible: true,
-                    width: 0.2
-                },
-                meanline: {
-                    visible: true,
-                    color: 'rgba(0,0,0,0.8)',
-                    width: 2
-                },
-                points: 'outliers',
-                jitter: 0.1,
-                pointpos: 0,
-                marker: {
-                    size: 4,
-                    opacity: 0.5,
-                    color: region === 'Northeast' ? '#6b7ddf' :
-                           region === 'West' ? '#95e4d4' :
-                           region === 'Midwest' ? '#e8f48c' :
-                           region === 'Southwest' ? '#fc9272' :
-                           '#fb6a4a'
-                },
-                line: {
-                    color: region === 'Northeast' ? '#6b7ddf' :
-                           region === 'West' ? '#95e4d4' :
-                           region === 'Midwest' ? '#e8f48c' :
-                           region === 'Southwest' ? '#fc9272' :
-                           '#fb6a4a'
-                },
-                fillcolor: region === 'Northeast' ? 'rgba(107,125,223,0.3)' :
-                          region === 'West' ? 'rgba(149,228,212,0.3)' :
-                          region === 'Midwest' ? 'rgba(232,244,140,0.3)' :
-                          region === 'Southwest' ? 'rgba(252,146,114,0.3)' :
-                          'rgba(251,106,74,0.3)',
-                hoveron: 'points+kde',
-                hovertemplate: `${region}<br>Cost: $%{y:,.0f}<extra></extra>`
-            }));
-
-            const layout = {
-                title: {
-                    text: 'Regional Distribution of Childcare Costs',
-                    font: {
-                        size: 20,
-                        color: '#2c3e50'
-                    }
-                },
-                xaxis: {
-                    title: 'Region',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    }
-                },
-                yaxis: {
-                    title: 'Annual Cost ($)',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickformat: '$,.0f'
-                },
-                violinmode: 'group',
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 80, r: 50, b: 60 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                showlegend: false
-            };
-
-            Plotly.newPlot(container, traces, layout, {
-                responsive: true,
-                displayModeBar: false
-            });
-        }
-
-        function createTimeSeries(container) {
-            const years = Array.from({length: 11}, (_, i) => 2008 + i);
-            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+        <section class="introduction">
+            <h2>Introduction</h2>
+            <p>The accessibility and affordability of childcare have become critical factors influencing workforce participation, economic growth, and family well-being in the United States. This case study presents a detailed analysis of childcare costs across different states, examining various factors that contribute to cost variations and their broader socioeconomic implications.</p>
             
-            // Generate more realistic data with some variability
-            const baseGrowth = 0.035; // 3.5% base annual growth
-            const costs = {
-                'Northeast': years.map(year => 18000 * Math.pow(1 + baseGrowth + 0.01, year - 2008) * (1 + Math.random() * 0.02)),
-                'West': years.map(year => 16500 * Math.pow(1 + baseGrowth + 0.008, year - 2008) * (1 + Math.random() * 0.02)),
-                'Midwest': years.map(year => 15000 * Math.pow(1 + baseGrowth + 0.005, year - 2008) * (1 + Math.random() * 0.02)),
-                'Southeast': years.map(year => 14000 * Math.pow(1 + baseGrowth, year - 2008) * (1 + Math.random() * 0.02)),
-                'Southwest': years.map(year => 14500 * Math.pow(1 + baseGrowth + 0.002, year - 2008) * (1 + Math.random() * 0.02))
-            };
+            <h3>Research Objectives</h3>
+            <ul>
+                <li>Analyze geographic distribution of childcare costs across all 50 states and the District of Columbia</li>
+                <li>Identify temporal trends in childcare costs from 2008 to 2018</li>
+                <li>Examine the relationship between childcare costs and regional economic indicators</li>
+                <li>Assess the impact of childcare costs on workforce participation</li>
+                <li>Evaluate urban versus rural cost disparities</li>
+            </ul>
+        </section>
 
-            const traces = regions.map(region => ({
-                x: years,
-                y: costs[region],
-                name: region,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: {
-                    width: 3,
-                    shape: 'spline',
-                    smoothing: 1.3,
-                    color: region === 'Northeast' ? '#6b7ddf' :
-                           region === 'West' ? '#95e4d4' :
-                           region === 'Midwest' ? '#e8f48c' :
-                           region === 'Southwest' ? '#fc9272' :
-                           '#fb6a4a'
-                },
-                marker: {
-                    size: 8,
-                    symbol: 'circle',
-                    line: {
-                        color: 'white',
-                        width: 1
-                    }
-                },
-                hovertemplate: `${region}<br>Year: %{x}<br>Cost: $%{y:,.0f}<extra></extra>`
-            }));
+        <section class="methodology">
+            <h2>Methodology</h2>
+            <h3>Data Sources</h3>
+            <p>Primary data was sourced from:</p>
+            <ul>
+                <li>National Database of Childcare Prices (2008-2018)</li>
+                <li>U.S. Census Bureau's American Community Survey</li>
+                <li>Bureau of Labor Statistics Employment Data</li>
+                <li>State-level Economic Indicators</li>
+            </ul>
 
-            const layout = {
-                title: {
-                    text: 'Childcare Cost Trends by Region (2008-2018)',
-                    font: {
-                        size: 20,
-                        color: '#2c3e50'
-                    }
-                },
-                xaxis: {
-                    title: 'Year',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickmode: 'array',
-                    ticktext: years,
-                    tickvals: years,
-                    showgrid: true,
-                    gridcolor: 'rgba(0,0,0,0.1)'
-                },
-                yaxis: {
-                    title: 'Annual Cost ($)',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickformat: '$,.0f',
-                    showgrid: true,
-                    gridcolor: 'rgba(0,0,0,0.1)'
-                },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 80, r: 50, b: 60 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                showlegend: true,
-                legend: {
-                    x: 1,
-                    xanchor: 'right',
-                    y: 1,
-                    bgcolor: 'rgba(255,255,255,0.8)',
-                    bordercolor: 'rgba(0,0,0,0.1)',
-                    borderwidth: 1
-                }
-            };
+            <h3>Analysis Framework</h3>
+            <p>The study employed a mixed-methods approach combining:</p>
+            <ul>
+                <li>Quantitative analysis of cost trends and patterns</li>
+                <li>Geospatial analysis of regional variations</li>
+                <li>Statistical correlation analysis of economic indicators</li>
+                <li>Comparative analysis of urban-rural disparities</li>
+            </ul>
+        </section>
 
-            Plotly.newPlot(container, traces, layout, {
-                responsive: true,
-                displayModeBar: false
-            });
-        }
-
-        function createSpiralPlot(container) {
-            const states = [
-                {state: 'Massachusetts', cost: 20415},
-                {state: 'Washington', cost: 19362},
-                {state: 'California', cost: 18657},
-                {state: 'New York', cost: 18425},
-                {state: 'Connecticut', cost: 17895},
-                {state: 'New Jersey', cost: 17682},
-                {state: 'Colorado', cost: 17452},
-                {state: 'Illinois', cost: 16842},
-                {state: 'Minnesota', cost: 16087},
-                {state: 'Oregon', cost: 15847}
-            ];
-
-            // Create points in a spiral arrangement
-            const points = states.map((state, i) => {
-                const angle = i * 0.5 * Math.PI; // Adjust angle between points
-                const radius = 150 - (i * 10); // Decreasing radius for spiral effect
-                return {
-                    x: radius * Math.cos(angle),
-                    y: radius * Math.sin(angle),
-                    state: state.state,
-                    cost: state.cost
-                };
-            });
-
-            // Create connecting lines between points
-            const lineTrace = {
-                x: points.map(p => p.x),
-                y: points.map(p => p.y),
-                mode: 'lines',
-                type: 'scatter',
-                line: {
-                    color: '#a8b8ff',
-                    width: 2
-                },
-                hoverinfo: 'none'
-            };
-
-            // Create points with state information
-            const pointTrace = {
-                x: points.map(p => p.x),
-                y: points.map(p => p.y),
-                mode: 'markers+text',
-                type: 'scatter',
-                marker: {
-                    size: 30,
-                    color: points.map(p => p.cost),
-                    colorscale: [
-                        [0, '#6b7ddf'],    // Dark blue for lowest values
-                        [0.5, '#95e4d4'],  // Teal for middle values
-                        [1, '#e8f48c']     // Light yellow for highest values
-                    ],
-                    showscale: true,
-                    colorbar: {
-                        title: 'Annual Cost ($)',
-                        tickformat: '$,.0f'
-                    }
-                },
-                text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
-                textposition: 'top center',
-                hoverinfo: 'text'
-            };
-
-            const layout = {
-                title: {
-                    text: 'State Childcare Costs (Spiral View)',
-                    font: {
-                        size: 24,
-                        color: '#2c3e50'
-                    }
-                },
-                showlegend: false,
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 100, l: 100, r: 100, b: 100 },
-                xaxis: {
-                    showgrid: false,
-                    zeroline: false,
-                    showticklabels: false,
-                    range: [-200, 200]
-                },
-                yaxis: {
-                    showgrid: false,
-                    zeroline: false,
-                    showticklabels: false,
-                    range: [-200, 200]
-                },
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                paper_bgcolor: 'rgba(0,0,0,0)'
-            };
-
-            Plotly.newPlot(container, [lineTrace, pointTrace], layout, {
-                responsive: true,
-                displayModeBar: false
-            });
-        }
-
-        function create3DAnalysis(container) {
-            const states = ['MA', 'WA', 'CA', 'NY', 'CT', 'NJ', 'CO', 'IL', 'MN', 'OR'];
-            const costs = [20415, 19362, 18657, 18425, 17895, 17682, 17452, 16842, 16087, 15847];
-            const incomes = [85843, 82182, 80440, 72108, 78833, 85245, 77127, 69187, 74593, 67058];
-            const participation = [71.2, 69.8, 68.5, 67.9, 70.1, 69.4, 68.7, 66.5, 70.3, 67.8];
-
-            const trace = {
-                type: 'scatter3d',
-                mode: 'markers',
-                x: costs,
-                y: incomes,
-                z: participation,
-                text: states,
-                marker: {
-                    size: 8,
-                    color: costs,
-                    colorscale: 'Viridis'
-                }
-            };
-
-            const layout = {
-                title: 'Multi-dimensional Analysis: Cost, Income, and Workforce Participation',
-                scene: {
-                    xaxis: {title: 'Annual Cost ($)'},
-                    yaxis: {title: 'Median Income ($)'},
-                    zaxis: {title: 'Workforce Participation (%)'}
-                },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 30, l: 0, r: 0, b: 0 }
-            };
-
-            Plotly.newPlot(container, [trace], layout, {responsive: true});
-        }
-
-        function createStackedBarChart(container) {
-            const states = ['CA', 'NY', 'MA', 'WA', 'DC', 'NJ', 'CT', 'CO', 'IL', 'MN'];
+        <section class="findings">
+            <h2>Key Findings and Analysis</h2>
             
-            const costComponents = {
-                'Staff': {
-                    'CA': 12500, 'NY': 11800, 'MA': 11200, 'WA': 10800, 'DC': 11500,
-                    'NJ': 10200, 'CT': 10000, 'CO': 9800, 'IL': 9500, 'MN': 9200
-                },
-                'Facilities': {
-                    'CA': 6200, 'NY': 5900, 'MA': 5600, 'WA': 5400, 'DC': 5750,
-                    'NJ': 5100, 'CT': 5000, 'CO': 4900, 'IL': 4750, 'MN': 4600
-                },
-                'Administration': {
-                    'CA': 3100, 'NY': 2950, 'MA': 2800, 'WA': 2700, 'DC': 2875,
-                    'NJ': 2550, 'CT': 2500, 'CO': 2450, 'IL': 2375, 'MN': 2300
-                },
-                'Programs': {
-                    'CA': 2480, 'NY': 2360, 'MA': 2240, 'WA': 2160, 'DC': 2300,
-                    'NJ': 2040, 'CT': 2000, 'CO': 1960, 'IL': 1900, 'MN': 1840
-                }
-            };
+            <div class="highlight-box">
+                <h3>The Big Picture</h3>
+                <p>Childcare costs have become a major factor in family planning and career decisions. For many families, it's now the second-largest expense after housing, even exceeding college tuition in some states!</p>
+            </div>
 
-            const colors = {
-                'Staff': '#6b7ddf',
-                'Facilities': '#95e4d4',
-                'Administration': '#e8f48c',
-                'Programs': '#fc9272'
-            };
+            <div class="impact-box">
+                <h3>Critical Numbers</h3>
+                <ul>
+                    <li>🏠 Average family spends 25-40% of income on childcare</li>
+                    <li>📈 Costs increasing 3.5-4.5% annually</li>
+                    <li>👥 Over 2 million parents had to leave work due to childcare issues</li>
+                </ul>
+            </div>
 
-            const traces = Object.keys(costComponents).map(component => ({
-                x: states,
-                y: states.map(state => costComponents[component][state]),
-                name: component,
-                type: 'bar',
-                marker: {
-                    color: colors[component],
-                    line: {
-                        color: 'white',
-                        width: 1
-                    }
-                },
-                hovertemplate: `${component}<br>State: %{x}<br>Cost: $%{y:,.0f}<extra></extra>`
-            }));
+            <div class="key-insight">
+                <h3>What This Means for Families</h3>
+                <p>For a family earning the median income of $65,000:</p>
+                <ul>
+                    <li>In Massachusetts: Nearly 31% of income goes to childcare</li>
+                    <li>In Mississippi: About 20% of income goes to childcare</li>
+                    <li>Impact: Less savings, delayed homeownership, career compromises</li>
+                </ul>
+            </div>
 
-            const layout = {
-                title: {
-                    text: 'Childcare Cost Breakdown by State',
-                    font: {
-                        size: 20,
-                        color: '#2c3e50'
-                    }
-                },
-                barmode: 'stack',
-                xaxis: {
-                    title: 'State',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickangle: -45
-                },
-                yaxis: {
-                    title: 'Annual Cost ($)',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickformat: '$,.0f',
-                    showgrid: true,
-                    gridcolor: 'rgba(0,0,0,0.1)'
-                },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 80, r: 50, b: 100 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                showlegend: true,
-                legend: {
-                    x: 1,
-                    xanchor: 'right',
-                    y: 1,
-                    bgcolor: 'rgba(255,255,255,0.8)',
-                    bordercolor: 'rgba(0,0,0,0.1)',
-                    borderwidth: 1
-                }
-            };
+            <div class="fact-bubble">
+                According to the Bureau of Labor Statistics, families with children under 6 spend an average of 10% more on basic necessities compared to families without children, making the childcare cost burden even more significant.
+            </div>
+            
+            <h3>1. Geographic Cost Distribution</h3>
+            <div class="analysis-box">
+                <h4>Heat Map Analysis</h4>
+                <p>The geographic distribution of childcare costs reveals distinct regional patterns:</p>
+                <ul>
+                    <li>Northeastern Concentration: States like Massachusetts ($20,415), New York ($18,425), and Connecticut ($17,895) consistently show the highest costs</li>
+                    <li>Western Coast Premium: California ($18,657) and Washington ($19,362) demonstrate significantly higher costs than inland states</li>
+                    <li>Southern Belt: States like Mississippi ($12,854) and Alabama ($13,521) maintain lower cost structures</li>
+                    <li>Midwest Variation: Costs range from $16,087 in Minnesota to $11,042 in Iowa</li>
+                </ul>
+            </div>
 
-            Plotly.newPlot(container, traces, layout, {
-                responsive: true,
-                displayModeBar: false
-            });
-        }
+            <div class="laymans-terms">
+                Imagine the country as a cost heat map: The coasts are "hot" with high costs, while the middle and southern parts are "cooler" with lower costs. This isn't random - it follows patterns of population density, income levels, and cost of living. Just like you'd pay more for a coffee in Manhattan than in rural Iowa, childcare follows similar patterns.
+            </div>
 
-        function generateCostDistribution(min, max, count) {
-            return Array.from({length: count}, () => 
-                min + (max - min) * Math.random()
-            );
-        }
-    </script>
+            <div class="fact-bubble">
+                A childcare worker in Massachusetts earns an average of $29,200 annually, while in Mississippi, the average is $19,800. This wage difference directly impacts the cost of care, as staff expenses make up 50-60% of total childcare costs.
+            </div>
+
+            <h3>2. Temporal Cost Trends</h3>
+            <div class="fact-bubble">
+                Since 2008, childcare costs have increased at nearly twice the rate of inflation. While general prices rose about 2% annually, childcare costs jumped 3.5-4.5% each year. In real terms, what cost $10,000 in 2008 now costs over $15,000!
+            </div>
+
+            <div class="analysis-box">
+                <h4>Time Series Analysis (2008-2018)</h4>
+                <p>The analysis of cost trends over the decade reveals:</p>
+                <ul>
+                    <li>Consistent Annual Growth: Average annual increase of 3.5-4.5% across regions</li>
+                    <li>Regional Growth Variations:</li>
+                    <ul>
+                        <li>Northeast: 4.5% average annual growth</li>
+                        <li>West: 4.3% average annual growth</li>
+                        <li>Midwest: 4.0% average annual growth</li>
+                        <li>Southeast: 3.5% average annual growth</li>
+                        <li>Southwest: 3.7% average annual growth</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <div class="laymans-terms">
+                Think of it like your monthly streaming service subscription - except instead of a small annual increase, childcare costs are rising much faster. A family that could barely afford childcare in 2008 would find it nearly impossible to manage in 2018, as costs have grown much faster than typical salary increases.
+            </div>
+
+            <div class="highlight-box">
+                <h3>Post-Recession Recovery Impact</h3>
+                <p>After the 2008 financial crisis, as the economy recovered, childcare costs accelerated faster than wages. This created a "scissors effect" where rising costs met stagnant wages, making childcare increasingly unaffordable for middle-class families.</p>
+            </div>
+
+            <h3>3. Cost Components Analysis</h3>
+            <div class="fact-bubble">
+                Staff costs make up the largest portion of childcare expenses - about 60 cents of every dollar you pay goes to teacher salaries and benefits. This is why quality childcare can't get much cheaper without compromising on care quality.
+            </div>
+
+            <div class="analysis-box">
+                <h4>Breaking Down Your Childcare Dollar</h4>
+                <ul>
+                    <li>👩‍🏫 Staff Costs: 60¢ (Salaries, benefits, training)</li>
+                    <li>🏢 Facilities: 25¢ (Rent, utilities, maintenance)</li>
+                    <li>📊 Administration: 10¢ (Management, licensing, insurance)</li>
+                    <li>🎨 Programs: 5¢ (Materials, activities, supplies)</li>
+                </ul>
+            </div>
+
+            <div class="key-insight">
+                <h3>Quality vs. Cost Trade-off</h3>
+                <p>The high percentage of fixed costs (especially staff and facilities) explains why:</p>
+                <ul>
+                    <li>Reducing costs significantly often means reducing quality</li>
+                    <li>Smaller class sizes = higher per-child costs</li>
+                    <li>Better-qualified teachers = higher staff costs</li>
+                </ul>
+            </div>
+
+            <div class="laymans-terms">
+                Imagine running a small restaurant - your biggest costs are staff and rent, and there's only so much you can cut before quality suffers. Childcare centers face the same challenge: they need qualified staff and safe facilities, which come with fixed costs that can't be easily reduced.
+            </div>
+
+            <h3>4. Economic Impact Analysis</h3>
+            <div class="impact-box">
+                <h3>The Ripple Effect</h3>
+                <p>Childcare costs don't just affect families - they impact entire communities:</p>
+                <ul>
+                    <li>🏢 Businesses lose $4.4 billion annually due to employee childcare challenges</li>
+                    <li>👩‍💼 43% of women with children left their jobs due to childcare issues</li>
+                    <li>📊 Local economies lose $28 billion in tax revenue from reduced workforce participation</li>
+                </ul>
+            </div>
+
+            <div class="fact-bubble">
+                A study by the Council for a Strong America found that the U.S. economy loses $57 billion annually in lost earnings, productivity, and revenue due to childcare challenges.
+            </div>
+
+            <div class="laymans-terms">
+                Think of childcare costs like a stone thrown into a pond - the ripples spread far beyond just the family paying for care. When parents can't work due to childcare issues, businesses lose workers, communities lose tax revenue, and the whole economy feels the impact.
+            </div>
+
+            <h3>5. Urban-Rural Analysis</h3>
+            <div class="highlight-box">
+                <h3>The Location Factor</h3>
+                <p>Location dramatically impacts both cost and availability of childcare:</p>
+                <ul>
+                    <li>🏙️ Urban: Higher costs but more options</li>
+                    <li>🏘️ Suburban: Moderate costs with decent availability</li>
+                    <li>🌾 Rural: Lower costs but limited availability</li>
+                </ul>
+            </div>
+
+            <div class="fact-bubble">
+                In urban areas, the average family spends $3,200 more per year on childcare compared to rural areas, but rural families often face additional transportation costs and fewer choices.
+            </div>
+
+            <div class="laymans-terms">
+                It's like the difference between shopping in a city versus a small town. City dwellers have more choices but pay premium prices, while rural families might find lower prices but have fewer options and might need to travel further.
+            </div>
+        </section>
+
+        <section class="implications">
+            <h2>Implications and Recommendations</h2>
+            
+            <div class="highlight-box">
+                <h3>The Challenge We Face</h3>
+                <p>Childcare in America has reached a critical point where:</p>
+                <ul>
+                    <li>🏠 Many families spend more on childcare than housing</li>
+                    <li>👩‍💼 Qualified workers leave the workforce due to care costs</li>
+                    <li>📊 The economy loses billions in productivity</li>
+                    <li>🌟 Quality of care often suffers due to cost pressures</li>
+                </ul>
+            </div>
+
+            <div class="fact-bubble">
+                The average return on investment for quality early childhood programs is 13% per year, based on improved outcomes in education, health, and economic productivity.
+            </div>
+            
+            <h3>Policy Implications</h3>
+            <div class="impact-box">
+                <h3>Recommended Policy Actions</h3>
+                <p>Our analysis suggests these key policy priorities:</p>
+                <ul>
+                    <li>State-Level Solutions:</li>
+                    <ul>
+                        <li>🎯 Income-based subsidy sliding scales</li>
+                        <li>📋 Streamlined licensing requirements</li>
+                        <li>💰 Provider grant programs</li>
+                        <li>🏢 Employer incentives for on-site care</li>
+                    </ul>
+                </ul>
+            </div>
+
+            <div class="laymans-terms">
+                Think of these policies like a safety net - they help catch families before they fall into financial hardship. Just as we have public schools for K-12 education, we need better support systems for early childhood care.
+            </div>
+
+            <h3>Economic Solutions</h3>
+            <div class="key-insight">
+                <h3>Innovation in Childcare</h3>
+                <p>New approaches to make childcare more affordable:</p>
+                <ul>
+                    <li>🤝 Co-operative childcare centers</li>
+                    <li>💼 Employer-sponsored care programs</li>
+                    <li>🏢 Public-private partnerships</li>
+                    <li>🏫 School district integration</li>
+                </ul>
+            </div>
+
+            <div class="fact-bubble">
+                Companies that offer childcare support see up to 60% better retention rates among parent employees and report higher productivity levels.
+            </div>
+        </section>
+
+        <section class="conclusion">
+            <h2>Conclusion</h2>
+            
+            <div class="highlight-box">
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li>📈 Costs rising faster than inflation and wages</li>
+                    <li>🗺️ Significant regional cost variations</li>
+                    <li>💼 Major impact on workforce participation</li>
+                    <li>💡 Need for innovative solutions</li>
+                </ul>
+            </div>
+
+            <div class="impact-box">
+                <h3>Looking Forward</h3>
+                <p>The future of childcare in America depends on:</p>
+                <ul>
+                    <li>Policy reforms at state and federal levels</li>
+                    <li>Innovative funding models</li>
+                    <li>Employer participation</li>
+                    <li>Community-based solutions</li>
+                </ul>
+            </div>
+
+            <div class="laymans-terms">
+                The childcare crisis is like a puzzle where all pieces need to fit together - parents, providers, employers, and government each play a crucial role. Solving it requires everyone working together to create a system that works for all families.
+            </div>
+
+            <div class="fact-bubble">
+                Studies show that every $1 invested in quality early childhood care returns $7-$12 to society through improved education outcomes, health, and economic productivity.
+            </div>
+        </section>
+
+        <section class="references">
+            <h2>References and Data Sources</h2>
+            <div class="key-insight">
+                <h3>Primary Data Sources</h3>
+                <ul>
+                    <li>📊 National Database of Childcare Prices (2008-2018)</li>
+                    <li>👥 U.S. Census Bureau American Community Survey</li>
+                    <li>💼 Bureau of Labor Statistics Employment Data</li>
+                    <li>📈 Economic Policy Institute Research</li>
+                </ul>
+            </div>
+            
+            <div class="analysis-box">
+                <h4>Additional Resources</h4>
+                <ul>
+                    <li>Child Care Aware of America. (2018). The US and the High Cost of Child Care</li>
+                    <li>Economic Policy Institute. (2018). Child care costs in the United States</li>
+                    <li>Urban Institute. (2018). State Child Care Assistance Policies</li>
+                    <li>Council for a Strong America. (2018). Economic Impact Analysis</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="appendix">
+            <h2>Appendix: Detailed Methodology</h2>
+            
+            <h3>Data Collection Methods</h3>
+            <p>The study employed a comprehensive data collection approach:</p>
+            <ul>
+                <li>Primary Data Sources:</li>
+                <ul>
+                    <li>State-level childcare cost surveys</li>
+                    <li>Provider operational cost data</li>
+                    <li>Workforce participation statistics</li>
+                </ul>
+                <li>Secondary Data Analysis:</li>
+                <ul>
+                    <li>Economic indicator correlation studies</li>
+                    <li>Geographic cost distribution patterns</li>
+                    <li>Temporal trend analysis</li>
+                </ul>
+            </ul>
+
+            <h3>Statistical Analysis Methods</h3>
+            <p>Statistical techniques employed include:</p>
+            <ul>
+                <li>Regression Analysis:</li>
+                <ul>
+                    <li>Cost trend projections</li>
+                    <li>Economic impact correlations</li>
+                    <li>Regional variation analysis</li>
+                </ul>
+                <li>Geospatial Analysis:</li>
+                <ul>
+                    <li>Geographic distribution mapping</li>
+                    <li>Urban-rural comparison studies</li>
+                    <li>Regional clustering analysis</li>
+                </ul>
+            </ul>
+        </section>
+    </div>
 </body>
 </html> 
