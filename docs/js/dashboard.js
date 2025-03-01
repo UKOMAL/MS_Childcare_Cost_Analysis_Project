@@ -1,6 +1,6 @@
 // Import visualization modules
-import { initMap, updateMap } from './map.js';
-import { initNetwork, updateNetwork } from './network.js';
+import { initMap, updateMap } from '/MS_Childcare_Cost_Analysis_Project/js/map.js';
+import { initNetwork, updateNetwork } from '/MS_Childcare_Cost_Analysis_Project/js/network.js';
 
 // Dashboard initialization and control logic
 document.addEventListener('DOMContentLoaded', async function() {
@@ -162,7 +162,7 @@ async function loadData() {
             ? '/MS_Childcare_Cost_Analysis_Project'
             : '';
             
-        // Construct data URL using absolute path from root
+        // Construct data URL using absolute path
         const dataUrl = `${baseUrl}/data/childcare_costs.json`;
         console.log('Attempting to load data from:', dataUrl);
         
