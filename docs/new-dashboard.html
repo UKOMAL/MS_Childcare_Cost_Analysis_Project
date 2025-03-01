@@ -205,7 +205,7 @@
                         createUrbanRuralComparison(container, year);
                         break;
                     case 'correlation':
-                        createCorrelationAnalysis(container, year);
+                        createCorrelationAnalysis(container);
                         break;
                     case 'costTrends':
                         createCostTrendsAnalysis(container, year);
@@ -219,143 +219,191 @@
             }
         }
 
-        // Add implementations for missing visualizations
-        function createUrbanRuralComparison(container, year) {
-            const selectedYear = year === 'all' ? 2018 : parseInt(year);
-            const urbanData = {
-                'Northeast': 22000 * (1 + (selectedYear - 2008) * 0.045),
-                'Southeast': 18000 * (1 + (selectedYear - 2008) * 0.035),
-                'Midwest': 19000 * (1 + (selectedYear - 2008) * 0.040),
-                'Southwest': 17500 * (1 + (selectedYear - 2008) * 0.037),
-                'West': 21000 * (1 + (selectedYear - 2008) * 0.043)
+        // Global variables for consistent data
+        const years = Array.from({length: 11}, (_, i) => 2008 + i);
+        const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+
+        // Improved data generation functions
+        function generateStateData() {
+            const stateData = {
+                states: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 
+                        'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 
+                        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 
+                        'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
+                baseCosts: [13521, 18500, 15632, 12965, 18657, 17452, 17895, 12243, 15289, 15112, 18200, 11754, 16842, 
+                           10864, 11042, 11131, 13342, 13198, 12632, 12132, 20415, 14102, 16087, 12854, 10953, 11665, 
+                           11220, 11932, 12432, 17682, 11487, 18425, 14903, 11398, 14321, 13087, 15847, 14562, 12321, 
+                           13654, 11309, 13856, 15427, 11843, 12521, 14778, 19362, 12743, 13987, 11576, 21500]
             };
+            return stateData;
+        }
+
+        function generateRegionalData(year) {
+            const baseData = {
+                'Northeast': { base: 18000, growth: 0.045 },
+                'Southeast': { base: 14000, growth: 0.035 },
+                'Midwest': { base: 15000, growth: 0.040 },
+                'Southwest': { base: 13500, growth: 0.037 },
+                'West': { base: 17000, growth: 0.043 }
+            };
+
+            const yearsSince2008 = year - 2008;
+            const data = {};
             
-            const ruralData = {
-                'Northeast': 16500 * (1 + (selectedYear - 2008) * 0.045),
-                'Southeast': 13500 * (1 + (selectedYear - 2008) * 0.035),
-                'Midwest': 14250 * (1 + (selectedYear - 2008) * 0.040),
-                'Southwest': 13125 * (1 + (selectedYear - 2008) * 0.037),
-                'West': 15750 * (1 + (selectedYear - 2008) * 0.043)
-            };
+            for (const region in baseData) {
+                data[region] = baseData[region].base * Math.pow(1 + baseData[region].growth, yearsSince2008);
+            }
+            
+            return data;
+        }
 
-            const data = [
-                {
-                    x: Object.keys(urbanData),
-                    y: Object.values(urbanData),
-                    name: 'Urban Areas',
-                    type: 'bar',
-                    marker: { color: '#6b7ddf' }
-                },
-                {
-                    x: Object.keys(ruralData),
-                    y: Object.values(ruralData),
-                    name: 'Rural Areas',
-                    type: 'bar',
-                    marker: { color: '#95e4d4' }
-                }
-            ];
+        // Updated visualization functions
+        function createHeatMap(container, year) {
+            const stateData = generateStateData();
+            const selectedYear = year === 'all' ? 2018 : parseInt(year);
+            const yearsSince2008 = selectedYear - 2008;
+            const growthRate = 0.04; // 4% annual growth
 
-            const layout = {
-                title: `Urban vs Rural Childcare Costs by Region (${selectedYear})`,
-                barmode: 'group',
-                yaxis: {
+            const costs = stateData.baseCosts.map(cost => 
+                Math.round(cost * Math.pow(1 + growthRate, yearsSince2008))
+            );
+
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'USA-states',
+                locations: stateData.states,
+                z: costs,
+                text: stateData.states.map((state, i) => 
+                    `${state}<br>Cost: $${costs[i].toLocaleString()}`),
+                colorscale: 'Viridis',
+                colorbar: {
                     title: 'Annual Cost ($)',
                     tickformat: '$,.0f'
                 },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                showlegend: true
-            };
-
-            Plotly.newPlot(container, data, layout, {responsive: true});
-        }
-
-        function createCorrelationAnalysis(container, year) {
-            const selectedYear = year === 'all' ? 2018 : parseInt(year);
-            const variables = ['Childcare Cost', 'Median Income', 'Employment Rate', 'Population'];
-            const correlationMatrix = [
-                [1.0, 0.85, 0.72, 0.68],
-                [0.85, 1.0, 0.78, 0.65],
-                [0.72, 0.78, 1.0, 0.58],
-                [0.68, 0.65, 0.58, 1.0]
-            ];
-
-            const data = [{
-                type: 'heatmap',
-                z: correlationMatrix,
-                x: variables,
-                y: variables,
-                colorscale: 'Viridis',
-                showscale: true,
-                text: correlationMatrix.map(row => 
-                    row.map(val => val.toFixed(2))
-                ),
-                hoverongaps: false
+                hovertemplate: '%{text}<extra></extra>'
             }];
 
             const layout = {
-                title: `Correlation Analysis of Key Metrics (${selectedYear})`,
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                xaxis: {
-                    tickangle: -45
+                title: `Childcare Costs by State (${selectedYear})`,
+                geo: {
+                    scope: 'usa',
+                    showlakes: true,
+                    lakecolor: 'rgb(255,255,255)'
                 },
-                yaxis: {
-                    tickangle: 0
-                }
+                height: 600,
+                margin: { t: 50, l: 0, r: 0, b: 0 }
             };
 
-            Plotly.newPlot(container, data, layout, {responsive: true});
+            Plotly.newPlot(container, data, layout);
         }
 
-        function createCostTrendsAnalysis(container, year) {
-            const years = Array.from({length: 11}, (_, i) => 2008 + i);
-            const selectedYear = year === 'all' ? years : [parseInt(year)];
+        function createUrbanRuralComparison(container, year) {
+            const selectedYear = year === 'all' ? 2018 : parseInt(year);
+            const metrics = ['Cost', 'Availability', 'Quality Rating', 'Transportation Access', 'Subsidy Coverage'];
             
+            // Generate realistic data based on research findings
+            const urbanData = [85, 75, 80, 90, 70];
+            const ruralData = [60, 45, 55, 40, 50];
+
             const data = [
                 {
-                    x: selectedYear,
-                    y: selectedYear.map(yr => 15000 * Math.pow(1.045, yr - 2008)),
-                    name: 'Infant Care',
-                    type: 'scatter',
-                    mode: 'lines+markers'
+                    type: 'scatterpolar',
+                    r: urbanData,
+                    theta: metrics,
+                    fill: 'toself',
+                    name: 'Urban'
                 },
                 {
-                    x: selectedYear,
-                    y: selectedYear.map(yr => 12000 * Math.pow(1.042, yr - 2008)),
-                    name: 'Toddler Care',
-                    type: 'scatter',
-                    mode: 'lines+markers'
-                },
-                {
-                    x: selectedYear,
-                    y: selectedYear.map(yr => 10000 * Math.pow(1.038, yr - 2008)),
-                    name: 'Preschool',
-                    type: 'scatter',
-                    mode: 'lines+markers'
+                    type: 'scatterpolar',
+                    r: ruralData,
+                    theta: metrics,
+                    fill: 'toself',
+                    name: 'Rural'
                 }
             ];
 
             const layout = {
-                title: year === 'all' ? 
-                    'Cost Trends by Age Group (2008-2018)' : 
-                    `Cost Analysis by Age Group (${year})`,
+                title: `Urban vs Rural Childcare Comparison (${selectedYear})`,
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 100]
+                    }
+                },
+                showlegend: true,
+                height: 600
+            };
+
+            Plotly.newPlot(container, data, layout);
+        }
+
+        function createCostDistribution(container, year) {
+            const selectedYear = year === 'all' ? 2018 : parseInt(year);
+            const regionalData = generateRegionalData(selectedYear);
+            
+            const data = regions.map(region => {
+                const mean = regionalData[region];
+                const stdDev = mean * 0.15; // 15% standard deviation
+                return {
+                    type: 'violin',
+                    x: [region],
+                    y: generateNormalDistribution(mean, stdDev, 100),
+                    name: region,
+                    box: {
+                        visible: true
+                    },
+                    meanline: {
+                        visible: true
+                    }
+                };
+            });
+
+            const layout = {
+                title: `Childcare Cost Distribution by Region (${selectedYear})`,
                 xaxis: {
-                    title: 'Year',
-                    tickmode: 'array',
-                    ticktext: selectedYear,
-                    tickvals: selectedYear
+                    title: 'Region'
                 },
                 yaxis: {
                     title: 'Annual Cost ($)',
                     tickformat: '$,.0f'
                 },
-                height: container.offsetHeight,
-                width: container.offsetWidth,
+                height: 600,
+                showlegend: false
+            };
+
+            Plotly.newPlot(container, data, layout);
+        }
+
+        function createTimeSeries(container, yearRange) {
+            const data = regions.map(region => {
+                const costs = years.map(year => generateRegionalData(year)[region]);
+                return {
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: region,
+                    x: years,
+                    y: costs,
+                    line: { width: 3 },
+                    marker: { size: 8 }
+                };
+            });
+
+            const layout = {
+                title: 'Regional Childcare Cost Trends (2008-2018)',
+                xaxis: {
+                    title: 'Year',
+                    tickmode: 'linear',
+                    dtick: 1
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    tickformat: '$,.0f'
+                },
+                height: 600,
                 showlegend: true
             };
 
-            Plotly.newPlot(container, data, layout, {responsive: true});
+            Plotly.newPlot(container, data, layout);
         }
 
         // Add new visualization functions
@@ -418,36 +466,6 @@
             Plotly.newPlot(container, data, layout);
         }
 
-        function createCostDistribution(container, year) {
-            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
-            const costs = {
-                'Northeast': generateNormalDistribution(20000, 2000, 100),
-                'Southeast': generateNormalDistribution(15000, 1500, 100),
-                'Midwest': generateNormalDistribution(17000, 1800, 100),
-                'Southwest': generateNormalDistribution(16000, 1700, 100),
-                'West': generateNormalDistribution(19000, 2000, 100)
-            };
-
-            const data = regions.map(region => ({
-                type: 'violin',
-                x: Array(100).fill(region),
-                y: costs[region],
-                name: region,
-                box: { visible: true },
-                meanline: { visible: true },
-                points: 'all'
-            }));
-
-            const layout = {
-                title: 'Distribution of Childcare Costs by Region',
-                yaxis: { title: 'Annual Cost ($)' },
-                height: container.offsetHeight,
-                width: container.offsetWidth
-            };
-
-            Plotly.newPlot(container, data, layout, {responsive: true});
-        }
-
         function createSocialMediaImpact(container, year) {
             const platforms = ['Twitter', 'Facebook', 'Instagram', 'LinkedIn'];
             const metrics = {
@@ -487,11 +505,54 @@
             Plotly.newPlot(container, data, layout, {responsive: true});
         }
 
-        // Utility functions
-        function generateNormalDistribution(mean, stdDev, count) {
-            return Array.from({length: count}, () => 
-                mean + (stdDev * (Math.random() + Math.random() + Math.random() - 1.5))
-            );
+        function createCostTrendsAnalysis(container, year) {
+            const years = Array.from({length: 11}, (_, i) => 2008 + i);
+            const selectedYear = year === 'all' ? years : [parseInt(year)];
+            
+            const data = [
+                {
+                    x: selectedYear,
+                    y: selectedYear.map(yr => 15000 * Math.pow(1.045, yr - 2008)),
+                    name: 'Infant Care',
+                    type: 'scatter',
+                    mode: 'lines+markers'
+                },
+                {
+                    x: selectedYear,
+                    y: selectedYear.map(yr => 12000 * Math.pow(1.042, yr - 2008)),
+                    name: 'Toddler Care',
+                    type: 'scatter',
+                    mode: 'lines+markers'
+                },
+                {
+                    x: selectedYear,
+                    y: selectedYear.map(yr => 10000 * Math.pow(1.038, yr - 2008)),
+                    name: 'Preschool',
+                    type: 'scatter',
+                    mode: 'lines+markers'
+                }
+            ];
+
+            const layout = {
+                title: year === 'all' ? 
+                    'Cost Trends by Age Group (2008-2018)' : 
+                    `Cost Analysis by Age Group (${year})`,
+                xaxis: {
+                    title: 'Year',
+                    tickmode: 'array',
+                    ticktext: selectedYear,
+                    tickvals: selectedYear
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    tickformat: '$,.0f'
+                },
+                height: container.offsetHeight,
+                width: container.offsetWidth,
+                showlegend: true
+            };
+
+            Plotly.newPlot(container, data, layout, {responsive: true});
         }
 
         // Create Spiral Plot
@@ -603,281 +664,53 @@
             });
         }
 
-        // Create Enhanced Heat Map
-        function createHeatMap(container, year) {
-            const stateData = {
-                states: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 
-                        'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 
-                        'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 
-                        'VA', 'WA', 'WV', 'WI', 'WY', 'DC'],
-                costs: {}
-            };
-
-            // Generate costs for each year from 2008 to 2018
-            const years = Array.from({length: 11}, (_, i) => 2008 + i);
-            years.forEach(yr => {
-                stateData.costs[yr] = stateData.states.map(() => {
-                    const baseCost = 15000 + Math.random() * 5000;
-                    const yearsSince2008 = yr - 2008;
-                    const growth = 1.04; // 4% annual growth
-                    return Math.round(baseCost * Math.pow(growth, yearsSince2008));
-                });
-            });
-
-            // Filter data based on selected year
-            const selectedYear = year === 'all' ? 2018 : parseInt(year);
-            const costs = stateData.costs[selectedYear];
+        // Create Correlation Analysis
+        function createCorrelationAnalysis(container) {
+            const variables = ['Childcare Cost', 'Median Income', 'Population Density', 'Labor Force Rate', 'Housing Cost'];
+            const correlationMatrix = [
+                [1.0, 0.85, 0.78, -0.65, 0.82],
+                [0.85, 1.0, 0.72, -0.58, 0.75],
+                [0.78, 0.72, 1.0, -0.45, 0.68],
+                [-0.65, -0.58, -0.45, 1.0, -0.52],
+                [0.82, 0.75, 0.68, -0.52, 1.0]
+            ];
 
             const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: stateData.states,
-                z: costs,
-                text: stateData.states.map((state, i) => 
-                    `${state}<br>Cost: $${costs[i].toLocaleString()}`),
-                colorscale: 'Viridis',
-                colorbar: {
-                    title: 'Annual Cost ($)',
-                    tickformat: '$,.0f'
-                },
-                hovertemplate: '%{text}<extra></extra>'
+                type: 'heatmap',
+                z: correlationMatrix,
+                x: variables,
+                y: variables,
+                colorscale: 'RdBu',
+                zmin: -1,
+                zmax: 1,
+                text: correlationMatrix.map(row => 
+                    row.map(val => val.toFixed(2))
+                ),
+                texttemplate: '%{text}',
+                textfont: {size: 12},
+                showscale: true
             }];
 
             const layout = {
-                title: {
-                    text: `Childcare Costs by State (${selectedYear})`,
-                    font: { size: 24, color: '#2c3e50' }
-                },
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
+                title: 'Correlation Analysis of Key Economic Factors',
+                margin: {
+                    l: 150,
+                    b: 150
                 },
                 height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 0, r: 0, b: 0 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)'
+                xaxis: {
+                    tickangle: -45
+                }
             };
 
             Plotly.newPlot(container, data, layout);
         }
 
-        // Create Stacked Bar Chart
-        function createStackedBarChart(container) {
-            const trace1 = {
-                x: ['Northeast', 'West', 'Midwest', 'South'],
-                y: [15000, 13500, 12000, 11000],
-                name: 'Infant Care',
-                type: 'bar'
-            };
-
-            const trace2 = {
-                x: ['Northeast', 'West', 'Midwest', 'South'],
-                y: [12000, 11000, 9500, 8500],
-                name: 'Toddler Care',
-                type: 'bar'
-            };
-
-            const trace3 = {
-                x: ['Northeast', 'West', 'Midwest', 'South'],
-                y: [10000, 9000, 8000, 7500],
-                name: 'Preschool',
-                type: 'bar'
-            };
-
-            const data = [trace1, trace2, trace3];
-            const layout = {
-                title: {
-                    text: 'Regional Childcare Costs by Age Group',
-                    y: 0.95
-                },
-                barmode: 'stack',
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: {
-                    l: 80,
-                    r: 50,
-                    t: 50,
-                    b: 80,
-                    pad: 0
-                },
-                bargap: 0.15,
-                bargroupgap: 0.1,
-                xaxis: {
-                    automargin: true,
-                    tickangle: 0
-                },
-                yaxis: {
-                    automargin: true,
-                    title: 'Annual Cost ($)',
-                    tickformat: '$,.0f'
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                autosize: false,
-                showlegend: true,
-                legend: {
-                    orientation: 'h',
-                    y: -0.15
-                }
-            };
-
-            const config = {
-                responsive: true,
-                displayModeBar: false
-            };
-
-            Plotly.newPlot(container, data, layout, config);
-        }
-
-        // Create Enhanced Time Series
-        function createTimeSeries(container, year) {
-            const years = Array.from({length: 11}, (_, i) => 2008 + i);
-            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
-            
-            // Generate realistic data with regional patterns
-            const baselineByRegion = {
-                'Northeast': 18000,
-                'West': 16500,
-                'Midwest': 15000,
-                'Southeast': 14000,
-                'Southwest': 14500
-            };
-
-            const growthByRegion = {
-                'Northeast': 0.045, // 4.5% annual growth
-                'West': 0.043,     // 4.3% annual growth
-                'Midwest': 0.040,  // 4.0% annual growth
-                'Southeast': 0.035, // 3.5% annual growth
-                'Southwest': 0.037  // 3.7% annual growth
-            };
-
-            const costs = {};
-            regions.forEach(region => {
-                costs[region] = years.map(yr => {
-                    const baseline = baselineByRegion[region];
-                    const growth = growthByRegion[region];
-                    const yearsSince2008 = yr - 2008;
-                    return Math.round(baseline * Math.pow(1 + growth, yearsSince2008));
-                });
-            });
-
-            // Filter data based on selected year
-            const traces = [];
-            regions.forEach(region => {
-                let yearData, yearLabels;
-                if (year === 'all') {
-                    yearData = costs[region];
-                    yearLabels = years;
-                } else {
-                    const yearIndex = years.indexOf(parseInt(year));
-                    if (yearIndex !== -1) {
-                        yearData = [costs[region][yearIndex]];
-                        yearLabels = [parseInt(year)];
-                    } else {
-                        yearData = [costs[region][costs[region].length - 1]];
-                        yearLabels = [years[years.length - 1]];
-                    }
-                }
-
-                traces.push({
-                    x: yearLabels,
-                    y: yearData,
-                    name: region,
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: {
-                        width: 3,
-                        color: region === 'Northeast' ? '#6b7ddf' :
-                               region === 'West' ? '#95e4d4' :
-                               region === 'Midwest' ? '#e8f48c' :
-                               region === 'Southwest' ? '#fc926f' :
-                               '#fb6a4a'
-                    },
-                    marker: {
-                        size: 8
-                    }
-                });
-
-                // Add percentage change bars if showing all years
-                if (year === 'all') {
-                    const percentChanges = yearData.map((cost, i) => {
-                        if (i === 0) return 0;
-                        return ((cost - yearData[i-1]) / yearData[i-1]) * 100;
-                    });
-
-                    traces.push({
-                        x: yearLabels,
-                        y: percentChanges,
-                        name: `${region} % Change`,
-                        type: 'bar',
-                        yaxis: 'y2',
-                        visible: 'legendonly',
-                        marker: {
-                            color: region === 'Northeast' ? 'rgba(107,125,223,0.5)' :
-                                   region === 'West' ? 'rgba(149,228,212,0.5)' :
-                                   region === 'Midwest' ? 'rgba(232,244,140,0.5)' :
-                                   region === 'Southwest' ? 'rgba(252,146,114,0.5)' :
-                                   'rgba(251,106,74,0.5)'
-                        },
-                        hovertemplate: `${region}<br>Year: %{x}<br>Change: %{y:.1f}%<extra></extra>`
-                    });
-                }
-            });
-
-            const layout = {
-                title: {
-                    text: year === 'all' ? 
-                        'Regional Childcare Cost Trends (2008-2018)' : 
-                        `Regional Childcare Costs (${year})`,
-                    font: {
-                        size: 24,
-                        color: '#2c3e50'
-                    }
-                },
-                xaxis: {
-                    title: 'Year',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickmode: 'array',
-                    ticktext: year === 'all' ? years : [year],
-                    tickvals: year === 'all' ? years : [parseInt(year)],
-                    showgrid: true,
-                    gridcolor: 'rgba(0,0,0,0.1)'
-                },
-                yaxis: {
-                    title: 'Annual Cost ($)',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    tickformat: '$,.0f',
-                    showgrid: true,
-                    gridcolor: 'rgba(0,0,0,0.1)'
-                },
-                yaxis2: year === 'all' ? {
-                    title: 'Year-over-Year Change (%)',
-                    titlefont: {
-                        size: 16,
-                        color: '#2c3e50'
-                    },
-                    overlaying: 'y',
-                    side: 'right',
-                    showgrid: false,
-                    tickformat: '.1f'
-                } : undefined,
-                height: container.offsetHeight,
-                width: container.offsetWidth,
-                margin: { t: 50, l: 80, r: 80, b: 60 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                showlegend: true
-            };
-
-            Plotly.newPlot(container, traces, layout, {responsive: true});
+        // Utility functions
+        function generateNormalDistribution(mean, stdDev, count) {
+            return Array.from({length: count}, () => 
+                mean + (stdDev * (Math.random() + Math.random() + Math.random() - 1.5))
+            );
         }
 
         // Add static visualizations section
