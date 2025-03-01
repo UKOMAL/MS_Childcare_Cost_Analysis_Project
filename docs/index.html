@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/MS_Childcare_Cost_Analysis_Project/">
     <title>U.S. Childcare Cost Analysis Dashboard</title>
     
     <!-- Favicon -->
@@ -260,7 +259,8 @@
     
     <!-- Custom JavaScript -->
     <script type="module">
-        import { initializeDashboard } from './js/dashboard.js';
+        // Use complete HTTPS URL for imports
+        import { initializeDashboard } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/dashboard.js';
         
         // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', async () => {

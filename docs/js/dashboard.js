@@ -1,6 +1,6 @@
 // Import visualization modules
-import { initMap, updateMap } from '/MS_Childcare_Cost_Analysis_Project/js/map.js';
-import { initNetwork, updateNetwork } from '/MS_Childcare_Cost_Analysis_Project/js/network.js';
+import { initMap, updateMap } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/map.js';
+import { initNetwork, updateNetwork } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/network.js';
 
 // Dashboard initialization and control logic
 document.addEventListener('DOMContentLoaded', async function() {
@@ -157,13 +157,12 @@ async function loadData() {
     try {
         console.log('Starting data loading process...');
         
-        // Get the base URL for GitHub Pages
-        const baseUrl = window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
-            ? '/MS_Childcare_Cost_Analysis_Project'
-            : '';
-            
-        // Construct data URL using absolute path
-        const dataUrl = `${baseUrl}/data/childcare_costs.json`;
+        // Get the full GitHub Pages URL
+        const githubPagesUrl = 'https://ukomal.github.io';
+        const repoPath = '/MS_Childcare_Cost_Analysis_Project';
+        
+        // Construct complete HTTPS URL for data
+        const dataUrl = `${githubPagesUrl}${repoPath}/data/childcare_costs.json`;
         console.log('Attempting to load data from:', dataUrl);
         
         const response = await fetch(dataUrl);
@@ -201,9 +200,7 @@ async function loadData() {
         showError('Error Loading Data', 
             `Failed to load data: ${error.message}<br>
             Current URL: ${window.location.href}<br>
-            Attempted data URL: ${window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
-                ? '/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json' 
-                : '/data/childcare_costs.json'}<br>
+            Attempted data URL: https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json<br>
             Please check the browser console for more details.`
         );
         return null;
