@@ -158,19 +158,30 @@
         // Create Spiral Plot
         function createSpiralPlot(container) {
             const states = [
-                {state: 'CA', cost: 1200},
-                {state: 'NY', cost: 1150},
-                {state: 'MA', cost: 1100},
-                // Add more states...
+                {state: 'MA', cost: 1520},
+                {state: 'CA', cost: 1450},
+                {state: 'NY', cost: 1380},
+                {state: 'NJ', cost: 1400},
+                {state: 'MD', cost: 1350},
+                {state: 'WA', cost: 1320},
+                {state: 'CO', cost: 1280},
+                {state: 'MN', cost: 1220},
+                {state: 'IL', cost: 1200},
+                {state: 'OR', cost: 1180},
+                {state: 'VA', cost: 1150},
+                {state: 'TX', cost: 1100},
+                {state: 'NC', cost: 1080},
+                {state: 'AZ', cost: 1050},
+                {state: 'FL', cost: 980}
             ];
 
             // Sort states by cost
             states.sort((a, b) => b.cost - a.cost);
 
-            // Calculate spiral coordinates
+            // Calculate spiral coordinates with larger spacing
             const points = states.map((state, i) => {
-                const theta = i * 0.5;
-                const r = 50 + i * 10;
+                const theta = i * 0.8; // Increased angle
+                const r = 100 + i * 15; // Increased radius and spacing
                 return {
                     x: r * Math.cos(theta),
                     y: r * Math.sin(theta),
@@ -187,12 +198,13 @@
                 text: points.map(p => `${p.state}<br>$${p.cost}`),
                 textposition: 'top center',
                 marker: {
-                    size: points.map(p => p.cost/50),
+                    size: points.map(p => p.cost/40),
                     color: points.map(p => p.cost),
                     colorscale: 'Viridis'
                 },
                 line: {
-                    color: '#ddd'
+                    color: '#ddd',
+                    width: 2
                 }
             };
 
@@ -202,21 +214,19 @@
                 xaxis: {
                     zeroline: false,
                     showgrid: false,
-                    showticklabels: false
+                    showticklabels: false,
+                    range: [-500, 500]
                 },
                 yaxis: {
                     zeroline: false,
                     showgrid: false,
-                    showticklabels: false
+                    showticklabels: false,
+                    range: [-500, 500]
                 },
-                annotations: [{
-                    x: 0,
-                    y: -0.1,
-                    text: 'States arranged in spiral by childcare cost',
-                    showarrow: false,
-                    xref: 'paper',
-                    yref: 'paper'
-                }]
+                width: 800,
+                height: 800,
+                plot_bgcolor: '#fff',
+                paper_bgcolor: '#fff'
             };
 
             Plotly.newPlot(container, [trace], layout);
@@ -376,21 +386,24 @@
             Plotly.newPlot(container, [trace1, trace2], layout);
         }
 
-        // Initialize with default visualization
-        document.addEventListener('DOMContentLoaded', () => {
-            updateVisualization('geoChoropleth');
-            
-            // Add event listener for visualization type changes
-            document.getElementById('visualizationType').addEventListener('change', (e) => {
-                updateVisualization(e.target.value);
-            });
+        // Initialize with default visualization and ensure all scripts are loaded
+        window.onload = function() {
+            if (typeof Plotly !== 'undefined' && typeof d3 !== 'undefined') {
+                updateVisualization('geoChoropleth');
+                
+                // Add event listeners
+                document.getElementById('visualizationType').addEventListener('change', (e) => {
+                    updateVisualization(e.target.value);
+                });
 
-            // Add event listener for year filter changes
-            document.getElementById('yearFilter').addEventListener('change', (e) => {
-                const visType = document.getElementById('visualizationType').value;
-                updateVisualization(visType);
-            });
-        });
+                document.getElementById('yearFilter').addEventListener('change', (e) => {
+                    const visType = document.getElementById('visualizationType').value;
+                    updateVisualization(visType);
+                });
+            } else {
+                console.error('Required libraries not loaded');
+            }
+        };
     </script>
 </body>
 </html> 

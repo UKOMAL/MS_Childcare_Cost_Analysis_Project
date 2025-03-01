@@ -134,6 +134,8 @@
         <div class="visualization">
             <div id="violinPlot" style="height: 500px;"></div>
             <p>Figure 3: Distribution of childcare costs in urban and rural areas</p>
+            <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" style="margin-top: 20px;">
+            <p>Figure 3b: Detailed comparison of urban and rural childcare costs</p>
         </div>
 
         <h2>4. Female Labor Force Impact</h2>
@@ -177,7 +179,9 @@
         <h2>6. Trend Analysis</h2>
         <div class="visualization">
             <img src="images/time_series.png" alt="Cost Trends Over Time">
-            <p>Figure 6: Evolution of childcare costs (2008-2018)</p>
+            <p>Figure 6a: Evolution of childcare costs (2008-2018)</p>
+            <img src="images/cost_trends.png" alt="Detailed Cost Trends">
+            <p>Figure 6b: Detailed analysis of cost trends by region</p>
         </div>
         <p>The analysis reveals a consistent upward trend in childcare costs over the past decade, with an average annual increase of 3.9% nationwide. This rate significantly outpaces both inflation (2.1%) and wage growth (2.6%) during the same period.</p>
 
@@ -233,6 +237,18 @@
     </div>
 
     <script>
+        // Initialize all visualizations when the page loads
+        window.onload = function() {
+            if (typeof Plotly !== 'undefined' && typeof d3 !== 'undefined') {
+                createChoroplethMap();
+                createSpiralPlot();
+                createViolinPlot();
+                createLaborForceMap();
+            } else {
+                console.error('Required libraries not loaded');
+            }
+        };
+
         // Create Choropleth Map
         function createChoroplethMap() {
             const data = [{
@@ -259,7 +275,7 @@
             Plotly.newPlot('geoChoropleth', data, layout);
         }
 
-        // Create Spiral Plot
+        // Create Spiral Plot with improved visibility
         function createSpiralPlot() {
             const states = [
                 {state: 'MA', cost: 1520},
@@ -282,10 +298,10 @@
             // Sort states by cost
             states.sort((a, b) => b.cost - a.cost);
 
-            // Calculate spiral coordinates
+            // Calculate spiral coordinates with larger spacing
             const points = states.map((state, i) => {
-                const theta = i * 0.5;
-                const r = 50 + i * 10;
+                const theta = i * 0.8;
+                const r = 100 + i * 15;
                 return {
                     x: r * Math.cos(theta),
                     y: r * Math.sin(theta),
@@ -302,12 +318,13 @@
                 text: points.map(p => `${p.state}<br>$${p.cost}`),
                 textposition: 'top center',
                 marker: {
-                    size: points.map(p => p.cost/50),
+                    size: points.map(p => p.cost/40),
                     color: points.map(p => p.cost),
                     colorscale: 'Viridis'
                 },
                 line: {
-                    color: '#ddd'
+                    color: '#ddd',
+                    width: 2
                 }
             };
 
@@ -317,13 +334,19 @@
                 xaxis: {
                     zeroline: false,
                     showgrid: false,
-                    showticklabels: false
+                    showticklabels: false,
+                    range: [-500, 500]
                 },
                 yaxis: {
                     zeroline: false,
                     showgrid: false,
-                    showticklabels: false
-                }
+                    showticklabels: false,
+                    range: [-500, 500]
+                },
+                width: 800,
+                height: 800,
+                plot_bgcolor: '#fff',
+                paper_bgcolor: '#fff'
             };
 
             Plotly.newPlot('costSpiral', [trace], layout);
@@ -400,14 +423,6 @@
 
             Plotly.newPlot('laborForceMap', data, layout);
         }
-
-        // Initialize all visualizations
-        document.addEventListener('DOMContentLoaded', () => {
-            createChoroplethMap();
-            createSpiralPlot();
-            createViolinPlot();
-            createLaborForceMap();
-        });
     </script>
 </body>
 </html> 
