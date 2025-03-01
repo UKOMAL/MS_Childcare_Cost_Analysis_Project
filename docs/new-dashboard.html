@@ -10,17 +10,19 @@
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
             color: #333;
+            min-height: 100vh;
         }
         .dashboard-container {
-            max-width: 1400px;
-            margin: 20px auto;
+            max-width: 95%;
+            margin: 0 auto;
             padding: 20px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-x: hidden;
         }
         .header {
             text-align: center;
@@ -43,6 +45,8 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            overflow: hidden;
         }
         select {
             padding: 8px 15px;
@@ -76,6 +80,11 @@
             border-radius: 5px;
             pointer-events: none;
             font-size: 12px;
+        }
+        #mainVisualization {
+            width: 100% !important;
+            height: 700px !important;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -119,7 +128,7 @@
         </div>
 
         <div class="visualization-container">
-            <div id="mainVisualization" style="height: 600px;"></div>
+            <div id="mainVisualization"></div>
         </div>
 
         <div class="legend">
@@ -174,13 +183,34 @@
             const layout = {
                 title: 'Childcare Costs by State (Spiral View)',
                 showlegend: false,
-                height: 800,
+                height: 700,
                 width: container.offsetWidth,
-                xaxis: {showgrid: false, zeroline: false},
-                yaxis: {showgrid: false, zeroline: false}
+                xaxis: {
+                    showgrid: false, 
+                    zeroline: false,
+                    automargin: true
+                },
+                yaxis: {
+                    showgrid: false, 
+                    zeroline: false,
+                    automargin: true
+                },
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 50,
+                    b: 50,
+                    pad: 4
+                },
+                autosize: true
             };
 
-            Plotly.newPlot(container, [trace], layout);
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, [trace], layout, config);
         }
 
         // Create Enhanced Heat Map
@@ -210,13 +240,28 @@
                 geo: {
                     scope: 'usa',
                     showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
+                    lakecolor: 'rgb(255,255,255)',
+                    projection: {
+                        type: 'albers usa'
+                    }
                 },
-                height: 800,
-                width: container.offsetWidth
+                height: 700,
+                width: container.offsetWidth,
+                margin: {
+                    l: 0,
+                    r: 0,
+                    t: 50,
+                    b: 0
+                },
+                autosize: true
             };
 
-            Plotly.newPlot(container, data, layout);
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, data, layout, config);
         }
 
         // Create Stacked Bar Chart
@@ -246,11 +291,31 @@
             const layout = {
                 title: 'Regional Childcare Costs by Age Group',
                 barmode: 'stack',
-                height: 600,
-                width: container.offsetWidth
+                height: 700,
+                width: container.offsetWidth,
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 50,
+                    b: 50,
+                    pad: 4
+                },
+                autosize: true,
+                xaxis: {
+                    automargin: true
+                },
+                yaxis: {
+                    automargin: true,
+                    title: 'Annual Cost ($)'
+                }
             };
 
-            Plotly.newPlot(container, data, layout);
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, data, layout, config);
         }
 
         // Create Enhanced Time Series
@@ -298,14 +363,37 @@
 
             const layout = {
                 title: 'Childcare Cost Trends by Region (2008-2018)',
-                xaxis: {title: 'Year'},
-                yaxis: {title: 'Annual Cost ($)'},
-                height: 600,
+                height: 700,
                 width: container.offsetWidth,
-                showlegend: true
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 50,
+                    b: 50,
+                    pad: 4
+                },
+                autosize: true,
+                xaxis: {
+                    title: 'Year',
+                    automargin: true
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    automargin: true
+                },
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.2
+                }
             };
 
-            Plotly.newPlot(container, traces, layout);
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, traces, layout, config);
         }
 
         // Main visualization update function
@@ -327,10 +415,10 @@
                     createStackedBarChart(container);
                     break;
                 case 'laborForceMap':
-                    container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force" style="width: 100%; height: auto;">`;
-                    break;
                 case 'urbanRuralComparison':
-                    container.innerHTML = `<img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" style="width: 100%; height: auto;">`;
+                    container.innerHTML = `<img src="images/${type === 'laborForceMap' ? 'female_labor_force' : 'urban_rural_comparison'}.png" 
+                        alt="${type === 'laborForceMap' ? 'Female Labor Force' : 'Urban vs Rural Comparison'}" 
+                        style="width: 100%; height: 100%; object-fit: contain; max-height: 700px;">`;
                     break;
             }
         }
@@ -357,6 +445,12 @@
                 });
 
                 document.getElementById('yearFilter').addEventListener('change', (e) => {
+                    const visType = document.getElementById('visualizationType').value;
+                    updateVisualization(visType);
+                });
+
+                // Add window resize handler
+                window.addEventListener('resize', function() {
                     const visType = document.getElementById('visualizationType').value;
                     updateVisualization(visType);
                 });
