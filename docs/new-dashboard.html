@@ -132,270 +132,33 @@
         // Main visualization update function
         function updateVisualization(type) {
             const container = document.getElementById('mainVisualization');
+            container.innerHTML = ''; // Clear previous content
             
             switch(type) {
                 case 'geoChoropleth':
-                    createChoroplethMap(container);
+                    container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Geographic Distribution" style="width: 100%; height: auto;">`;
                     break;
                 case 'laborForceMap':
-                    createLaborForceMap(container);
+                    container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force" style="width: 100%; height: auto;">`;
                     break;
                 case 'costSpiral':
-                    createSpiralPlot(container);
+                    container.innerHTML = `<img src="images/cost_spiral.png" alt="Cost Spiral Analysis" style="width: 100%; height: auto;">`;
                     break;
                 case 'timeSeriesAnalysis':
-                    createTimeSeriesAnalysis(container);
+                    container.innerHTML = `<img src="images/time_series.png" alt="Time Series Analysis" style="width: 100%; height: auto;">`;
                     break;
                 case 'correlationMatrix':
-                    createCorrelationMatrix(container);
+                    container.innerHTML = `<img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%; height: auto;">`;
                     break;
                 case 'urbanRuralComparison':
-                    createUrbanRuralComparison(container);
+                    container.innerHTML = `<img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" style="width: 100%; height: auto;">`;
                     break;
             }
-        }
-
-        // Create Spiral Plot
-        function createSpiralPlot(container) {
-            const states = [
-                {state: 'MA', cost: 1520},
-                {state: 'CA', cost: 1450},
-                {state: 'NY', cost: 1380},
-                {state: 'NJ', cost: 1400},
-                {state: 'MD', cost: 1350},
-                {state: 'WA', cost: 1320},
-                {state: 'CO', cost: 1280},
-                {state: 'MN', cost: 1220},
-                {state: 'IL', cost: 1200},
-                {state: 'OR', cost: 1180},
-                {state: 'VA', cost: 1150},
-                {state: 'TX', cost: 1100},
-                {state: 'NC', cost: 1080},
-                {state: 'AZ', cost: 1050},
-                {state: 'FL', cost: 980}
-            ];
-
-            // Sort states by cost
-            states.sort((a, b) => b.cost - a.cost);
-
-            // Calculate spiral coordinates with larger spacing
-            const points = states.map((state, i) => {
-                const theta = i * 0.8; // Increased angle
-                const r = 100 + i * 15; // Increased radius and spacing
-                return {
-                    x: r * Math.cos(theta),
-                    y: r * Math.sin(theta),
-                    state: state.state,
-                    cost: state.cost
-                };
-            });
-
-            const trace = {
-                x: points.map(p => p.x),
-                y: points.map(p => p.y),
-                mode: 'markers+lines+text',
-                type: 'scatter',
-                text: points.map(p => `${p.state}<br>$${p.cost}`),
-                textposition: 'top center',
-                marker: {
-                    size: points.map(p => p.cost/40),
-                    color: points.map(p => p.cost),
-                    colorscale: 'Viridis'
-                },
-                line: {
-                    color: '#ddd',
-                    width: 2
-                }
-            };
-
-            const layout = {
-                title: 'State Childcare Costs Spiral Analysis',
-                showlegend: false,
-                xaxis: {
-                    zeroline: false,
-                    showgrid: false,
-                    showticklabels: false,
-                    range: [-500, 500]
-                },
-                yaxis: {
-                    zeroline: false,
-                    showgrid: false,
-                    showticklabels: false,
-                    range: [-500, 500]
-                },
-                width: 800,
-                height: 800,
-                plot_bgcolor: '#fff',
-                paper_bgcolor: '#fff'
-            };
-
-            Plotly.newPlot(container, [trace], layout);
-        }
-
-        // Create Labor Force Map
-        function createLaborForceMap(container) {
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: ['CA', 'NY', 'TX', 'FL', 'IL', 'MA', 'WA', 'OR', 'CO', 'VA', 'NJ', 'MD', 'MN', 'AZ', 'NC'],
-                z: [75.2, 72.8, 70.5, 68.9, 71.3, 74.6, 73.2, 71.8, 72.5, 71.9, 73.4, 74.1, 72.7, 69.5, 70.8],
-                text: ['California', 'New York', 'Texas', 'Florida', 'Illinois', 'Massachusetts', 'Washington', 'Oregon', 'Colorado', 'Virginia', 'New Jersey', 'Maryland', 'Minnesota', 'Arizona', 'North Carolina'],
-                colorscale: 'RdBu',
-                colorbar: {
-                    title: 'Female Labor<br>Force Participation (%)'
-                }
-            }];
-
-            const layout = {
-                title: 'Female Labor Force Participation Rate by State',
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
-                }
-            };
-
-            Plotly.newPlot(container, data, layout);
-        }
-
-        // Create Choropleth Map
-        function createChoroplethMap(container) {
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: ['CA', 'NY', 'TX', 'FL', 'IL', 'MA', 'WA', 'OR', 'CO', 'VA', 'NJ', 'MD', 'MN', 'AZ', 'NC'],
-                z: [1450, 1380, 1100, 980, 1200, 1520, 1320, 1180, 1280, 1150, 1400, 1350, 1220, 1050, 1080],
-                text: ['California', 'New York', 'Texas', 'Florida', 'Illinois', 'Massachusetts', 'Washington', 'Oregon', 'Colorado', 'Virginia', 'New Jersey', 'Maryland', 'Minnesota', 'Arizona', 'North Carolina'],
-                colorscale: 'Viridis',
-                colorbar: {
-                    title: 'Monthly Childcare<br>Cost ($)'
-                }
-            }];
-
-            const layout = {
-                title: 'Average Monthly Childcare Costs by State',
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
-                }
-            };
-
-            Plotly.newPlot(container, data, layout);
-        }
-
-        // Create Time Series Analysis
-        function createTimeSeriesAnalysis(container) {
-            const years = ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018'];
-            const costs = [850, 880, 920, 960, 1000, 1050, 1100, 1150, 1200, 1250, 1300];
-            
-            const trace = {
-                x: years,
-                y: costs,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: {
-                    color: '#4E54C8',
-                    width: 3
-                },
-                marker: {
-                    size: 8,
-                    color: '#FF6B6B'
-                }
-            };
-
-            const layout = {
-                title: 'Average Childcare Costs Over Time (2008-2018)',
-                xaxis: {
-                    title: 'Year'
-                },
-                yaxis: {
-                    title: 'Average Monthly Cost ($)'
-                }
-            };
-
-            Plotly.newPlot(container, [trace], layout);
-        }
-
-        // Create Correlation Matrix
-        function createCorrelationMatrix(container) {
-            const data = [{
-                type: 'heatmap',
-                z: [
-                    [1.0, 0.85, 0.72, 0.68],
-                    [0.85, 1.0, 0.65, 0.71],
-                    [0.72, 0.65, 1.0, 0.58],
-                    [0.68, 0.71, 0.58, 1.0]
-                ],
-                x: ['Childcare Cost', 'Median Income', 'Female Employment', 'Population'],
-                y: ['Childcare Cost', 'Median Income', 'Female Employment', 'Population'],
-                colorscale: 'RdBu',
-                zmin: -1,
-                zmax: 1
-            }];
-
-            const layout = {
-                title: 'Correlation Matrix of Key Factors',
-                width: 600,
-                height: 600
-            };
-
-            Plotly.newPlot(container, data, layout);
-        }
-
-        // Create Urban Rural Comparison
-        function createUrbanRuralComparison(container) {
-            const trace1 = {
-                y: Array.from({length: 100}, () => Math.random() * 400 + 1200),
-                type: 'violin',
-                name: 'Urban',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#4E54C8'
-                },
-                meanline: {
-                    visible: true
-                }
-            };
-
-            const trace2 = {
-                y: Array.from({length: 100}, () => Math.random() * 300 + 800),
-                type: 'violin',
-                name: 'Rural',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#FF6B6B'
-                },
-                meanline: {
-                    visible: true
-                }
-            };
-
-            const layout = {
-                title: 'Distribution of Childcare Costs: Urban vs Rural',
-                yaxis: {
-                    title: 'Monthly Cost ($)'
-                },
-                violinmode: 'group'
-            };
-
-            Plotly.newPlot(container, [trace1, trace2], layout);
         }
 
         // Initialize with default visualization and ensure all scripts are loaded
         function initializeDashboard() {
             try {
-                if (typeof Plotly === 'undefined') {
-                    throw new Error('Plotly library not loaded');
-                }
-                if (typeof d3 === 'undefined') {
-                    throw new Error('D3 library not loaded');
-                }
-                
                 // Initialize default visualization
                 updateVisualization('geoChoropleth');
                 
@@ -415,7 +178,7 @@
             }
         }
 
-        // Ensure libraries are loaded before initialization
+        // Ensure initialization happens when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeDashboard);
         } else {

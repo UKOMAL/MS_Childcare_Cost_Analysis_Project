@@ -51,12 +51,20 @@
         .visualization {
             margin: 30px 0;
             text-align: center;
+            width: 100%;
         }
         .visualization img {
             max-width: 100%;
             height: auto;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            display: block;
+        }
+        .figure-caption {
+            margin-top: 10px;
+            color: #666;
+            font-style: italic;
         }
         .key-finding {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -117,7 +125,7 @@
                     <p class="figure-caption">Figure 1: Geographic distribution of childcare costs across states</p>
                 </div>
                 <div class="visualization">
-                    <div id="spiralPlot"></div>
+                    <img src="images/cost_spiral.png" alt="Cost Spiral Analysis">
                     <p class="figure-caption">Figure 2: Spiral visualization of state-wise childcare costs</p>
                 </div>
             </div>
@@ -129,16 +137,16 @@
                     <p class="figure-caption">Figure 3: Distribution of childcare costs by income levels</p>
                 </div>
                 <div class="visualization">
-                    <div id="violinPlot"></div>
-                    <p class="figure-caption">Figure 4: Violin plot showing cost distribution patterns</p>
+                    <img src="images/violin_plot.png" alt="Violin Plot Analysis">
+                    <p class="figure-caption">Figure 4: Violin plot showing urban vs rural cost distribution patterns</p>
                 </div>
             </div>
 
             <div class="visualization-section">
-                <h2>Urban vs Rural Analysis</h2>
+                <h2>Female Labor Force Impact</h2>
                 <div class="visualization">
-                    <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison">
-                    <p class="figure-caption">Figure 5: Comparison of childcare costs in urban and rural areas</p>
+                    <img src="images/female_labor_force.png" alt="Female Labor Force Map">
+                    <p class="figure-caption">Figure 5: Female labor force participation rates by state</p>
                 </div>
             </div>
 
@@ -146,11 +154,7 @@
                 <h2>Cost Trends Over Time</h2>
                 <div class="visualization">
                     <img src="images/time_series.png" alt="Time Series Analysis">
-                    <p class="figure-caption">Figure 6a: Evolution of childcare costs over time</p>
-                </div>
-                <div class="visualization">
-                    <img src="images/cost_trends.png" alt="Cost Trends">
-                    <p class="figure-caption">Figure 6b: Detailed cost trends analysis</p>
+                    <p class="figure-caption">Figure 6: Evolution of childcare costs over time</p>
                 </div>
             </div>
         </section>
@@ -245,61 +249,11 @@
     </div>
 
     <script>
-        // Initialize visualizations when page loads
-        function initializeVisualizations() {
-            try {
-                if (typeof Plotly === 'undefined') {
-                    throw new Error('Plotly library not loaded');
-                }
-                if (typeof d3 === 'undefined') {
-                    throw new Error('D3 library not loaded');
-                }
-
-                // Create spiral plot
-                createSpiralPlot(document.getElementById('spiralPlot'));
-                
-                // Create violin plot
-                createViolinPlot(document.getElementById('violinPlot'));
-                
-            } catch (error) {
-                console.error('Visualization initialization error:', error);
-                document.querySelectorAll('.visualization div').forEach(div => {
-                    div.innerHTML = '<p style="color: red; text-align: center;">Error loading visualization. Please refresh the page.</p>';
-                });
-            }
-        }
-
-        // Ensure libraries are loaded before initialization
+        // Remove all JavaScript visualization code since we're using static images
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeVisualizations);
-        } else {
-            initializeVisualizations();
-        }
-
-        // Create Labor Force Map
-        function createLaborForceMap() {
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: ['CA', 'NY', 'TX', 'FL', 'IL', 'MA', 'WA', 'OR', 'CO', 'VA', 'NJ', 'MD', 'MN', 'AZ', 'NC'],
-                z: [75.2, 72.8, 70.5, 68.9, 71.3, 74.6, 73.2, 71.8, 72.5, 71.9, 73.4, 74.1, 72.7, 69.5, 70.8],
-                text: ['California', 'New York', 'Texas', 'Florida', 'Illinois', 'Massachusetts', 'Washington', 'Oregon', 'Colorado', 'Virginia', 'New Jersey', 'Maryland', 'Minnesota', 'Arizona', 'North Carolina'],
-                colorscale: 'RdBu',
-                colorbar: {
-                    title: 'Female Labor<br>Force Participation (%)'
-                }
-            }];
-
-            const layout = {
-                title: 'Female Labor Force Participation Rate by State',
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
-                }
-            };
-
-            Plotly.newPlot('laborForceMap', data, layout);
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add any necessary initialization here
+            });
         }
     </script>
 </body>
