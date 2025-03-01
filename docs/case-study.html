@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Study: U.S. Childcare Cost Analysis</title>
+    <title>U.S. Childcare Cost Analysis - Case Study</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://via.placeholder.com/32/3498db/ffffff?text=CC">
+    <link rel="icon" type="image/png" href="images/childcare_costs_map.png">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,131 +14,269 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Print CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css" rel="stylesheet">
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
             line-height: 1.6;
-            background-color: #f8f9fa;
-            padding-top: 20px;
-            padding-bottom: 40px;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
+        
+        .top-banner {
+            background: linear-gradient(135deg, #1a5276, #3498db);
+            color: white;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-bottom: 5px solid #f1c40f;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .top-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('images/childcare_costs_map.png') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .top-banner .content {
+            position: relative;
+            z-index: 1;
+        }
+        
         .container {
-            max-width: 1000px;
             background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            margin: 30px auto;
+            position: relative;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        h1 {
+        
+        h1, h2, h3 {
             color: #2c3e50;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        h2 {
-            color: #3498db;
-            margin-top: 40px;
-            margin-bottom: 20px;
             font-weight: 600;
-            border-left: 4px solid #3498db;
-            padding-left: 15px;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+            position: relative;
+            padding-bottom: 10px;
         }
-        h3 {
-            color: #2c3e50;
-            margin-top: 30px;
-            font-weight: 600;
+        
+        h1::after, h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 3px;
         }
+        
         .lead {
-            font-size: 1.2rem;
-            color: #6c757d;
+            font-size: 1.25rem;
+            color: #34495e;
+            margin-bottom: 1.5rem;
         }
-        .quote {
-            font-size: 1.1rem;
-            font-style: italic;
-            color: #495057;
-            border-left: 3px solid #3498db;
-            padding-left: 20px;
-            margin: 20px 0;
-        }
+        
         .highlight-box {
-            background-color: #e9f7fe;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
             border-left: 4px solid #3498db;
             padding: 20px;
-            margin: 25px 0;
-            border-radius: 0 5px 5px 0;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .highlight-box p:last-child {
-            margin-bottom: 0;
+        
+        .quote {
+            font-style: italic;
+            color: #7f8c8d;
+            border-left: 3px solid #f1c40f;
+            padding: 15px 20px;
+            margin: 20px 0;
+            background-color: #fdfbee;
+            border-radius: 0 8px 8px 0;
         }
+        
         .image-container {
             margin: 30px 0;
             text-align: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
         }
-        .case-study-image {
+        
+        .image-container img {
             max-width: 100%;
             height: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
+        
         .image-caption {
-            margin-top: 10px;
-            color: #6c757d;
-            font-size: 0.9rem;
-            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-style: italic;
         }
+        
         .key-finding {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 3px solid #6c757d;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
+        
+        .key-finding:hover {
+            transform: translateY(-3px);
+        }
+        
         .key-finding h4 {
-            color: #495057;
-            font-size: 1.1rem;
+            color: #2c3e50;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
-        .key-finding p {
-            margin-bottom: 0;
+        
+        .key-finding h4 i {
+            margin-right: 10px;
+            color: #3498db;
         }
-        .key-finding.primary {
-            border-left-color: #3498db;
-            background-color: #e9f7fe;
-        }
-        .key-finding.secondary {
-            border-left-color: #2ecc71;
-            background-color: #eafaf1;
-        }
-        .key-finding.warning {
-            border-left-color: #f39c12;
-            background-color: #fef5e7;
-        }
-        .key-finding.danger {
-            border-left-color: #e74c3c;
-            background-color: #fdedeb;
-        }
-        .footer {
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-            text-align: center;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
+        
         .nav-buttons {
-            margin-top: 30px;
+            margin: 40px 0;
             text-align: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: none;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .author-info img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 20px;
+            border: 3px solid #3498db;
+        }
+        
+        .author-details h4 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        
+        .author-details p {
+            margin: 5px 0 0;
+            color: #7f8c8d;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 20px;
+            }
+            
+            .container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            
+            .nav-buttons {
+                display: none;
+            }
+            
+            .key-finding:hover {
+                transform: none;
+            }
+            
+            @page {
+                margin: 2cm;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 15px;
+            }
+            
+            .top-banner {
+                padding: 30px 0;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .lead {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="top-banner">
+        <div class="content">
+            <div class="container-fluid text-center">
+                <h1 class="display-4 mb-3">U.S. Childcare Cost Analysis</h1>
+                <p class="lead mb-0">A Comprehensive Study of Economic Impact on American Families</p>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Case Study: U.S. Childcare Cost Analysis</h1>
