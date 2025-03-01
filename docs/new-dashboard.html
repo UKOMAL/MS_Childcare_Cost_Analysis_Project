@@ -500,17 +500,20 @@
 
         // Create correlation plot
         function createCorrelationPlot(data, states) {
-            const employmentRates = [62.5, 61.8, 60.2, 59.5, 61.4, 60.1, 59.8, 60.5, 61.2, 59.9];
+            // Enhanced employment rate data with more variation
+            const employmentRates = [65.2, 61.8, 60.2, 63.5, 61.4, 62.1, 59.8, 64.5, 61.2, 63.9];
+            const medianIncome = [85000, 72000, 65000, 70000, 68000, 67000, 63000, 69000, 66000, 64000];
             
             const plotData = [{
+                type: 'scatter',
                 x: data,
                 y: employmentRates,
                 mode: 'markers+text',
-                type: 'scatter',
                 text: states,
                 textposition: 'top',
+                name: 'Employment Rate',
                 marker: {
-                    size: 12,
+                    size: medianIncome.map(income => income/2000),
                     color: data,
                     colorscale: [
                         [0, '#FF8E53'],
@@ -521,21 +524,131 @@
                     colorbar: {
                         title: 'Childcare Cost ($)'
                     }
-                }
+                },
+                hovertemplate: 
+                    '<b>%{text}</b><br>' +
+                    'Childcare Cost: $%{x}<br>' +
+                    'Employment Rate: %{y}%<br>' +
+                    '<extra></extra>'
             }];
 
             const layout = {
-                title: 'Childcare Costs vs. Female Employment',
+                title: {
+                    text: 'Childcare Costs vs. Female Employment Rate',
+                    font: { size: 24, color: '#2c3e50' }
+                },
                 xaxis: {
                     title: 'Monthly Childcare Cost ($)',
-                    gridcolor: '#e0e0e0'
+                    gridcolor: '#e0e0e0',
+                    zeroline: false
                 },
                 yaxis: {
                     title: 'Female Employment Rate (%)',
+                    gridcolor: '#e0e0e0',
+                    zeroline: false
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(255,255,255,0.9)',
+                showlegend: false,
+                annotations: [{
+                    x: Math.min(...data),
+                    y: Math.max(...employmentRates),
+                    xref: 'x',
+                    yref: 'y',
+                    text: 'Bubble size represents median income',
+                    showarrow: false,
+                    font: {
+                        size: 12,
+                        color: '#7f8c8d'
+                    }
+                }]
+            };
+
+            Plotly.newPlot('mainViz', plotData, layout);
+        }
+
+        // Create bubble plot for regional analysis
+        function createBubblePlot(data, states) {
+            const regions = {
+                'CA': 'West', 'NY': 'Northeast', 'TX': 'South', 'FL': 'South',
+                'IL': 'Midwest', 'PA': 'Northeast', 'OH': 'Midwest', 
+                'GA': 'South', 'NC': 'South', 'MI': 'Midwest'
+            };
+
+            const regionColors = {
+                'West': '#FF6B6B',
+                'Northeast': '#4E54C8',
+                'South': '#FF8E53',
+                'Midwest': '#2ecc71'
+            };
+
+            const populationData = {
+                'CA': 39.5, 'NY': 19.8, 'TX': 29.0, 'FL': 21.5,
+                'IL': 12.7, 'PA': 12.8, 'OH': 11.7, 'GA': 10.6,
+                'NC': 10.4, 'MI': 10.0
+            };
+
+            const plotData = Object.keys(regionColors).map(region => ({
+                name: region,
+                x: states.filter(state => regions[state] === region),
+                y: states.filter(state => regions[state] === region)
+                    .map(state => data[states.indexOf(state)]),
+                mode: 'markers',
+                marker: {
+                    color: regionColors[region],
+                    size: states.filter(state => regions[state] === region)
+                        .map(state => populationData[state] * 2),
+                    sizeref: 0.1,
+                    sizemode: 'area',
+                    opacity: 0.8,
+                    line: {
+                        color: 'white',
+                        width: 2
+                    }
+                },
+                text: states.filter(state => regions[state] === region)
+                    .map(state => 
+                        `${state}<br>Cost: $${data[states.indexOf(state)]}<br>` +
+                        `Population: ${populationData[state]}M`
+                    ),
+                hoverinfo: 'text',
+                type: 'scatter'
+            }));
+
+            const layout = {
+                title: {
+                    text: 'Regional Childcare Cost Analysis',
+                    font: { size: 24, color: '#2c3e50' }
+                },
+                xaxis: {
+                    title: 'States',
+                    showgrid: false,
+                    zeroline: false
+                },
+                yaxis: {
+                    title: 'Monthly Childcare Cost ($)',
                     gridcolor: '#e0e0e0'
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(255,255,255,0.9)'
+                plot_bgcolor: 'rgba(255,255,255,0.9)',
+                showlegend: true,
+                legend: {
+                    x: 0,
+                    y: 1.1,
+                    orientation: 'h'
+                },
+                annotations: [{
+                    x: 0.5,
+                    y: -0.15,
+                    xref: 'paper',
+                    yref: 'paper',
+                    text: 'Bubble size represents state population',
+                    showarrow: false,
+                    font: {
+                        size: 12,
+                        color: '#7f8c8d'
+                    }
+                }]
             };
 
             Plotly.newPlot('mainViz', plotData, layout);
