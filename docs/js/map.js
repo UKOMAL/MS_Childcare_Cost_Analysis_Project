@@ -1,5 +1,5 @@
 // Initialize the map visualization
-export function initMap(data) {
+function initMap(data) {
     if (!data || !data.states || !data.costs || !data.costs.infant) {
         console.error('Invalid data structure for map visualization:', data);
         document.getElementById('mainViz').innerHTML = 
@@ -119,7 +119,7 @@ export function initMap(data) {
 }
 
 // Update map based on filters
-export function updateMap(selectedState, costRange, data) {
+function updateMap(selectedState, costRange, data) {
     if (!data || !data.states || !data.costs || !data.costs.infant) {
         console.error('Invalid data for map update');
         return;
