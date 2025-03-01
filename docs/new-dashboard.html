@@ -40,13 +40,15 @@
             border-radius: 10px;
         }
         .visualization-container {
-            margin: 20px 0;
+            margin: 20px auto;
             padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 100%;
+            width: 90%;
+            max-width: 1200px;
             overflow: hidden;
+            aspect-ratio: 16/9;
         }
         select {
             padding: 8px 15px;
@@ -83,7 +85,9 @@
         }
         #mainVisualization {
             width: 100% !important;
-            height: 700px !important;
+            height: 100% !important;
+            min-height: 500px;
+            max-height: 800px;
             margin: 0 auto;
         }
     </style>
@@ -145,17 +149,14 @@
                 {state: 'California', cost: 18657}, {state: 'New York', cost: 18425},
                 {state: 'Connecticut', cost: 17895}, {state: 'New Jersey', cost: 17682},
                 {state: 'Colorado', cost: 17452}, {state: 'Illinois', cost: 16842},
-                {state: 'Minnesota', cost: 16087}, {state: 'Oregon', cost: 15847},
-                // Add more states as needed
+                {state: 'Minnesota', cost: 16087}, {state: 'Oregon', cost: 15847}
             ];
 
-            // Sort states by cost
             states.sort((a, b) => b.cost - a.cost);
 
-            // Calculate spiral coordinates
             const points = states.map((state, i) => {
-                const angle = i * 0.8; // Increased angle for better spacing
-                const radius = i * 25; // Increased radius for better visibility
+                const angle = i * 0.6; // Reduced angle for tighter spiral
+                const radius = i * 20; // Adjusted radius for better fit
                 return {
                     x: radius * Math.cos(angle),
                     y: radius * Math.sin(angle),
@@ -170,10 +171,15 @@
                 mode: 'markers+text',
                 type: 'scatter',
                 marker: {
-                    size: points.map(p => p.cost/500), // Scale marker size based on cost
+                    size: points.map(p => p.cost/800), // Adjusted size scaling
                     color: points.map(p => p.cost),
                     colorscale: 'Viridis',
-                    showscale: true
+                    showscale: true,
+                    colorbar: {
+                        title: 'Annual Cost ($)',
+                        thickness: 15,
+                        len: 0.7
+                    }
                 },
                 text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
                 textposition: 'top center',
@@ -181,25 +187,32 @@
             };
 
             const layout = {
-                title: 'Childcare Costs by State (Spiral View)',
+                title: {
+                    text: 'Childcare Costs by State (Spiral View)',
+                    y: 0.95
+                },
                 showlegend: false,
-                height: 700,
+                height: container.offsetHeight,
                 width: container.offsetWidth,
                 xaxis: {
-                    showgrid: false, 
+                    showgrid: false,
                     zeroline: false,
-                    automargin: true
+                    showticklabels: false,
+                    range: [-150, 150]
                 },
                 yaxis: {
-                    showgrid: false, 
+                    showgrid: false,
                     zeroline: false,
-                    automargin: true
+                    showticklabels: false,
+                    range: [-150, 150],
+                    scaleanchor: 'x',
+                    scaleratio: 1
                 },
                 margin: {
-                    l: 50,
+                    l: 30,
                     r: 50,
                     t: 50,
-                    b: 50,
+                    b: 30,
                     pad: 4
                 },
                 autosize: true
@@ -245,7 +258,7 @@
                         type: 'albers usa'
                     }
                 },
-                height: 700,
+                height: container.offsetHeight,
                 width: container.offsetWidth,
                 margin: {
                     l: 0,
@@ -291,11 +304,11 @@
             const layout = {
                 title: 'Regional Childcare Costs by Age Group',
                 barmode: 'stack',
-                height: 700,
+                height: container.offsetHeight,
                 width: container.offsetWidth,
                 margin: {
-                    l: 50,
-                    r: 50,
+                    l: 60,
+                    r: 30,
                     t: 50,
                     b: 50,
                     pad: 4
@@ -363,13 +376,13 @@
 
             const layout = {
                 title: 'Childcare Cost Trends by Region (2008-2018)',
-                height: 700,
+                height: container.offsetHeight,
                 width: container.offsetWidth,
                 margin: {
-                    l: 50,
-                    r: 50,
+                    l: 60,
+                    r: 30,
                     t: 50,
-                    b: 50,
+                    b: 70,
                     pad: 4
                 },
                 autosize: true,

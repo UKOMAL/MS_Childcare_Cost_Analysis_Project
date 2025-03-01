@@ -401,6 +401,114 @@
                 };
             });
         });
+
+        // Add spiral chart creation function
+        function createSpiralPlot(container) {
+            const states = [
+                {state: 'Massachusetts', cost: 20415}, {state: 'Washington', cost: 19362},
+                {state: 'California', cost: 18657}, {state: 'New York', cost: 18425},
+                {state: 'Connecticut', cost: 17895}, {state: 'New Jersey', cost: 17682},
+                {state: 'Colorado', cost: 17452}, {state: 'Illinois', cost: 16842},
+                {state: 'Minnesota', cost: 16087}, {state: 'Oregon', cost: 15847}
+            ];
+
+            states.sort((a, b) => b.cost - a.cost);
+
+            const points = states.map((state, i) => {
+                const angle = i * 0.6;
+                const radius = i * 20;
+                return {
+                    x: radius * Math.cos(angle),
+                    y: radius * Math.sin(angle),
+                    state: state.state,
+                    cost: state.cost
+                };
+            });
+
+            const trace = {
+                x: points.map(p => p.x),
+                y: points.map(p => p.y),
+                mode: 'markers+text',
+                type: 'scatter',
+                marker: {
+                    size: points.map(p => p.cost/800),
+                    color: points.map(p => p.cost),
+                    colorscale: 'Viridis',
+                    showscale: true,
+                    colorbar: {
+                        title: 'Annual Cost ($)',
+                        thickness: 15,
+                        len: 0.7
+                    }
+                },
+                text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
+                textposition: 'top center',
+                hoverinfo: 'text'
+            };
+
+            const layout = {
+                title: {
+                    text: 'Childcare Costs by State (Spiral View)',
+                    y: 0.95
+                },
+                showlegend: false,
+                height: 600,
+                width: container.offsetWidth,
+                xaxis: {
+                    showgrid: false,
+                    zeroline: false,
+                    showticklabels: false,
+                    range: [-150, 150]
+                },
+                yaxis: {
+                    showgrid: false,
+                    zeroline: false,
+                    showticklabels: false,
+                    range: [-150, 150],
+                    scaleanchor: 'x',
+                    scaleratio: 1
+                },
+                margin: {
+                    l: 30,
+                    r: 50,
+                    t: 50,
+                    b: 30,
+                    pad: 4
+                },
+                autosize: true
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, [trace], layout, config);
+        }
+
+        // Add spiral chart container to the geographic analysis section
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create container for spiral plot
+            const spiralContainer = document.createElement('div');
+            spiralContainer.id = 'spiralPlot';
+            spiralContainer.style.width = '100%';
+            spiralContainer.style.height = '600px';
+            spiralContainer.style.marginTop = '20px';
+            
+            // Insert after the first visualization
+            const firstViz = document.querySelector('.visualization');
+            if (firstViz) {
+                firstViz.parentNode.insertBefore(spiralContainer, firstViz.nextSibling);
+                
+                // Create the spiral plot
+                createSpiralPlot(spiralContainer);
+            }
+
+            // Add window resize handler for responsiveness
+            window.addEventListener('resize', function() {
+                createSpiralPlot(document.getElementById('spiralPlot'));
+            });
+        });
     </script>
 </body>
 </html> 
