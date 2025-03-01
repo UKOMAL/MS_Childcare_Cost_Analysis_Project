@@ -260,16 +260,15 @@
     
     <!-- Custom JavaScript -->
     <script type="module">
-        // Import and initialize dashboard
-        import { initMap } from './js/map.js';
-        import { initNetwork } from './js/network.js';
         import { initializeDashboard } from './js/dashboard.js';
-
+        
         // Wait for DOM to load
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM loaded, initializing dashboard...');
-            initializeDashboard().catch(error => {
-                console.error('Failed to initialize dashboard:', error);
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('Starting dashboard initialization...');
+                await initializeDashboard();
+            } catch (error) {
+                console.error('Dashboard initialization failed:', error);
                 document.getElementById('mainViz').innerHTML = `
                     <div class="alert alert-danger">
                         <h4>Dashboard Initialization Error</h4>
@@ -277,7 +276,7 @@
                         <p><small>Please check the browser console for more details.</small></p>
                     </div>
                 `;
-            });
+            }
         });
     </script>
 </body>

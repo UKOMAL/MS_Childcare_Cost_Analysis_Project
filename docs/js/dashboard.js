@@ -157,12 +157,13 @@ async function loadData() {
     try {
         console.log('Starting data loading process...');
         
-        // Get the current URL
-        const currentUrl = window.location.href;
-        console.log('Current URL:', currentUrl);
-        
-        // Construct data URL relative to current page
-        const dataUrl = new URL('./data/childcare_costs.json', currentUrl).href;
+        // Get the base URL for GitHub Pages
+        const baseUrl = window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
+            ? '/MS_Childcare_Cost_Analysis_Project'
+            : '';
+            
+        // Construct data URL using absolute path from root
+        const dataUrl = `${baseUrl}/data/childcare_costs.json`;
         console.log('Attempting to load data from:', dataUrl);
         
         const response = await fetch(dataUrl);
@@ -200,7 +201,9 @@ async function loadData() {
         showError('Error Loading Data', 
             `Failed to load data: ${error.message}<br>
             Current URL: ${window.location.href}<br>
-            Attempted data URL: ${new URL('./data/childcare_costs.json', window.location.href).href}<br>
+            Attempted data URL: ${window.location.pathname.includes('MS_Childcare_Cost_Analysis_Project') 
+                ? '/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json' 
+                : '/data/childcare_costs.json'}<br>
             Please check the browser console for more details.`
         );
         return null;
