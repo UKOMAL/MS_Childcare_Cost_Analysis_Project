@@ -257,25 +257,19 @@
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JavaScript -->
+    <!-- Load JavaScript modules -->
     <script type="module">
-        // Use complete HTTPS URL for imports
-        import { initializeDashboard } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/dashboard.js';
-        
-        // Wait for DOM to load
+        import { initMap } from './js/map.js';
+        import { initNetwork } from './js/network.js';
+        import { initializeDashboard } from './js/dashboard.js';
+
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                console.log('Starting dashboard initialization...');
+                console.log('Initializing dashboard...');
                 await initializeDashboard();
+                console.log('Dashboard initialized successfully');
             } catch (error) {
-                console.error('Dashboard initialization failed:', error);
-                document.getElementById('mainViz').innerHTML = `
-                    <div class="alert alert-danger">
-                        <h4>Dashboard Initialization Error</h4>
-                        <p>${error.message}</p>
-                        <p><small>Please check the browser console for more details.</small></p>
-                    </div>
-                `;
+                console.error('Error initializing dashboard:', error);
             }
         });
     </script>

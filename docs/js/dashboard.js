@@ -154,56 +154,30 @@ function switchVisualization(data) {
 
 // Load and process data
 async function loadData() {
+    console.log('Starting data loading process...');
     try {
-        console.log('Starting data loading process...');
-        
-        // Get the full GitHub Pages URL
-        const githubPagesUrl = 'https://ukomal.github.io';
-        const repoPath = '/MS_Childcare_Cost_Analysis_Project';
-        
-        // Construct complete HTTPS URL for data
-        const dataUrl = `${githubPagesUrl}${repoPath}/data/childcare_costs.json`;
+        const dataUrl = './data/childcare_costs.json';
         console.log('Attempting to load data from:', dataUrl);
         
         const response = await fetch(dataUrl);
-        console.log('Response status:', response.status);
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Data loaded successfully. First state:', data.states[0]);
+        console.log('Data loaded successfully:', data);
         
         // Validate data structure
-        if (!data || !data.states || !data.costs || !data.metrics) {
-            console.error('Invalid data structure:', data);
-            throw new Error('Invalid data structure: missing required fields');
+        if (!data.states || !data.costs || !data.metrics) {
+            throw new Error('Invalid data structure: missing required properties');
         }
-        
-        // Clean up NaN values and format numbers
-        Object.keys(data.costs).forEach(key => {
-            data.costs[key] = data.costs[key].map(val => 
-                isNaN(val) ? null : parseFloat(val.toFixed(2))
-            );
-        });
-        
-        Object.keys(data.metrics).forEach(key => {
-            data.metrics[key] = data.metrics[key].map(val => 
-                isNaN(val) ? null : parseFloat(val.toFixed(2))
-            );
-        });
         
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        showError('Error Loading Data', 
-            `Failed to load data: ${error.message}<br>
-            Current URL: ${window.location.href}<br>
-            Attempted data URL: https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/data/childcare_costs.json<br>
-            Please check the browser console for more details.`
-        );
-        return null;
+        console.log('Current page URL:', window.location.href);
+        showError(`Failed to load data. Please check the console for details. Error: ${error.message}`);
+        throw error;
     }
 }
 
