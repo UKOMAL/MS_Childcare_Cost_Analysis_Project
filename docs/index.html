@@ -3,337 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>U.S. Childcare Cost Analysis Dashboard</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Plotly.js -->
-    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js"></script>
-    
-    <!-- Error handling -->
-    <script>
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
-            const mainViz = document.getElementById('mainViz');
-            if (mainViz) {
-                mainViz.innerHTML = `
-                    <div class="alert alert-danger">
-                        <h4>Error</h4>
-                        <p>${msg}</p>
-                        <p><small>Line: ${lineNo}, Column: ${columnNo}</small></p>
-                    </div>
-                `;
-            }
-            return false;
-        };
-    </script>
-
-    <!-- Custom CSS -->
+    <title>Childcare Cost Analysis Dashboard</title>
+    <meta http-equiv="refresh" content="0;URL='debug-dashboard.html'" />
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --background-color: #ecf0f1;
-            --card-background: #ffffff;
-            --text-color: #2c3e50;
-        }
-
         body {
-            background-color: var(--background-color);
-            color: var(--text-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .viz-container {
-            background-color: var(--card-background);
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .viz-container:hover {
-            transform: translateY(-5px);
-        }
-
-        .control-panel {
-            background-color: var(--card-background);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .form-label {
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-
-        .form-select, .form-range {
-            border-color: var(--secondary-color);
-        }
-
-        .form-select:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25);
-        }
-
-        .alert {
-            border-radius: 10px;
-        }
-
-        .alert-danger {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-        }
-
-        /* Custom styling for visualization containers */
-        #mainViz, #timeSeriesViz, #supplementaryViz {
-            min-height: 400px;
-            width: 100%;
-            background-color: var(--card-background);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .loading {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 400px;
-            background-color: rgba(255, 255, 255, 0.8);
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+            flex-direction: column;
         }
-        
-        .loading i {
-            font-size: 3rem;
-            color: var(--secondary-color);
-        }
-        
-        .dashboard-info {
-            background-color: var(--card-background);
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
         }
-        
-        .info-icon {
-            color: var(--secondary-color);
-            margin-right: 10px;
+        h1 {
+            color: #2c3e50;
         }
-        
-        .cost-metric {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin: 10px 0;
+        p {
+            margin: 1rem 0;
+            color: #7f8c8d;
         }
-        
-        .cost-value {
-            color: var(--accent-color);
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .links {
+            margin-top: 1rem;
+        }
+        .links a {
+            margin: 0 0.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid px-4">
-        <!-- Header -->
-        <header class="dashboard-header text-center">
-            <h1 class="display-4">U.S. Childcare Cost Analysis</h1>
-            <p class="lead">Interactive analysis of childcare costs and their impact across the United States</p>
-        </header>
-
-        <!-- Dashboard Info -->
-        <div class="dashboard-info">
-            <div class="row">
-                <div class="col-md-4">
-                    <p class="cost-metric">
-                        <i class="fas fa-baby info-icon"></i>
-                        Average Infant Care Cost: <span class="cost-value" id="avgInfantCost">Loading...</span>
-                    </p>
-                </div>
-                <div class="col-md-4">
-                    <p class="cost-metric">
-                        <i class="fas fa-percentage info-icon"></i>
-                        Average Cost Burden: <span class="cost-value" id="avgCostBurden">Loading...</span>
-                    </p>
-                </div>
-                <div class="col-md-4">
-                    <p class="cost-metric">
-                        <i class="fas fa-users info-icon"></i>
-                        Working Parents Ratio: <span class="cost-value" id="avgWorkingParents">Loading...</span>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Control Panel -->
-        <div class="row">
-            <div class="col-12 control-panel">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label for="stateSelect" class="form-label">
-                            <i class="fas fa-map-marker-alt info-icon"></i>Select State
-                        </label>
-                        <select id="stateSelect" class="form-select">
-                            <option value="all">All States</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="costRange" class="form-label">
-                            <i class="fas fa-dollar-sign info-icon"></i>Cost Range
-                        </label>
-                        <input type="range" class="form-range" id="costRange" min="0" max="500" step="10">
-                        <div class="text-center" id="costRangeValue">$0 - $500</div>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="vizType" class="form-label">
-                            <i class="fas fa-chart-line info-icon"></i>Visualization Type
-                        </label>
-                        <select id="vizType" class="form-select">
-                            <option value="map">Geographic Map</option>
-                            <option value="network">Network Analysis</option>
-                            <option value="sankey">Cost Flow</option>
-                            <option value="3d">3D Analysis</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Visualization -->
-        <div class="row">
-            <div class="col-12">
-                <div class="viz-container">
-                    <div id="mainViz">
-                        <div class="loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Supplementary Visualizations -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="viz-container">
-                    <div id="timeSeriesViz">
-                        <div class="loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="viz-container">
-                    <div id="supplementaryViz">
-                        <div class="loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="container">
+        <h1>Childcare Cost Analysis Dashboard</h1>
+        <div class="spinner"></div>
+        <p>Redirecting to the dashboard...</p>
+        <div class="links">
+            If you are not redirected automatically, please choose one of these options:
+            <div class="mt-3">
+                <a href="debug-dashboard.html">Debug Dashboard</a> | 
+                <a href="simple-dashboard.html">Simple Dashboard</a> | 
+                <a href="dashboard-test.html">Test Dashboard</a>
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Load JavaScript modules -->
-    <script type="module">
-        import { 
-            initializeDashboard,
-            showError,
-            updateVisualizations,
-            switchVisualization
-        } from './js/dashboard.js';
-
-        // Function to show loading state
-        function showLoading() {
-            document.querySelectorAll('.loading').forEach(el => {
-                el.style.display = 'flex';
-            });
-        }
-
-        // Function to hide loading state
-        function hideLoading() {
-            document.querySelectorAll('.loading').forEach(el => {
-                el.style.display = 'none';
-            });
-        }
-
-        // Initialize the dashboard
-        async function initDashboard() {
-            try {
-                showLoading();
-                console.log('Starting dashboard initialization...');
-                
-                // Initialize the dashboard
-                const success = await initializeDashboard();
-                
-                if (!success) {
-                    throw new Error('Dashboard initialization failed');
-                }
-                
-                hideLoading();
-                console.log('Dashboard initialization complete');
-                
-                // Make these functions available globally for event handlers
-                window.updateVisualizations = updateVisualizations;
-                window.switchVisualization = switchVisualization;
-                
-            } catch (error) {
-                hideLoading();
-                console.error('Failed to initialize dashboard:', error);
-                showError(
-                    'Failed to initialize the dashboard',
-                    `Error: ${error.message}\nPlease check the console for more details.`
-                );
-            }
-        }
-
-        // Wait for DOM to be fully loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDashboard);
-        } else {
-            initDashboard();
-        }
-
-        // Handle global errors
-        window.addEventListener('error', function(event) {
-            console.error('Global error:', event.error);
-            showError(
-                'An unexpected error occurred',
-                `Error: ${event.error?.message || 'Unknown error'}`
-            );
-        });
-
-        // Handle unhandled promise rejections
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('Unhandled promise rejection:', event.reason);
-            showError(
-                'An unexpected error occurred',
-                `Error: ${event.reason?.message || 'Unknown error'}`
-            );
-        });
+    <script>
+        // Redirect after a short delay
+        setTimeout(function() {
+            window.location.href = 'debug-dashboard.html';
+        }, 1000);
     </script>
 </body>
 </html> 
