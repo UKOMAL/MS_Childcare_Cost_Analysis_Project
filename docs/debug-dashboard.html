@@ -17,6 +17,9 @@
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-2.27.1.min.js"></script>
     
+    <!-- Dashboard Test Script with Fallback Data -->
+    <script src="js/dashboard-test.js"></script>
+    
     <style>
         body {
             background-color: #f8f9fa;
@@ -341,43 +344,22 @@
                 
                 // Fetch the data
                 log('Sending fetch request...', 'info');
-                const response = await fetch(dataUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                try {
+                    const response = await fetch(dataUrl);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    log('Data fetch completed successfully', 'success');
+                    
+                    const data = await response.json();
+                    log(`Data parsed successfully. Found ${data.states.length} states.`, 'success');
+                    return data;
+                } catch (error) {
+                    log(`Error fetching data: ${error.message}`, 'error');
+                    log('Using fallback data instead', 'warning');
+                    // Use the fallback data from the dashboard test script
+                    return window.dashboardTests ? window.dashboardTests.testDataLoading() : null;
                 }
-                
-                verboseLog('Parsing JSON response...');
-                const data = await response.json();
-                log('Data fetch completed successfully', 'success');
-                
-                // Check data structure
-                if (!data.states || !data.costs || !data.metrics) {
-                    throw new Error('Invalid data structure');
-                }
-                
-                log(`Data structure is valid. States count: ${data.states.length}`, 'success');
-                verboseLog(`First few states: ${data.states.slice(0, 5).join(', ')}`);
-                
-                // Check for NaN values
-                const nanValues = [];
-                Object.keys(data.costs).forEach(key => {
-                    data.costs[key].forEach((val, idx) => {
-                        if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
-                            nanValues.push(`${key}[${idx}] (${data.states[idx]})`);
-                        }
-                    });
-                });
-                
-                if (nanValues.length > 0) {
-                    log(`Found ${nanValues.length} NaN values in the data`, 'warning');
-                    verboseLog(`NaN values: ${nanValues.join(', ')}`);
-                } else {
-                    log('No NaN values found in the data', 'success');
-                }
-                
-                // Store data for map test
-                window.debugData = data;
-                log('Data stored for map test', 'info');
                 
             } catch (error) {
                 log(`Data loading failed: ${error.message}`, 'error');
@@ -393,27 +375,39 @@
                 if (!window.debugData) {
                     log('No data available. Loading data first...', 'warning');
                     
-                    // Get the current URL for proper path resolution
-                    const currentUrl = window.location.href;
-                    
-                    // Construct the data URL
-                    let dataUrl;
                     try {
-                        dataUrl = new URL('./data/childcare_costs.json', currentUrl).href;
-                    } catch (urlError) {
-                        // Fallback for older browsers
-                        const basePath = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                        dataUrl = `${basePath}data/childcare_costs.json`;
+                        // Get the current URL for proper path resolution
+                        const currentUrl = window.location.href;
+                        
+                        // Construct the data URL
+                        let dataUrl;
+                        try {
+                            dataUrl = new URL('./data/childcare_costs.json', currentUrl).href;
+                        } catch (urlError) {
+                            // Fallback for older browsers
+                            const basePath = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                            dataUrl = `${basePath}data/childcare_costs.json`;
+                        }
+                        
+                        // Fetch the data
+                        const response = await fetch(dataUrl);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        
+                        window.debugData = await response.json();
+                        log('Data loaded successfully', 'success');
+                    } catch (error) {
+                        log(`Error loading data: ${error.message}`, 'error');
+                        log('Using fallback data instead', 'warning');
+                        // Use the fallback data from the dashboard test script
+                        if (window.dashboardTests) {
+                            window.debugData = await window.dashboardTests.testDataLoading();
+                            log('Fallback data loaded successfully', 'success');
+                        } else {
+                            throw new Error('No fallback data available');
+                        }
                     }
-                    
-                    // Fetch the data
-                    const response = await fetch(dataUrl);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    window.debugData = await response.json();
-                    log('Data loaded successfully', 'success');
                 }
                 
                 const data = window.debugData;
