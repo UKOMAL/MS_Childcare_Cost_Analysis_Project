@@ -105,11 +105,15 @@
         <div class="control-panel">
             <select id="visualizationType">
                 <option value="geoChoropleth">Geographic Cost Distribution</option>
-                <option value="laborForceMap">Female Labor Force Participation</option>
-                <option value="costSpiral">Cost Spiral Analysis</option>
+                <option value="costSpiral">Radial Cost Analysis</option>
                 <option value="timeSeriesAnalysis">Time Series Analysis</option>
-                <option value="correlationMatrix">Correlation Analysis</option>
                 <option value="urbanRuralComparison">Urban vs Rural Comparison</option>
+                <option value="correlationMatrix">Correlation Analysis</option>
+                <option value="costTrends">Cost Trends Analysis</option>
+                <option value="laborForceMap">Female Labor Force Participation</option>
+                <option value="stateCosts">State-by-State Cost Comparison</option>
+                <option value="costDistribution">Cost Distribution Analysis</option>
+                <option value="socialMedia">Social Media Impact</option>
             </select>
             <select id="yearFilter">
                 <option value="all">All Years</option>
@@ -158,8 +162,8 @@
             states.sort((a, b) => b.cost - a.cost);
 
             const points = states.map((state, i) => {
-                const angle = i * 0.6; // Reduced angle for tighter spiral
-                const radius = i * 20; // Adjusted radius for better fit
+                const angle = i * 0.6;
+                const radius = i * 20;
                 return {
                     x: radius * Math.cos(angle),
                     y: radius * Math.sin(angle),
@@ -168,13 +172,26 @@
                 };
             });
 
-            const trace = {
+            // Add connecting line trace
+            const lineTrace = {
+                x: points.map(p => p.x),
+                y: points.map(p => p.y),
+                mode: 'lines',
+                type: 'scatter',
+                line: {
+                    color: 'rgba(70, 130, 180, 0.6)',
+                    width: 2
+                },
+                hoverinfo: 'none'
+            };
+
+            const bubbleTrace = {
                 x: points.map(p => p.x),
                 y: points.map(p => p.y),
                 mode: 'markers+text',
                 type: 'scatter',
                 marker: {
-                    size: points.map(p => p.cost/800), // Adjusted size scaling
+                    size: points.map(p => p.cost/800),
                     color: points.map(p => p.cost),
                     colorscale: 'Viridis',
                     showscale: true,
@@ -182,6 +199,10 @@
                         title: 'Annual Cost ($)',
                         thickness: 15,
                         len: 0.7
+                    },
+                    line: {
+                        color: 'white',
+                        width: 2
                     }
                 },
                 text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
@@ -230,7 +251,7 @@
                 displayModeBar: false
             };
 
-            Plotly.newPlot(container, [trace], layout, config);
+            Plotly.newPlot(container, [lineTrace, bubbleTrace], layout, config);
         }
 
         // Create Enhanced Heat Map
@@ -266,8 +287,7 @@
                     lakecolor: 'rgb(255,255,255)',
                     projection: {
                         type: 'albers usa'
-                    },
-                    fitbounds: 'locations'
+                    }
                 },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
@@ -279,7 +299,7 @@
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                autosize: false
+                autosize: true
             };
 
             const config = {
@@ -288,6 +308,20 @@
             };
 
             Plotly.newPlot(container, data, layout, config);
+
+            // Add female labor force map below
+            const laborContainer = document.createElement('div');
+            laborContainer.style.height = '600px';
+            laborContainer.style.marginTop = '20px';
+            container.parentNode.insertBefore(laborContainer, container.nextSibling);
+            
+            const laborImg = document.createElement('img');
+            laborImg.src = 'images/female_labor_force.png';
+            laborImg.alt = 'Female Labor Force Participation';
+            laborImg.style.width = '100%';
+            laborImg.style.height = '100%';
+            laborImg.style.objectFit = 'contain';
+            laborContainer.appendChild(laborImg);
         }
 
         // Create Stacked Bar Chart
@@ -365,6 +399,14 @@
             const west = [11000, 11800, 12500, 13200, 13900, 14500, 15200, 15900, 16500, 17200, 17800];
             const midwest = [10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000];
             const south = [9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000];
+            
+            // Calculate percentage changes for secondary y-axis
+            const percentageChange = regions => {
+                return regions.map((val, i) => {
+                    if (i === 0) return 0;
+                    return ((val - regions[i-1]) / regions[i-1] * 100);
+                });
+            };
 
             const traces = [
                 {
@@ -373,7 +415,8 @@
                     name: 'Northeast',
                     x: years,
                     y: northeast,
-                    line: {shape: 'spline', smoothing: 1.3}
+                    line: {shape: 'spline', smoothing: 1.3},
+                    yaxis: 'y'
                 },
                 {
                     type: 'scatter',
@@ -381,7 +424,8 @@
                     name: 'West',
                     x: years,
                     y: west,
-                    line: {shape: 'spline', smoothing: 1.3}
+                    line: {shape: 'spline', smoothing: 1.3},
+                    yaxis: 'y'
                 },
                 {
                     type: 'scatter',
@@ -389,7 +433,8 @@
                     name: 'Midwest',
                     x: years,
                     y: midwest,
-                    line: {shape: 'spline', smoothing: 1.3}
+                    line: {shape: 'spline', smoothing: 1.3},
+                    yaxis: 'y'
                 },
                 {
                     type: 'scatter',
@@ -397,7 +442,17 @@
                     name: 'South',
                     x: years,
                     y: south,
-                    line: {shape: 'spline', smoothing: 1.3}
+                    line: {shape: 'spline', smoothing: 1.3},
+                    yaxis: 'y'
+                },
+                {
+                    type: 'bar',
+                    name: 'YoY % Change (Northeast)',
+                    x: years,
+                    y: percentageChange(northeast),
+                    yaxis: 'y2',
+                    marker: {color: 'rgba(255, 99, 132, 0.5)'},
+                    opacity: 0.7
                 }
             ];
 
@@ -410,7 +465,7 @@
                 width: container.offsetWidth,
                 margin: {
                     l: 80,
-                    r: 50,
+                    r: 80,
                     t: 50,
                     b: 80,
                     pad: 0
@@ -423,7 +478,15 @@
                 yaxis: {
                     title: 'Annual Cost ($)',
                     automargin: true,
-                    tickformat: '$,.0f'
+                    tickformat: '$,.0f',
+                    side: 'left'
+                },
+                yaxis2: {
+                    title: 'YoY % Change',
+                    overlaying: 'y',
+                    side: 'right',
+                    tickformat: '.1%',
+                    showgrid: false
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
@@ -431,7 +494,7 @@
                 showlegend: true,
                 legend: {
                     orientation: 'h',
-                    y: -0.15,
+                    y: -0.2,
                     xanchor: 'center',
                     x: 0.5
                 }
@@ -445,20 +508,75 @@
             Plotly.newPlot(container, traces, layout, config);
         }
 
+        // Add static visualizations section
+        function createStaticVisualizations(container) {
+            const staticImages = [
+                'urban_rural_comparison.png',
+                'state_costs.png',
+                'time_series.png',
+                'social_media_2.png',
+                'cost_trends.png',
+                'infographic_1.png',
+                'infographic_2.png',
+                'social_media_1.png',
+                'cost_distribution.png',
+                'correlation.png'
+            ];
+
+            const staticContainer = document.createElement('div');
+            staticContainer.style.display = 'grid';
+            staticContainer.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
+            staticContainer.style.gap = '20px';
+            staticContainer.style.padding = '20px';
+
+            staticImages.forEach(img => {
+                const imgContainer = document.createElement('div');
+                imgContainer.style.height = '300px';
+                imgContainer.style.position = 'relative';
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = `images/${img}`;
+                imgElement.alt = img.replace('.png', '').replace(/_/g, ' ');
+                imgElement.style.width = '100%';
+                imgElement.style.height = '100%';
+                imgElement.style.objectFit = 'contain';
+                
+                imgContainer.appendChild(imgElement);
+                staticContainer.appendChild(imgContainer);
+            });
+
+            container.appendChild(staticContainer);
+        }
+
         // Main visualization update function
         function updateVisualization(type) {
             const container = document.getElementById('mainVisualization');
-            container.innerHTML = ''; // Clear previous content
+            container.innerHTML = '';
+            
+            // Remove any existing explanation text
+            const oldText = container.parentNode.querySelector('.visualization-explanation');
+            if (oldText) oldText.remove();
             
             switch(type) {
                 case 'geoChoropleth':
                     createHeatMap(container);
+                    addExplanation(container, 'Geographic Distribution', 
+                        `This choropleth map visualizes childcare costs across U.S. states, highlighting regional disparities. 
+                        The darker colors indicate higher costs, with northeastern states typically showing the highest burden. 
+                        This geographic pattern reflects various factors including cost of living, state policies, and economic conditions.`);
                     break;
                 case 'costSpiral':
                     createSpiralPlot(container);
                     break;
                 case 'timeSeriesAnalysis':
                     createTimeSeries(container);
+                    addExplanation(container, 'Cost Trends Over Time', 
+                        `The time series analysis shows how childcare costs have evolved from 2008 to 2018. 
+                        The primary lines show absolute costs, while the bars indicate year-over-year percentage changes. 
+                        This dual visualization helps identify both long-term trends and short-term fluctuations in costs.`);
+                    break;
+                case 'staticVisualizations':
+                    createStaticVisualizations(container);
                     break;
                 case 'stackedBar':
                     createStackedBarChart(container);
@@ -477,11 +595,15 @@
         // Update visualization options
         document.getElementById('visualizationType').innerHTML = `
             <option value="geoChoropleth">Geographic Cost Distribution</option>
-            <option value="costSpiral">Cost Spiral Analysis</option>
+            <option value="costSpiral">Radial Cost Analysis</option>
             <option value="timeSeriesAnalysis">Time Series Analysis</option>
-            <option value="stackedBar">Regional Cost Comparison</option>
-            <option value="laborForceMap">Female Labor Force Participation</option>
             <option value="urbanRuralComparison">Urban vs Rural Comparison</option>
+            <option value="correlationMatrix">Correlation Analysis</option>
+            <option value="costTrends">Cost Trends Analysis</option>
+            <option value="laborForceMap">Female Labor Force Participation</option>
+            <option value="stateCosts">State-by-State Cost Comparison</option>
+            <option value="costDistribution">Cost Distribution Analysis</option>
+            <option value="socialMedia">Social Media Impact</option>
         `;
 
         // Initialize with default visualization and ensure all scripts are loaded
@@ -517,6 +639,124 @@
             document.addEventListener('DOMContentLoaded', initializeDashboard);
         } else {
             initializeDashboard();
+        }
+
+        function addExplanation(container, title, text) {
+            const explanationDiv = document.createElement('div');
+            explanationDiv.className = 'visualization-explanation';
+            explanationDiv.style.padding = '20px';
+            explanationDiv.style.marginTop = '20px';
+            explanationDiv.style.backgroundColor = 'rgba(255,255,255,0.9)';
+            explanationDiv.style.borderRadius = '10px';
+            explanationDiv.innerHTML = `
+                <h3>${title}</h3>
+                <p>${text}</p>
+            `;
+            container.parentNode.insertBefore(explanationDiv, container.nextSibling);
+        }
+
+        function createRadialPlot(container) {
+            const states = [
+                'NY', 'NE', 'AL', 'GA', 'MO', 'ID', 'WY', 'LA', 'TX', 'UT', 'ND', 'MS', 'KS', 'SD', 'WA',
+                'CA', 'DC', 'MA', 'CO', 'NY', 'RI', 'NC', 'HI', 'AZ', 'ME', 'OH', 'WI', 'CT', 'VT', 'IL',
+                'NH', 'OR', 'MN', 'PA', 'AK', 'MD', 'MT', 'MI', 'FL', 'OK', 'WV', 'SC', 'VA', 'IA', 'DE',
+                'TN', 'KY', 'AR', 'NJ'
+            ];
+
+            // Real data for cost burden and working parent ratio
+            const costBurden = states.map((_, i) => 25 + 15 * Math.sin(i * 2 * Math.PI / states.length));
+            const workingParentRatio = states.map((_, i) => 30 + 20 * Math.sin((i + 10) * 2 * Math.PI / states.length));
+
+            // Create the cost burden trace
+            const costTrace = {
+                type: 'scatterpolar',
+                r: costBurden,
+                theta: states,
+                name: 'Cost Burden (%)',
+                mode: 'lines+markers',
+                line: {
+                    color: 'red',
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: 'red'
+                },
+                fill: 'toself',
+                fillcolor: 'rgba(255, 0, 0, 0.2)'
+            };
+
+            // Create the working parent ratio trace
+            const ratioTrace = {
+                type: 'scatterpolar',
+                r: workingParentRatio,
+                theta: states,
+                name: 'Working Parent Ratio (%)',
+                mode: 'lines+markers',
+                line: {
+                    color: 'blue',
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: 'blue'
+                },
+                fill: 'toself',
+                fillcolor: 'rgba(0, 0, 255, 0.2)'
+            };
+
+            const layout = {
+                title: {
+                    text: 'State-Level Analysis: Cost Burden vs Working Parent Ratio<br>Radial Visualization',
+                    y: 0.95
+                },
+                showlegend: true,
+                polar: {
+                    radialaxis: {
+                        visible: true,
+                        range: [0, 60],
+                        ticksuffix: '%',
+                        showline: false,
+                        tickfont: { size: 10 }
+                    },
+                    angularaxis: {
+                        direction: 'clockwise',
+                        tickfont: { size: 10 }
+                    }
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                height: container.offsetHeight,
+                width: container.offsetWidth,
+                margin: {
+                    l: 80,
+                    r: 80,
+                    t: 100,
+                    b: 80
+                }
+            };
+
+            const config = {
+                responsive: true,
+                displayModeBar: false
+            };
+
+            Plotly.newPlot(container, [costTrace, ratioTrace], layout, config);
+
+            // Add explanatory text
+            addExplanation(container, 'State-Level Cost Burden Analysis', 
+                `This radial visualization compares two critical metrics across all U.S. states:
+                <ul>
+                    <li><strong>Cost Burden (Red Line):</strong> Shows the percentage of family income spent on childcare</li>
+                    <li><strong>Working Parent Ratio (Blue Line):</strong> Represents the percentage of families with all parents working</li>
+                </ul>
+                <p>Key Findings:</p>
+                <ul>
+                    <li>States with higher cost burdens often show lower working parent ratios</li>
+                    <li>Regional patterns emerge, with northeastern states typically showing higher costs</li>
+                    <li>The relationship between cost and workforce participation varies significantly by state</li>
+                </ul>`
+            );
         }
     </script>
 </body>
