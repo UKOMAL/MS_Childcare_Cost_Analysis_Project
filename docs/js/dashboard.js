@@ -149,32 +149,39 @@ function switchVisualization(data) {
 async function loadData() {
     try {
         console.log('Starting data loading process...');
-        const response = await fetch('/data/childcare_costs.json');
+        // Use relative path from base href
+        const response = await fetch('data/childcare_costs.json');
+        console.log('Response status:', response.status);
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
+        console.log('Data loaded:', data);
         
         // Validate data structure
         if (!data.states || !data.costs || !data.metrics) {
             throw new Error('Invalid data structure: missing required fields');
         }
         
-        // Clean up NaN values
+        // Clean up NaN values and format numbers
         Object.keys(data.costs).forEach(key => {
-            data.costs[key] = data.costs[key].map(val => isNaN(val) ? null : val);
+            data.costs[key] = data.costs[key].map(val => 
+                isNaN(val) ? null : parseFloat(val.toFixed(2))
+            );
         });
         
         Object.keys(data.metrics).forEach(key => {
-            data.metrics[key] = data.metrics[key].map(val => isNaN(val) ? null : val);
+            data.metrics[key] = data.metrics[key].map(val => 
+                isNaN(val) ? null : parseFloat(val.toFixed(2))
+            );
         });
         
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
-        showError('Error loading data', `${error.message}. Current URL: ${window.location.href}`);
+        showError('Error loading data', `${error.message}. Please check if the data file exists at: ${window.location.href}data/childcare_costs.json`);
         return null;
     }
 }

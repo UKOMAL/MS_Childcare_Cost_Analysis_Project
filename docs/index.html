@@ -4,10 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="/MS_Childcare_Cost_Analysis_Project/">
-    <title>Childcare Cost Analysis Dashboard</title>
+    <title>U.S. Childcare Cost Analysis Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -16,6 +22,16 @@
     <script>
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
+            const mainViz = document.getElementById('mainViz');
+            if (mainViz) {
+                mainViz.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Error</h4>
+                        <p>${msg}</p>
+                        <p><small>Line: ${lineNo}, Column: ${columnNo}</small></p>
+                    </div>
+                `;
+            }
             return false;
         };
     </script>
@@ -99,32 +115,99 @@
             border-radius: 10px;
             overflow: hidden;
         }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .loading i {
+            font-size: 3rem;
+            color: var(--secondary-color);
+        }
+        
+        .dashboard-info {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .info-icon {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+        
+        .cost-metric {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+        
+        .cost-value {
+            color: var(--accent-color);
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid px-4">
         <!-- Header -->
         <header class="dashboard-header text-center">
-            <h1 class="display-4">Childcare Cost Analysis Dashboard</h1>
-            <p class="lead">Interactive analysis of childcare costs across the United States</p>
+            <h1 class="display-4">U.S. Childcare Cost Analysis</h1>
+            <p class="lead">Interactive analysis of childcare costs and their impact across the United States</p>
         </header>
+
+        <!-- Dashboard Info -->
+        <div class="dashboard-info">
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-baby info-icon"></i>
+                        Average Infant Care Cost: <span class="cost-value" id="avgInfantCost">Loading...</span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-percentage info-icon"></i>
+                        Average Cost Burden: <span class="cost-value" id="avgCostBurden">Loading...</span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-users info-icon"></i>
+                        Working Parents Ratio: <span class="cost-value" id="avgWorkingParents">Loading...</span>
+                    </p>
+                </div>
+            </div>
+        </div>
 
         <!-- Control Panel -->
         <div class="row">
             <div class="col-12 control-panel">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="stateSelect" class="form-label">Select State</label>
+                        <label for="stateSelect" class="form-label">
+                            <i class="fas fa-map-marker-alt info-icon"></i>Select State
+                        </label>
                         <select id="stateSelect" class="form-select">
                             <option value="all">All States</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="costRange" class="form-label">Cost Range</label>
+                        <label for="costRange" class="form-label">
+                            <i class="fas fa-dollar-sign info-icon"></i>Cost Range
+                        </label>
                         <input type="range" class="form-range" id="costRange" min="0" max="500" step="10">
+                        <div class="text-center" id="costRangeValue">$0 - $500</div>
                     </div>
                     <div class="col-md-4">
-                        <label for="vizType" class="form-label">Visualization Type</label>
+                        <label for="vizType" class="form-label">
+                            <i class="fas fa-chart-line info-icon"></i>Visualization Type
+                        </label>
                         <select id="vizType" class="form-select">
                             <option value="map">Geographic Map</option>
                             <option value="network">Network Analysis</option>
@@ -140,7 +223,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="viz-container">
-                    <div id="mainViz"></div>
+                    <div id="mainViz">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,12 +236,20 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="viz-container">
-                    <div id="timeSeriesViz"></div>
+                    <div id="timeSeriesViz">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="viz-container">
-                    <div id="supplementaryViz"></div>
+                    <div id="supplementaryViz">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,17 +1,25 @@
 // Initialize the map visualization
 function initMap(data) {
     if (!data || !data.states || !data.costs || !data.costs.infant) {
-        console.error('Invalid data structure for map visualization');
+        console.error('Invalid data structure for map visualization:', data);
+        document.getElementById('mainViz').innerHTML = 
+            '<div class="alert alert-danger">Error: Invalid or missing data for map visualization</div>';
         return;
     }
 
     try {
         console.log('Creating map with data:', data);
         const locations = data.states;
-        const z = data.costs.infant.map(cost => cost || 0); // Handle NaN values
-        const text = locations.map((state, i) => 
-            `${getStateName(state)}<br>Monthly Cost: $${z[i] ? z[i].toFixed(2) : 'No data'}`
-        );
+        const z = data.costs.infant.map(cost => cost || 0);
+        const text = locations.map((state, i) => {
+            const cost = z[i];
+            const burden = data.metrics.cost_burden[i];
+            const workingParents = data.metrics.working_parent_ratio[i];
+            return `<b>${getStateName(state)}</b><br>` +
+                   `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
+                   `Cost Burden: ${burden ? burden.toFixed(1) : 'No data'}%<br>` +
+                   `Working Parents: ${workingParents ? workingParents.toFixed(1) : 'No data'}%`;
+        });
 
         const mapData = [{
             type: 'choropleth',
@@ -20,13 +28,21 @@ function initMap(data) {
             z: z,
             text: text,
             hoverinfo: 'text',
-            colorscale: 'Viridis',
+            colorscale: [
+                [0, '#f7fbff'],
+                [0.2, '#deebf7'],
+                [0.4, '#c6dbef'],
+                [0.6, '#9ecae1'],
+                [0.8, '#6baed6'],
+                [1, '#2171b5']
+            ],
             colorbar: {
                 title: 'Monthly Cost ($)',
                 thickness: 20,
                 len: 0.9,
                 y: 0.5,
-                yanchor: 'middle'
+                yanchor: 'middle',
+                outlinewidth: 0
             },
             marker: {
                 line: {
@@ -38,7 +54,11 @@ function initMap(data) {
 
         const layout = {
             title: {
-                text: 'Childcare Costs by State',
+                text: 'U.S. Childcare Costs by State',
+                font: {
+                    size: 24,
+                    color: '#2c3e50'
+                },
                 y: 0.95
             },
             geo: {
@@ -50,7 +70,11 @@ function initMap(data) {
                 },
                 showland: true,
                 landcolor: 'rgb(250,250,250)',
-                countrycolor: 'rgb(204,204,204)'
+                countrycolor: 'rgb(204,204,204)',
+                showcoastlines: true,
+                coastlinecolor: 'rgb(204,204,204)',
+                showsubunits: true,
+                subunitcolor: 'rgb(255,255,255)'
             },
             autosize: true,
             height: 550,
@@ -67,7 +91,16 @@ function initMap(data) {
 
         const config = {
             responsive: true,
-            displayModeBar: false
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            toImageButtonOptions: {
+                format: 'png',
+                filename: 'childcare_costs_map',
+                height: 800,
+                width: 1200,
+                scale: 2
+            }
         };
 
         console.log('Plotting map with data:', { mapData, layout });
@@ -75,6 +108,8 @@ function initMap(data) {
             console.log('Map plotted successfully');
         }).catch(err => {
             console.error('Error plotting map:', err);
+            document.getElementById('mainViz').innerHTML = 
+                '<div class="alert alert-danger">Error plotting map. Please check the console for details.</div>';
         });
     } catch (error) {
         console.error('Error creating map visualization:', error);
