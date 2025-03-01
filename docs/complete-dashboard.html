@@ -244,158 +244,181 @@
             <div class="content text-center">
                 <h1 class="display-4 mb-3">U.S. Childcare Cost Analysis</h1>
                 <p class="lead mb-0">Interactive Dashboard for Exploring Childcare Costs Across the United States</p>
+                <img src="images/childcare_costs_map.png" alt="Childcare Analysis Logo" class="img-fluid mt-4" style="max-width: 200px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
             </div>
         </div>
         
         <div class="row">
-            <!-- Navigation Tabs -->
-            <div class="col-12 mb-4">
-                <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="visualizations-tab" data-bs-toggle="tab" data-bs-target="#visualizations" type="button" role="tab">
-                            <i class="fas fa-chart-bar"></i> Visualizations
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="case-study-tab" data-bs-toggle="tab" data-bs-target="#case-study" type="button" role="tab">
-                            <i class="fas fa-file-alt"></i> Case Study
-                        </button>
-                    </li>
-                </ul>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Dashboard Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="dataType" class="form-label">Data Type</label>
+                            <select class="form-select" id="dataType">
+                                <option value="infant">Infant Care Costs</option>
+                                <option value="toddler">Toddler Care Costs</option>
+                                <option value="preschool">Preschool Care Costs</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="vizType" class="form-label">Visualization Type</label>
+                            <select class="form-select" id="vizType">
+                                <option value="map">US Map</option>
+                                <option value="bar">Bar Chart</option>
+                                <option value="comparison">Cost Comparison</option>
+                                <option value="scatter">Cost vs. Burden</option>
+                            </select>
+                        </div>
+                        <button id="updateViz" class="btn btn-primary w-100">Update Visualization</button>
+                        <button id="exportData" class="btn btn-secondary w-100 mt-2">Export Data (CSV)</button>
+                        
+                        <div class="status-message mt-3" id="statusMessage"></div>
+                    </div>
+                </div>
                 
-                <div class="tab-content" id="dashboardTabsContent">
-                    <!-- Visualizations Tab -->
-                    <div class="tab-pane fade show active" id="visualizations" role="tabpanel">
-                        <div class="row">
-                            <!-- Map Visualization -->
-                            <div class="col-12 mb-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">U.S. Childcare Costs by State</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="costMap" class="viz-container"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Cost Comparison Chart -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
-                                    <div class="card-header bg-success">
-                                        <h5 class="mb-0">Cost Comparison by Region</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="costComparison" class="viz-container"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Trend Analysis -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card">
-                                    <div class="card-header bg-info">
-                                        <h5 class="mb-0">Cost Trends Over Time</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="trendAnalysis" class="viz-container"></div>
-                                    </div>
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">Key Insights</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <h6><i class="fas fa-info-circle"></i> Average Monthly Cost</h6>
+                            <p id="avgCost">Loading...</p>
+                        </div>
+                        <div class="info-box">
+                            <h6><i class="fas fa-chart-line"></i> Cost Range</h6>
+                            <p id="costRange">Loading...</p>
+                        </div>
+                        <div class="info-box">
+                            <h6><i class="fas fa-map-marker-alt"></i> Highest Cost State</h6>
+                            <p id="highestState">Loading...</p>
+                        </div>
+                        <div class="info-box">
+                            <h6><i class="fas fa-map-marker-alt"></i> Lowest Cost State</h6>
+                            <p id="lowestState">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0" id="vizTitle">U.S. Childcare Costs by State</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="viz-container" id="mainViz">
+                            <div class="loading-spinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Case Study Tab -->
-                    <div class="tab-pane fade" id="case-study" role="tabpanel">
-                        <div class="case-study-content">
-                            <div class="case-study-header mb-4">
-                                <h2 class="text-center mb-3">U.S. Childcare Cost Analysis: A Comprehensive Case Study</h2>
-                                <p class="text-center text-muted">By Komal Shahid</p>
-                                <hr class="my-4">
-                            </div>
-                            
-                            <div class="case-study-section mb-4">
-                                <h3>Executive Summary</h3>
-                                <p>This case study examines the rising costs of childcare across the United States, analyzing regional variations, economic impacts, and potential solutions. Through detailed data analysis and visualization, we explore how childcare costs affect families and the broader economy.</p>
-                            </div>
-                            
-                            <div class="case-study-section mb-4">
-                                <h3>Key Findings</h3>
-                                <div class="info-box">
-                                    <ul>
-                                        <li>Average childcare costs vary significantly by state and region</li>
-                                        <li>Urban areas consistently show higher childcare costs</li>
-                                        <li>Childcare expenses represent a significant portion of household income</li>
-                                        <li>Quality of care correlates with cost in most regions</li>
-                                    </ul>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">Static Visualizations</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="staticVisualizationTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab">Map</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="state-costs-tab" data-bs-toggle="tab" data-bs-target="#state-costs-content" type="button" role="tab">State Costs</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="violin-tab" data-bs-toggle="tab" data-bs-target="#violin-content" type="button" role="tab">Violin Chart</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends-content" type="button" role="tab">Trends</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="case-study-tab" data-bs-toggle="tab" data-bs-target="#case-study-content" type="button" role="tab">Case Study</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="staticVisualizationTabContent">
+                            <div class="tab-pane fade show active" id="map-content" role="tabpanel">
+                                <div class="text-center">
+                                    <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="static-image">
+                                    <p class="image-caption">Geographic distribution of childcare costs across the United States</p>
                                 </div>
                             </div>
                             
-                            <div class="case-study-section mb-4">
-                                <h3>Methodology</h3>
-                                <p>Our analysis combines data from multiple sources, including:</p>
-                                <div class="info-box">
-                                    <ul>
-                                        <li>U.S. Census Bureau demographic data</li>
-                                        <li>State-level childcare cost surveys</li>
-                                        <li>Economic indicators from the Bureau of Labor Statistics</li>
-                                        <li>Quality rating systems from state agencies</li>
-                                    </ul>
+                            <div class="tab-pane fade" id="state-costs-content" role="tabpanel">
+                                <div class="text-center">
+                                    <img src="images/state_costs.png" alt="State Costs" class="static-image">
+                                    <p class="image-caption">Comparison of childcare costs by state</p>
                                 </div>
                             </div>
                             
-                            <div class="case-study-section mb-4">
-                                <h3>Data Visualization</h3>
-                                <div class="row">
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <img src="images/childcare_costs_map.png" alt="U.S. Childcare Costs Map" class="img-fluid mb-3">
-                                                <p class="image-caption">Geographic distribution of childcare costs across the United States</p>
-                                            </div>
+                            <div class="tab-pane fade" id="violin-content" role="tabpanel">
+                                <div class="text-center">
+                                    <img src="images/cost_distribution.png" alt="Cost Distribution (Violin Chart)" class="static-image">
+                                    <p class="image-caption">Distribution of childcare costs (Violin Chart)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="trends-content" role="tabpanel">
+                                <div class="text-center">
+                                    <img src="images/cost_trends.png" alt="Cost Trends" class="static-image">
+                                    <p class="image-caption">Childcare cost trends over time</p>
+                                    
+                                    <img src="images/time_series.png" alt="Time Series" class="static-image mt-4">
+                                    <p class="image-caption">Time series analysis of childcare costs</p>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="case-study-content" role="tabpanel">
+                                <div class="case-study-content">
+                                    <h2 class="text-center mb-4">U.S. Childcare Cost Analysis: A Comprehensive Case Study</h2>
+                                    <p class="text-center text-muted mb-4">By Komal Shahid</p>
+                                    
+                                    <div class="case-study-section mb-4">
+                                        <h3>Executive Summary</h3>
+                                        <p>This case study examines the rising costs of childcare across the United States, analyzing regional variations, economic impacts, and potential solutions. Through detailed data analysis and visualization, we explore how childcare costs affect families and the broader economy.</p>
+                                    </div>
+                                    
+                                    <div class="case-study-section mb-4">
+                                        <h3>Key Findings</h3>
+                                        <div class="info-box">
+                                            <ul>
+                                                <li>Average childcare costs vary significantly by state and region</li>
+                                                <li>Urban areas consistently show higher childcare costs</li>
+                                                <li>Childcare expenses represent a significant portion of household income</li>
+                                                <li>Quality of care correlates with cost in most regions</li>
+                                            </ul>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <img src="images/cost_comparison.png" alt="Regional Cost Comparison" class="img-fluid mb-3">
-                                                <p class="image-caption">Comparative analysis of childcare costs by region</p>
-                                            </div>
+                                    
+                                    <div class="case-study-section mb-4">
+                                        <h3>Methodology</h3>
+                                        <p>Our analysis combines data from multiple sources:</p>
+                                        <div class="info-box">
+                                            <ul>
+                                                <li>U.S. Census Bureau demographic data</li>
+                                                <li>State-level childcare cost surveys</li>
+                                                <li>Economic indicators from the Bureau of Labor Statistics</li>
+                                                <li>Quality rating systems from state agencies</li>
+                                            </ul>
                                         </div>
                                     </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <a href="https://github.com/komalshahid786/DSC640/tree/main/final-project" class="btn btn-primary" target="_blank">
+                                            <i class="fab fa-github"></i> View on GitHub
+                                        </a>
+                                        <button class="btn btn-success" onclick="window.print()">
+                                            <i class="fas fa-print"></i> Save as PDF
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="case-study-section mb-4">
-                                <h3>Recommendations</h3>
-                                <div class="info-box">
-                                    <ol>
-                                        <li>Implement state-level subsidies for low-income families</li>
-                                        <li>Develop tax incentives for employer-provided childcare</li>
-                                        <li>Increase funding for public childcare programs</li>
-                                        <li>Create standards for quality-cost ratio measurements</li>
-                                    </ol>
-                                </div>
-                            </div>
-                            
-                            <div class="case-study-section mb-4">
-                                <h3>References</h3>
-                                <div class="info-box">
-                                    <ul>
-                                        <li>U.S. Census Bureau (2023). Childcare Arrangements Survey</li>
-                                        <li>Bureau of Labor Statistics (2023). Employment Characteristics of Families</li>
-                                        <li>Child Care Aware of America (2023). The US and the High Price of Child Care</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="text-center mt-4">
-                                <a href="https://github.com/komalshahid786/DSC640/tree/main/final-project" class="btn btn-primary" target="_blank">
-                                    <i class="fab fa-github"></i> View on GitHub
-                                </a>
-                                <button class="btn btn-success" onclick="window.print()">
-                                    <i class="fas fa-print"></i> Save as PDF
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -467,7 +490,7 @@
     </script>
     
     <!-- Custom Dashboard JavaScript -->
-    <script src="js/new-dashboard.js" onerror="handleScriptError()"></script>
+    <script src="js/dashboard.js" onerror="handleScriptError()"></script>
     
     <script>
         // Hide loading overlay when everything is loaded
