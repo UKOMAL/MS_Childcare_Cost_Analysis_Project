@@ -129,6 +129,185 @@
     </div>
 
     <script>
+        // Create Spiral Plot
+        function createSpiralPlot(container) {
+            const states = [
+                {state: 'Massachusetts', cost: 20415}, {state: 'Washington', cost: 19362},
+                {state: 'California', cost: 18657}, {state: 'New York', cost: 18425},
+                {state: 'Connecticut', cost: 17895}, {state: 'New Jersey', cost: 17682},
+                {state: 'Colorado', cost: 17452}, {state: 'Illinois', cost: 16842},
+                {state: 'Minnesota', cost: 16087}, {state: 'Oregon', cost: 15847},
+                // Add more states as needed
+            ];
+
+            // Sort states by cost
+            states.sort((a, b) => b.cost - a.cost);
+
+            // Calculate spiral coordinates
+            const points = states.map((state, i) => {
+                const angle = i * 0.8; // Increased angle for better spacing
+                const radius = i * 25; // Increased radius for better visibility
+                return {
+                    x: radius * Math.cos(angle),
+                    y: radius * Math.sin(angle),
+                    state: state.state,
+                    cost: state.cost
+                };
+            });
+
+            const trace = {
+                x: points.map(p => p.x),
+                y: points.map(p => p.y),
+                mode: 'markers+text',
+                type: 'scatter',
+                marker: {
+                    size: points.map(p => p.cost/500), // Scale marker size based on cost
+                    color: points.map(p => p.cost),
+                    colorscale: 'Viridis',
+                    showscale: true
+                },
+                text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
+                textposition: 'top center',
+                hoverinfo: 'text'
+            };
+
+            const layout = {
+                title: 'Childcare Costs by State (Spiral View)',
+                showlegend: false,
+                height: 800,
+                width: container.offsetWidth,
+                xaxis: {showgrid: false, zeroline: false},
+                yaxis: {showgrid: false, zeroline: false}
+            };
+
+            Plotly.newPlot(container, [trace], layout);
+        }
+
+        // Create Enhanced Heat Map
+        function createHeatMap(container) {
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'USA-states',
+                locations: ['MA', 'WA', 'CA', 'NY', 'CT', 'NJ', 'CO', 'IL', 'MN', 'OR'],
+                z: [20415, 19362, 18657, 18425, 17895, 17682, 17452, 16842, 16087, 15847],
+                text: ['Massachusetts', 'Washington', 'California', 'New York', 'Connecticut', 
+                      'New Jersey', 'Colorado', 'Illinois', 'Minnesota', 'Oregon'],
+                colorscale: 'Viridis',
+                colorbar: {
+                    title: 'Annual Cost ($)',
+                    thickness: 20
+                },
+                marker: {
+                    line: {
+                        color: 'rgb(255,255,255)',
+                        width: 2
+                    }
+                }
+            }];
+
+            const layout = {
+                title: 'Geographic Distribution of Childcare Costs',
+                geo: {
+                    scope: 'usa',
+                    showlakes: true,
+                    lakecolor: 'rgb(255,255,255)'
+                },
+                height: 800,
+                width: container.offsetWidth
+            };
+
+            Plotly.newPlot(container, data, layout);
+        }
+
+        // Create Stacked Bar Chart
+        function createStackedBarChart(container) {
+            const trace1 = {
+                x: ['Northeast', 'West', 'Midwest', 'South'],
+                y: [15000, 13500, 12000, 11000],
+                name: 'Infant Care',
+                type: 'bar'
+            };
+
+            const trace2 = {
+                x: ['Northeast', 'West', 'Midwest', 'South'],
+                y: [12000, 11000, 9500, 8500],
+                name: 'Toddler Care',
+                type: 'bar'
+            };
+
+            const trace3 = {
+                x: ['Northeast', 'West', 'Midwest', 'South'],
+                y: [10000, 9000, 8000, 7500],
+                name: 'Preschool',
+                type: 'bar'
+            };
+
+            const data = [trace1, trace2, trace3];
+            const layout = {
+                title: 'Regional Childcare Costs by Age Group',
+                barmode: 'stack',
+                height: 600,
+                width: container.offsetWidth
+            };
+
+            Plotly.newPlot(container, data, layout);
+        }
+
+        // Create Enhanced Time Series
+        function createTimeSeries(container) {
+            const years = ['2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018'];
+            const northeast = [12000, 12500, 13200, 14000, 14800, 15500, 16200, 17000, 17800, 18500, 19200];
+            const west = [11000, 11800, 12500, 13200, 13900, 14500, 15200, 15900, 16500, 17200, 17800];
+            const midwest = [10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000, 14500, 15000];
+            const south = [9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000];
+
+            const traces = [
+                {
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Northeast',
+                    x: years,
+                    y: northeast,
+                    line: {shape: 'spline', smoothing: 1.3}
+                },
+                {
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'West',
+                    x: years,
+                    y: west,
+                    line: {shape: 'spline', smoothing: 1.3}
+                },
+                {
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'Midwest',
+                    x: years,
+                    y: midwest,
+                    line: {shape: 'spline', smoothing: 1.3}
+                },
+                {
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    name: 'South',
+                    x: years,
+                    y: south,
+                    line: {shape: 'spline', smoothing: 1.3}
+                }
+            ];
+
+            const layout = {
+                title: 'Childcare Cost Trends by Region (2008-2018)',
+                xaxis: {title: 'Year'},
+                yaxis: {title: 'Annual Cost ($)'},
+                height: 600,
+                width: container.offsetWidth,
+                showlegend: true
+            };
+
+            Plotly.newPlot(container, traces, layout);
+        }
+
         // Main visualization update function
         function updateVisualization(type) {
             const container = document.getElementById('mainVisualization');
@@ -136,25 +315,35 @@
             
             switch(type) {
                 case 'geoChoropleth':
-                    container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Geographic Distribution" style="width: 100%; height: auto;">`;
+                    createHeatMap(container);
+                    break;
+                case 'costSpiral':
+                    createSpiralPlot(container);
+                    break;
+                case 'timeSeriesAnalysis':
+                    createTimeSeries(container);
+                    break;
+                case 'stackedBar':
+                    createStackedBarChart(container);
                     break;
                 case 'laborForceMap':
                     container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force" style="width: 100%; height: auto;">`;
-                    break;
-                case 'costSpiral':
-                    container.innerHTML = `<img src="images/cost_spiral.png" alt="Cost Spiral Analysis" style="width: 100%; height: auto;">`;
-                    break;
-                case 'timeSeriesAnalysis':
-                    container.innerHTML = `<img src="images/time_series.png" alt="Time Series Analysis" style="width: 100%; height: auto;">`;
-                    break;
-                case 'correlationMatrix':
-                    container.innerHTML = `<img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%; height: auto;">`;
                     break;
                 case 'urbanRuralComparison':
                     container.innerHTML = `<img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" style="width: 100%; height: auto;">`;
                     break;
             }
         }
+
+        // Update visualization options
+        document.getElementById('visualizationType').innerHTML = `
+            <option value="geoChoropleth">Geographic Cost Distribution</option>
+            <option value="costSpiral">Cost Spiral Analysis</option>
+            <option value="timeSeriesAnalysis">Time Series Analysis</option>
+            <option value="stackedBar">Regional Cost Comparison</option>
+            <option value="laborForceMap">Female Labor Force Participation</option>
+            <option value="urbanRuralComparison">Urban vs Rural Comparison</option>
+        `;
 
         // Initialize with default visualization and ensure all scripts are loaded
         function initializeDashboard() {
