@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Childcare Cost Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.1.min.js"></script>
+    
+    <style>
+        body {
+            background-color: #ecf0f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .viz-container {
+            background-color: #ffffff;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .control-panel {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #mainViz {
+            min-height: 500px;
+        }
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+        }
+        .loading i {
+            font-size: 3rem;
+            color: #3498db;
+        }
+        .dashboard-info {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .info-icon {
+            color: #3498db;
+            margin-right: 10px;
+        }
+        .cost-metric {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin: 10px 0;
+        }
+        .cost-value {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <header class="dashboard-header text-center">
+            <h1 class="display-4">U.S. Childcare Cost Analysis</h1>
+            <p class="lead">Interactive analysis of childcare costs across the United States</p>
+            <a href="dashboard-test.html" class="btn btn-sm btn-light mt-2">Run Tests</a>
+        </header>
+
+        <!-- Dashboard Info -->
+        <div class="dashboard-info">
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-baby info-icon"></i>
+                        Average Infant Care Cost: <span class="cost-value" id="avgInfantCost">Loading...</span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-percentage info-icon"></i>
+                        Average Cost Burden: <span class="cost-value" id="avgCostBurden">Loading...</span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p class="cost-metric">
+                        <i class="fas fa-users info-icon"></i>
+                        Working Parents Ratio: <span class="cost-value" id="avgWorkingParents">Loading...</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row">
+            <div class="col-12 control-panel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="stateSelect" class="form-label">
+                            <i class="fas fa-map-marker-alt info-icon"></i>Select State
+                        </label>
+                        <select id="stateSelect" class="form-select">
+                            <option value="all">All States</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="costRange" class="form-label">
+                            <i class="fas fa-dollar-sign info-icon"></i>Cost Range
+                        </label>
+                        <input type="range" class="form-range" id="costRange" min="0" max="500" step="10">
+                        <div class="text-center" id="costRangeValue">$0 - $500</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Visualization -->
+        <div class="row">
+            <div class="col-12">
+                <div class="viz-container">
+                    <div id="mainViz">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Global data variable
+        let globalData = null;
+        
+        // Debug mode - set to true to enable console logging
+        const DEBUG_MODE = true;
+        
+        // Debug logger
+        function debug(message, data) {
+            if (DEBUG_MODE) {
+                if (data) {
+                    console.log(`[DEBUG] ${message}`, data);
+                } else {
+                    console.log(`[DEBUG] ${message}`);
+                }
+            }
+        }
+        
+        // State names mapping
+        const stateNames = {
+            'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+            'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+            'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+            'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+            'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+            'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+            'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+            'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+            'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+            'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+            'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+            'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+            'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'District of Columbia'
+        };
+        
+        // Initialize the dashboard
+        async function initDashboard() {
+            try {
+                debug('Starting dashboard initialization...');
+                
+                // Show loading indicator
+                document.getElementById('mainViz').innerHTML = 
+                    '<div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-3x"></i><p class="mt-3">Loading dashboard data...</p></div>';
+                
+                // Load data
+                debug('Loading data...');
+                const data = await loadData();
+                if (!data) {
+                    throw new Error('Failed to load data');
+                }
+                
+                // Store data globally
+                globalData = data;
+                debug('Data loaded and stored globally', { statesCount: data.states.length });
+                
+                // Load state data
+                debug('Loading states into dropdown...');
+                loadStates(data.states);
+                
+                // Set initial cost range value
+                const validCosts = data.costs.infant.filter(cost => cost !== null && !isNaN(cost));
+                const maxCost = validCosts.length > 0 ? Math.max(...validCosts) : 1000;
+                const costRange = document.getElementById('costRange');
+                if (costRange) {
+                    costRange.max = Math.ceil(maxCost);
+                    costRange.value = maxCost;
+                    document.getElementById('costRangeValue').textContent = `$0 - $${maxCost.toFixed(0)}`;
+                    debug('Cost range set', { max: maxCost });
+                }
+                
+                // Setup event listeners
+                debug('Setting up event listeners...');
+                setupEventListeners();
+                
+                // Update average metrics
+                debug('Updating average metrics...');
+                updateAverageMetrics(data);
+                
+                // Create map visualization
+                debug('Creating map visualization...');
+                createMapVisualization(data);
+                
+                debug('Dashboard initialization complete');
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showError('Dashboard initialization failed', error.message);
+            }
+        }
+        
+        // Load data from JSON file
+        async function loadData() {
+            try {
+                // Get the current URL for proper path resolution
+                const currentUrl = window.location.href;
+                debug('Current URL:', currentUrl);
+                
+                // Construct the data URL
+                let dataUrl;
+                try {
+                    dataUrl = new URL('./data/childcare_costs.json', currentUrl).href;
+                } catch (urlError) {
+                    // Fallback for older browsers
+                    const basePath = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                    dataUrl = `${basePath}data/childcare_costs.json`;
+                }
+                debug('Attempting to load data from:', dataUrl);
+                
+                // Fetch the data
+                debug('Sending fetch request...');
+                const response = await fetch(dataUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                debug('Parsing JSON response...');
+                const data = await response.json();
+                debug('Data fetch completed');
+                
+                // Clean and normalize data
+                debug('Cleaning and normalizing data...');
+                Object.keys(data.costs).forEach(key => {
+                    data.costs[key] = data.costs[key].map(val => {
+                        if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
+                            debug(`Found null/NaN value in ${key} data, replacing with null`);
+                            return null;
+                        }
+                        return parseFloat(parseFloat(val).toFixed(2));
+                    });
+                });
+                
+                Object.keys(data.metrics).forEach(key => {
+                    data.metrics[key] = data.metrics[key].map(val => {
+                        if (val === null || val === undefined || (typeof val === 'number' && isNaN(val))) {
+                            debug(`Found null/NaN value in ${key} metrics, replacing with null`);
+                            return null;
+                        }
+                        return parseFloat(parseFloat(val).toFixed(2));
+                    });
+                });
+                
+                debug('Data processed successfully');
+                return data;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Data loading failed', error.message);
+                return null;
+            }
+        }
+        
+        // Load state data into the state selector dropdown
+        function loadStates(stateAbbreviations) {
+            if (!stateAbbreviations || !Array.isArray(stateAbbreviations)) {
+                console.error('Invalid state abbreviations data');
+                return;
+            }
+            
+            const stateSelect = document.getElementById('stateSelect');
+            if (!stateSelect) {
+                console.error('State select element not found');
+                return;
+            }
+            
+            stateSelect.innerHTML = '<option value="all">All States</option>';
+            
+            stateAbbreviations.forEach(abbr => {
+                if (stateNames[abbr]) {
+                    const option = document.createElement('option');
+                    option.value = abbr;
+                    option.textContent = stateNames[abbr];
+                    stateSelect.appendChild(option);
+                }
+            });
+        }
+        
+        // Setup event listeners for dashboard controls
+        function setupEventListeners() {
+            const stateSelect = document.getElementById('stateSelect');
+            if (stateSelect) {
+                stateSelect.addEventListener('change', () => {
+                    updateMapVisualization();
+                });
+            }
+            
+            const costRange = document.getElementById('costRange');
+            if (costRange) {
+                costRange.addEventListener('input', (e) => {
+                    document.getElementById('costRangeValue').textContent = `$0 - $${e.target.value}`;
+                    updateMapVisualization();
+                });
+            }
+        }
+        
+        // Create map visualization
+        function createMapVisualization(data) {
+            if (!data || !data.states || !data.costs || !data.costs.infant) {
+                console.error('Invalid data structure for map visualization');
+                showError('Map visualization failed', 'Invalid data structure');
+                return;
+            }
+            
+            try {
+                debug('Preparing map data...');
+                const locations = data.states;
+                const z = data.costs.infant.map(cost => cost || 0);
+                
+                // Check for any issues with the data
+                if (z.some(isNaN)) {
+                    debug('Warning: NaN values found in cost data', 
+                          z.map((val, idx) => isNaN(val) ? `${locations[idx]}: NaN` : null).filter(Boolean));
+                }
+                
+                const text = locations.map((state, i) => {
+                    const cost = z[i];
+                    const burden = data.metrics.cost_burden[i];
+                    const workingParents = data.metrics.working_parent_ratio[i];
+                    return `<b>${getStateName(state)}</b><br>` +
+                           `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
+                           `Cost Burden: ${burden ? burden.toFixed(1) : 'No data'}%<br>` +
+                           `Working Parents: ${workingParents ? workingParents.toFixed(1) : 'No data'}%`;
+                });
+                
+                debug('Creating map data object...');
+                const mapData = [{
+                    type: 'choropleth',
+                    locationmode: 'USA-states',
+                    locations: locations,
+                    z: z,
+                    text: text,
+                    hoverinfo: 'text',
+                    colorscale: [
+                        [0, '#f7fbff'],
+                        [0.2, '#deebf7'],
+                        [0.4, '#c6dbef'],
+                        [0.6, '#9ecae1'],
+                        [0.8, '#6baed6'],
+                        [1, '#2171b5']
+                    ],
+                    colorbar: {
+                        title: 'Monthly Cost ($)',
+                        thickness: 20,
+                        len: 0.9,
+                        y: 0.5,
+                        yanchor: 'middle',
+                        outlinewidth: 0
+                    },
+                    marker: {
+                        line: {
+                            color: 'rgb(255,255,255)',
+                            width: 2
+                        }
+                    }
+                }];
+                
+                debug('Setting up map layout...');
+                const layout = {
+                    title: {
+                        text: 'U.S. Childcare Costs by State',
+                        font: {
+                            size: 24,
+                            color: '#2c3e50'
+                        },
+                        y: 0.95
+                    },
+                    geo: {
+                        scope: 'usa',
+                        showlakes: true,
+                        lakecolor: 'rgb(255,255,255)',
+                        projection: {
+                            type: 'albers usa'
+                        },
+                        showland: true,
+                        landcolor: 'rgb(250,250,250)',
+                        countrycolor: 'rgb(204,204,204)',
+                        showcoastlines: true,
+                        coastlinecolor: 'rgb(204,204,204)',
+                        showsubunits: true,
+                        subunitcolor: 'rgb(255,255,255)'
+                    },
+                    autosize: true,
+                    height: 550,
+                    margin: {
+                        l: 10,
+                        r: 10,
+                        b: 10,
+                        t: 40,
+                        pad: 0
+                    },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)'
+                };
+                
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false,
+                    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                    toImageButtonOptions: {
+                        format: 'png',
+                        filename: 'childcare_costs_map',
+                        height: 800,
+                        width: 1200,
+                        scale: 2
+                    }
+                };
+                
+                debug('Calling Plotly.newPlot...');
+                Plotly.newPlot('mainViz', mapData, layout, config)
+                    .then(() => debug('Map visualization created successfully'))
+                    .catch(err => {
+                        console.error('Error plotting map:', err);
+                        showError('Error creating map visualization', err.message);
+                    });
+            } catch (error) {
+                console.error('Error creating map visualization:', error);
+                showError('Error creating map visualization', error.message);
+            }
+        }
+        
+        // Update map visualization based on filters
+        function updateMapVisualization() {
+            if (!globalData) {
+                console.error('No data available for visualization update');
+                return;
+            }
+            
+            try {
+                const selectedState = document.getElementById('stateSelect').value;
+                const costRange = parseFloat(document.getElementById('costRange').value);
+                
+                console.log('Updating map with filters:', { selectedState, costRange });
+                
+                // Filter data based on selected state and cost range
+                const filteredData = filterMapData(globalData, selectedState, costRange);
+                
+                // Update the map
+                Plotly.restyle('mainViz', {
+                    locations: [filteredData.locations],
+                    z: [filteredData.z],
+                    text: [filteredData.text]
+                }).then(() => console.log('Map updated successfully'))
+                .catch(err => {
+                    console.error('Error updating map:', err);
+                    showError('Error updating map', err.message);
+                });
+            } catch (error) {
+                console.error('Error updating map visualization:', error);
+                showError('Error updating map', error.message);
+            }
+        }
+        
+        // Filter map data based on selected state and cost range
+        function filterMapData(data, selectedState, costRange) {
+            const filteredIndices = [];
+            const allIndices = Array.from({ length: data.states.length }, (_, i) => i);
+            
+            // Filter by state if not "all"
+            const stateFilteredIndices = selectedState === 'all' 
+                ? allIndices 
+                : allIndices.filter(i => data.states[i] === selectedState);
+            
+            // Filter by cost range
+            filteredIndices.push(...stateFilteredIndices.filter(i => 
+                filterByCostRange(data.costs.infant[i], costRange)
+            ));
+            
+            // Create filtered data arrays
+            const locations = filteredIndices.map(i => data.states[i]);
+            const z = filteredIndices.map(i => data.costs.infant[i] || 0);
+            const text = filteredIndices.map(i => {
+                const state = data.states[i];
+                const cost = data.costs.infant[i];
+                const burden = data.metrics.cost_burden[i];
+                const workingParents = data.metrics.working_parent_ratio[i];
+                return `<b>${getStateName(state)}</b><br>` +
+                       `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
+                       `Cost Burden: ${burden ? burden.toFixed(1) : 'No data'}%<br>` +
+                       `Working Parents: ${workingParents ? workingParents.toFixed(1) : 'No data'}%`;
+            });
+            
+            return { locations, z, text };
+        }
+        
+        // Filter by cost range
+        function filterByCostRange(cost, maxCost) {
+            if (cost === null || isNaN(cost)) return false;
+            return cost <= maxCost;
+        }
+        
+        // Get state name from abbreviation
+        function getStateName(abbr) {
+            return stateNames[abbr] || abbr;
+        }
+        
+        // Calculate and display average metrics
+        function updateAverageMetrics(data) {
+            if (!data || !data.costs || !data.metrics) {
+                console.error('Invalid data for average metrics calculation');
+                return;
+            }
+            
+            try {
+                // Calculate averages
+                const avgInfantCost = calculateAverage(data.costs.infant);
+                const avgCostBurden = calculateAverage(data.metrics.cost_burden);
+                const avgWorkingParents = calculateAverage(data.metrics.working_parent_ratio);
+                
+                // Update UI
+                document.getElementById('avgInfantCost').textContent = `$${avgInfantCost.toFixed(2)}`;
+                document.getElementById('avgCostBurden').textContent = `${avgCostBurden.toFixed(1)}%`;
+                document.getElementById('avgWorkingParents').textContent = `${avgWorkingParents.toFixed(1)}%`;
+            } catch (error) {
+                console.error('Error updating average metrics:', error);
+            }
+        }
+        
+        // Calculate average of array, excluding null/NaN values
+        function calculateAverage(array) {
+            if (!array || !Array.isArray(array)) return 0;
+            
+            const validValues = array.filter(val => val !== null && !isNaN(val));
+            if (validValues.length === 0) return 0;
+            
+            return validValues.reduce((a, b) => a + b, 0) / validValues.length;
+        }
+        
+        // Show error message
+        function showError(message, details = '') {
+            console.error(message, details);
+            document.getElementById('mainViz').innerHTML = `
+                <div class="alert alert-danger">
+                    <h4>Error</h4>
+                    <p>${message}</p>
+                    ${details ? `<p><small>${details}</small></p>` : ''}
+                    <button class="btn btn-light mt-3" onclick="window.location.reload()">
+                        <i class="fas fa-sync-alt"></i> Reload Dashboard
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing dashboard...');
+            // Add a small delay to ensure all resources are loaded
+            setTimeout(initDashboard, 100);
+        });
+        
+        // Handle global errors
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            showError('An unexpected error occurred', event.error?.message || 'Unknown error');
+        });
+        
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showError('An unexpected error occurred', event.reason?.message || 'Unknown error');
+        });
+    </script>
+</body>
+</html> 

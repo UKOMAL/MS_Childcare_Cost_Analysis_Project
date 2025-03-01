@@ -1,80 +1,55 @@
-# Childcare Cost Analysis Dashboard
+# U.S. Childcare Cost Analysis Dashboard
 
-An interactive dashboard analyzing childcare costs across the United States.
-
-## 📊 Live Dashboard
-
-Visit the live dashboard: [Childcare Cost Analysis Dashboard](https://ukomal.github.io/-MS_Childcare_Cost_Analysis_Project/)
-
-## 📝 Description
-
-This dashboard provides interactive visualizations of childcare costs across different states in the United States, including:
-- Geographic cost distribution maps
-- Network analysis of cost relationships
-- Time series analysis of cost trends
-- Cost flow analysis
-
-## 🛠️ Features
-
-- Interactive state selection
-- Cost range filtering
-- Multiple visualization types:
-  - Geographic Map
-  - Network Analysis
-  - Cost Flow
-  - 3D Analysis
-- Responsive design for all devices
-
-## 🚀 Technologies Used
-
-- HTML/CSS/JavaScript
-- Plotly.js for visualizations
-- Bootstrap 5 for responsive layout
-- Custom data processing scripts
-
-## 📈 Data Source
-
-The dashboard uses the National Database of Childcare Prices dataset.
+This dashboard provides an interactive visualization of childcare costs across the United States.
 
 ## Features
 
-1. **Interactive Geographic Analysis**
-   - State-level cost visualization
-   - Cost burden overlay
-   - Dynamic filtering
+- Interactive map visualization of childcare costs by state
+- Filtering by state and cost range
+- Display of key metrics including average infant care cost, cost burden, and working parents ratio
+- Responsive design that works on desktop and mobile devices
 
-2. **Network Analysis**
-   - Cost factor relationships
-   - Correlation strengths
-   - Interactive graph layout
+## Files
 
-3. **Time Series Analysis**
-   - Cost trends (2008-2018)
-   - State-by-state comparison
-   - Multiple age groups
+- `index.html` - The main dashboard page (using ES6 modules)
+- `simple-dashboard.html` - A simplified version of the dashboard (all-in-one file)
+- `dashboard-test.html` - A test page to verify dashboard functionality
+- `data/childcare_costs.json` - The data file containing childcare cost information
+- `js/dashboard.js` - The main dashboard JavaScript module
+- `js/map.js` - The map visualization module
+- `js/network.js` - The network visualization module
 
-## Data Sources
+## How to Use
 
-The analysis uses data from the National Database of Childcare Prices, including:
-- Annual childcare costs by state and age group
-- Median household income
-- Population demographics
-- Urban/rural classifications
-
-## Local Development
-
-To run this dashboard locally:
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
+1. Start a local web server in the `docs` directory:
    ```
-3. Run the development server:
-   ```bash
-   python app.py
+   cd docs
+   python -m http.server 8000
    ```
 
-## Contributing
+2. Open one of the following URLs in your browser:
+   - Main dashboard: http://localhost:8000/
+   - Simple dashboard: http://localhost:8000/simple-dashboard.html
+   - Test page: http://localhost:8000/dashboard-test.html
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+## Troubleshooting
+
+If you encounter issues with the main dashboard:
+
+1. Try the simple dashboard version at http://localhost:8000/simple-dashboard.html
+2. Run the tests at http://localhost:8000/dashboard-test.html to diagnose issues
+3. Check the browser console for error messages
+4. Verify that the data file is accessible at http://localhost:8000/data/childcare_costs.json
+
+## Known Issues
+
+- The data contains NaN values for Indiana, which are handled by displaying "No data" in the visualization
+- Some browsers may have issues with ES6 modules when served from a local file system (use a web server)
+
+## Browser Compatibility
+
+This dashboard works best in modern browsers:
+- Chrome 60+
+- Firefox 60+
+- Safari 12+
+- Edge 79+ 
