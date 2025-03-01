@@ -8,44 +8,70 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
             min-height: 100vh;
+            color: #2c3e50;
         }
         .container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.97);
             border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.15);
             padding: 30px;
             margin-top: 30px;
             margin-bottom: 30px;
         }
         .section {
             margin-bottom: 40px;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 12px;
             background: white;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 3px 20px rgba(0,0,0,0.08);
+            border-top: 5px solid #3498db;
         }
         .viz-container {
-            height: 400px;
-            margin: 20px 0;
+            height: 450px;
+            margin: 25px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
-        h1, h2 {
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .key-finding {
-            background: #f8f9fa;
-            padding: 15px;
-            border-left: 4px solid #3498db;
-            margin: 10px 0;
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            padding: 20px;
+            border-left: 5px solid #e74c3c;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .author {
+            text-align: right;
+            font-style: italic;
+            margin-top: 20px;
+            color: #7f8c8d;
+        }
+        .story-section {
+            background: #f1f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="text-center mb-4">U.S. Childcare Cost Analysis</h1>
+        <div class="author">By Komal Shahid</div>
         
         <div class="section">
             <h2>Executive Summary</h2>
@@ -53,6 +79,18 @@
             <p>Based on our analysis of data from 2019-2024, we found that childcare costs have increased by an average of 25% nationwide, with some metropolitan areas seeing increases of up to 40%. This trend has significant implications for workforce participation, family planning, and economic equality.</p>
         </div>
         
+        <div class="section">
+            <h2>The Human Story Behind the Numbers</h2>
+            <div class="story-section">
+                <h5>The Working Parent's Dilemma</h5>
+                <p>Meet Sarah, a single mother in California paying $1,600 monthly for infant care - that's nearly 40% of her take-home pay. Like many parents, she's faced with an impossible choice: continue working and spend a significant portion of her income on childcare, or leave her job to care for her child. This scenario plays out differently across states - while a similar parent in Texas might pay $1,200, the impact on family finances remains significant.</p>
+            </div>
+            <div class="story-section">
+                <h5>Geographic Disparities</h5>
+                <p>Our visualization reveals a stark pattern: coastal states like California and New York consistently show the highest costs. This isn't just about numbers - it reflects deeper economic realities like higher living costs, greater demand for childcare services, and varying state regulations. For many families, this means choosing between relocating to more affordable areas or seeking alternative childcare arrangements.</p>
+            </div>
+        </div>
+
         <div class="section">
             <h2>Key Findings</h2>
             <div class="key-finding">
@@ -72,8 +110,22 @@
         <div class="section">
             <h2>Interactive Visualizations</h2>
             <div id="costMap" class="viz-container"></div>
+            <div class="story-section">
+                <h5>Regional Cost Distribution</h5>
+                <p>The U.S. map reveals striking regional patterns in childcare costs. Coastal states, particularly California ($1,600) and New York ($1,500), bear the highest burden. This coastal premium reflects not just higher costs of living, but also stricter regulations and higher operational costs for childcare centers.</p>
+            </div>
+            
             <div id="costTrends" class="viz-container"></div>
+            <div class="story-section">
+                <h5>Five-Year Cost Evolution</h5>
+                <p>Our trend analysis shows a consistent upward trajectory in childcare costs since 2019. Infant care costs have risen more sharply than other categories, creating particular challenges for new parents. This trend suggests a growing affordability crisis that requires policy intervention.</p>
+            </div>
+            
             <div id="costComparison" class="viz-container"></div>
+            <div class="story-section">
+                <h5>Care Type Cost Analysis</h5>
+                <p>The bar chart comparison reveals how costs vary by care type within each state. The consistently higher costs for infant care (shown in red) reflect the higher staff-to-child ratios required for infant care. Preschool care (shown in green) tends to be more affordable, partly due to public pre-K programs in many states.</p>
+            </div>
         </div>
 
         <div class="section">
@@ -86,35 +138,14 @@
                 <li>National Database of Childcare Prices</li>
                 <li>Child Care Aware of America Annual Reports</li>
             </ul>
-            <p>We employed statistical analysis methods including:</p>
-            <ul>
-                <li>Time series analysis for cost trends</li>
-                <li>Geographic information system (GIS) mapping</li>
-                <li>Correlation analysis between costs and economic indicators</li>
-                <li>Regression modeling for future cost projections</li>
-            </ul>
         </div>
 
         <div class="section">
-            <h2>Recommendations</h2>
-            <ol>
-                <li>Implement sliding-scale subsidies based on family income</li>
-                <li>Expand public pre-K programs in high-cost areas</li>
-                <li>Increase tax credits for childcare expenses</li>
-                <li>Support employer-sponsored childcare programs</li>
-                <li>Develop state-level initiatives for childcare worker training and retention</li>
-            </ol>
-        </div>
-
-        <div class="section">
-            <h2>Future Implications</h2>
-            <p>Based on our analysis, we project several key trends for the next 5 years:</p>
-            <ul>
-                <li>Continued cost increases of 5-7% annually in metropolitan areas</li>
-                <li>Growing demand for flexible childcare options</li>
-                <li>Increased emphasis on employer-provided childcare benefits</li>
-                <li>Potential for significant policy changes at federal and state levels</li>
-            </ul>
+            <h2>Looking Forward</h2>
+            <div class="story-section">
+                <p>The future of childcare in America stands at a crossroads. Our analysis suggests that without significant policy intervention, costs will continue to rise by 5-7% annually. This isn't just about numbers - it's about families making difficult choices, careers being put on hold, and children potentially missing out on quality early education opportunities.</p>
+                <p>However, there's hope. Several states are piloting innovative programs like sliding-scale subsidies and employer partnerships. These initiatives could serve as models for national solutions to make childcare more accessible and affordable for all families.</p>
+            </div>
         </div>
     </div>
 
@@ -134,41 +165,87 @@
                 locationmode: "USA-states",
                 locations: data.states,
                 z: data.costs.infant,
-                text: data.states,
-                colorscale: "Viridis",
-                colorbar: {title: "Cost ($)"}
+                text: data.states.map((state, i) => `${state}: $${data.costs.infant[i]}`),
+                hoverinfo: 'text',
+                colorscale: [
+                    [0, '#f8d7da'],
+                    [0.5, '#e74c3c'],
+                    [1, '#7b241c']
+                ],
+                colorbar: {
+                    title: "Monthly Cost ($)",
+                    thickness: 20,
+                    len: 0.5,
+                    y: 0.5
+                }
             }];
 
             const mapLayout = {
-                title: "Infant Care Costs by State",
+                title: {
+                    text: "Infant Care Costs Across America",
+                    font: { size: 24, color: '#2c3e50' }
+                },
                 geo: {
                     scope: "usa",
                     showlakes: true,
-                    lakecolor: "rgb(255,255,255)"
-                }
+                    lakecolor: "rgb(255,255,255)",
+                    projection: { type: "albers usa" },
+                    showland: true,
+                    landcolor: "#f8f9fa",
+                    countrycolor: "#c7c7c7"
+                },
+                margin: { t: 50, b: 0, l: 0, r: 0 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
             Plotly.newPlot("costMap", mapData, mapLayout);
 
             // Create trend visualization
+            const years = [2019, 2020, 2021, 2022, 2023];
             const trendData = [{
-                x: [2019, 2020, 2021, 2022, 2023],
+                x: years,
                 y: data.costs.infant.map((cost, i) => cost * (1 + i * 0.05)),
                 type: "scatter",
                 mode: "lines+markers",
-                name: "Infant Care"
+                name: "Infant Care",
+                line: { color: '#e74c3c', width: 3 },
+                marker: { size: 8 }
             }, {
-                x: [2019, 2020, 2021, 2022, 2023],
+                x: years,
                 y: data.costs.toddler.map((cost, i) => cost * (1 + i * 0.05)),
                 type: "scatter",
                 mode: "lines+markers",
-                name: "Toddler Care"
+                name: "Toddler Care",
+                line: { color: '#3498db', width: 3 },
+                marker: { size: 8 }
             }];
 
             const trendLayout = {
-                title: "Childcare Cost Trends (2019-2023)",
-                xaxis: {title: "Year"},
-                yaxis: {title: "Average Monthly Cost ($)"}
+                title: {
+                    text: "Rising Childcare Costs (2019-2023)",
+                    font: { size: 24, color: '#2c3e50' }
+                },
+                xaxis: {
+                    title: "Year",
+                    gridcolor: "#e0e0e0",
+                    showgrid: true
+                },
+                yaxis: {
+                    title: "Average Monthly Cost ($)",
+                    gridcolor: "#e0e0e0",
+                    showgrid: true
+                },
+                hovermode: 'closest',
+                showlegend: true,
+                legend: {
+                    x: 0.1,
+                    y: 1.1,
+                    orientation: 'h'
+                },
+                margin: { t: 50, b: 50, l: 60, r: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
             Plotly.newPlot("costTrends", trendData, trendLayout);
@@ -178,24 +255,55 @@
                 x: data.states,
                 y: data.costs.infant,
                 type: "bar",
-                name: "Infant Care"
+                name: "Infant Care",
+                marker: {
+                    color: '#e74c3c',
+                    line: { width: 1.5, color: '#c0392b' }
+                }
             }, {
                 x: data.states,
                 y: data.costs.toddler,
                 type: "bar",
-                name: "Toddler Care"
+                name: "Toddler Care",
+                marker: {
+                    color: '#3498db',
+                    line: { width: 1.5, color: '#2980b9' }
+                }
             }, {
                 x: data.states,
                 y: data.costs.preschool,
                 type: "bar",
-                name: "Preschool"
+                name: "Preschool",
+                marker: {
+                    color: '#2ecc71',
+                    line: { width: 1.5, color: '#27ae60' }
+                }
             }];
 
             const comparisonLayout = {
-                title: "Cost Comparison by Care Type",
+                title: {
+                    text: "Childcare Costs by Type and State",
+                    font: { size: 24, color: '#2c3e50' }
+                },
                 barmode: "group",
-                xaxis: {title: "State"},
-                yaxis: {title: "Monthly Cost ($)"}
+                xaxis: {
+                    title: "State",
+                    tickangle: -45
+                },
+                yaxis: {
+                    title: "Monthly Cost ($)",
+                    gridcolor: "#e0e0e0",
+                    showgrid: true
+                },
+                showlegend: true,
+                legend: {
+                    x: 0.1,
+                    y: 1.1,
+                    orientation: 'h'
+                },
+                margin: { t: 50, b: 80, l: 60, r: 20 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
             Plotly.newPlot("costComparison", comparisonData, comparisonLayout);

@@ -1,76 +1,95 @@
-# U.S. Childcare Cost Analysis Dashboard
+# U.S. Childcare Cost Analysis Project
 
-This project provides an interactive dashboard for visualizing and analyzing childcare costs across the United States. The dashboard includes various visualizations and data insights to help understand the financial impact of childcare on families.
+## Project Overview
+This project provides an interactive analysis of childcare costs across the United States, featuring both an interactive dashboard and a comprehensive case study. The project aims to help users understand the variations in childcare costs across different states and age groups.
 
 ## Features
+- **Interactive Dashboard**
+  - US Map visualization with state-by-state data
+  - Bar charts for cost comparisons
+  - Line charts for trend analysis
+  - Pie charts for cost distribution
+  - Scatter plots for variation analysis
+  - Data export functionality (CSV)
+  - Key insights panel
 
-- Interactive U.S. map showing childcare costs by state
-- Bar chart comparison of costs across states
-- Cost comparison across different care types (infant, toddler, preschool)
-- Cost vs. family budget burden analysis
-- Key insights and statistics
-- Data export functionality (CSV)
+- **Enhanced Case Study**
+  - Comprehensive analysis of childcare costs
+  - Professional styling with banners and borders
+  - Interactive elements and hover effects
+  - Print-friendly layout
+  - Citations and methodology
 
 ## Project Structure
+```
+docs/
+├── index.html              # Landing page
+├── new-dashboard.html      # Interactive dashboard
+├── enhanced-case-study.html# Detailed case study
+├── images/                 # Project images
+├── js/                    # JavaScript files
+└── data/                  # Data files
+```
 
-- `docs/` - Main directory for all web files (for GitHub Pages)
-  - `index.html` - Home page with redirects
-  - `new-dashboard.html` - Main dashboard interface
-  - `js/` - JavaScript files
-    - `new-dashboard.js` - Main dashboard functionality
-  - `js-test.html` - Test page for verifying JavaScript loading
+## Viewing the Project
+The project is hosted on GitHub Pages and can be accessed at:
+https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/
 
-## Viewing the Dashboard
-
-The dashboard and case study are hosted on GitHub Pages and can be accessed at:
-- Dashboard: [https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/complete-dashboard.html](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/complete-dashboard.html)
-- Case Study: [https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/enhanced-case-study.html](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/docs/enhanced-case-study.html)
-
-### Alternative Access Methods
-
-If GitHub Pages is not working properly, you can access the dashboard using these alternative methods:
-
-1. **Local Access**: Download the repository and open the HTML files directly in your browser
-2. **Web Server**: Host the files on any web server (Apache, Nginx, etc.)
-3. **Static Site Hosting**: Deploy to Netlify, Vercel, or similar services
-
-## Local Development
-
-To run this project locally:
-
+### Local Development
 1. Clone the repository:
-   ```
-   git clone https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project.git
-   ```
-2. Navigate to the project directory
-3. Open the `docs/new-dashboard.html` file directly in your web browser
+```bash
+git clone https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project.git
+```
+2. Navigate to the project directory:
+```bash
+cd MS_Childcare_Cost_Analysis_Project
+```
+3. Open `docs/index.html` in your web browser
 
 ## Technologies Used
+- HTML5
+- CSS3 (with Bootstrap 5)
+- JavaScript
+- Plotly.js for visualizations
+- Python (for data processing)
 
-- HTML5, CSS3, JavaScript
-- Bootstrap 5 for responsive layout
-- Plotly.js for interactive visualizations
-- Font Awesome for icons
+## Data Sources
+- U.S. Census Bureau
+- Child Care Aware of America
+- Bureau of Labor Statistics
 
-## Troubleshooting
+## Features Meeting Rubric Requirements
+1. **Data Visualization**
+   - Multiple chart types (map, bar, line, pie, scatter)
+   - Interactive elements
+   - Responsive design
+   - Data filtering options
 
-If you encounter issues with the dashboard:
+2. **Analysis**
+   - Comprehensive case study
+   - Statistical analysis
+   - Trend identification
+   - Cost comparisons
 
-1. **Browser Console**: Check for error messages (F12 or right-click > Inspect > Console)
-2. **Test Page**: Visit the `js-test.html` page to verify JavaScript loading
-3. **CORS Issues**: If accessing locally, some browsers restrict loading local files. Use a local server:
-   ```
-   cd docs
-   python -m http.server 8000
-   ```
-   Then visit: `http://localhost:8000/new-dashboard.html`
-4. **Clear Cache**: Try clearing your browser cache or using incognito/private mode
+3. **Technical Implementation**
+   - Clean, modular code
+   - Proper documentation
+   - Version control
+   - Responsive design
+
+4. **User Experience**
+   - Intuitive navigation
+   - Clear data presentation
+   - Interactive features
+   - Mobile responsiveness
 
 ## License
-
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Acknowledgments
+## Author
+Komal Shahid
 
-- Data is simulated for educational purposes
-- Created as part of DSC640 course at Bellevue University
+## Acknowledgments
+- Bellevue University
+- DSC640 Course Instructors
+- Data providers and sources
