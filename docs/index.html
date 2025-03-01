@@ -158,6 +158,42 @@
                 padding: 1rem;
             }
         }
+        .main-option {
+            width: 400px;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            border: 2px solid #3498db;
+        }
+        .main-option::before {
+            content: "MAIN DASHBOARD";
+            position: absolute;
+            top: 15px;
+            right: -35px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 35px;
+            transform: rotate(45deg);
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .secondary-option {
+            width: 400px;
+            background: linear-gradient(135deg, #ffffff, #f9fff9);
+            border: 2px solid #2ecc71;
+        }
+        .secondary-option::before {
+            content: "DETAILED ANALYSIS";
+            position: absolute;
+            top: 15px;
+            right: -35px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 35px;
+            transform: rotate(45deg);
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -172,31 +208,25 @@
         </div>
         
         <div class="dashboard-options">
-            <div class="dashboard-option featured-option">
-                <i class="fas fa-file-alt"></i>
-                <h3>Case Study</h3>
-                <p>Explore our findings in a narrative format with static visualizations and key insights.</p>
-                <a href="case-study.html" class="btn btn-success">View Case Study</a>
-            </div>
-            
-            <div class="dashboard-option">
-                <i class="fas fa-chart-line"></i>
-                <h3>New Dashboard</h3>
-                <p>Our latest dashboard with enhanced visualizations and improved features.</p>
-                <a href="new-dashboard.html" class="btn btn-primary">Launch</a>
-            </div>
-            
-            <div class="dashboard-option">
+            <div class="dashboard-option main-option">
                 <i class="fas fa-chart-bar"></i>
-                <h3>Complete Dashboard</h3>
-                <p>Comprehensive dashboard with both interactive charts and static visualizations.</p>
-                <a href="complete-dashboard.html" class="btn btn-primary">Launch</a>
+                <h3>Interactive Dashboard</h3>
+                <p>Explore our comprehensive dashboard with interactive visualizations, charts, and data analysis tools.</p>
+                <a href="complete-dashboard.html" class="btn btn-primary">Launch Dashboard</a>
+            </div>
+            
+            <div class="dashboard-option secondary-option">
+                <i class="fas fa-file-alt"></i>
+                <h3>Detailed Case Study</h3>
+                <p>Read our in-depth analysis with static visualizations and key insights about U.S. childcare costs.</p>
+                <a href="case-study.html" class="btn btn-success">View Case Study</a>
             </div>
         </div>
         
         <div class="footer">
             <p>Created by Komal Shahid</p>
             <p>DSC640 Course at Bellevue University</p>
+            <p><a href="https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project" target="_blank"><i class="fab fa-github"></i> View on GitHub</a></p>
         </div>
     </div>
 </body>
