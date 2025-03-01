@@ -112,6 +112,7 @@
                             <select class="form-select" id="vizType">
                                 <option value="choropleth">State Choropleth</option>
                                 <option value="geoplot">Advanced Geoplot</option>
+                                <option value="spiral">State Cost Spiral</option>
                                 <option value="heatmap">Cost Heatmap</option>
                                 <option value="violin">Cost Distribution (Violin)</option>
                                 <option value="bubble">Multi-dimensional Bubble</option>
@@ -285,6 +286,9 @@
                     break;
                 case 'geoplot':
                     createAdvancedGeoplot(data, states);
+                    break;
+                case 'spiral':
+                    createSpiralPlot(data, states);
                     break;
                 case 'heatmap':
                     createHeatmap(data, states);
@@ -625,6 +629,82 @@
             };
 
             Plotly.newPlot('mainViz', parallelData, layout);
+        }
+
+        // Create spiral plot
+        function createSpiralPlot(data, states) {
+            // Generate spiral coordinates
+            const points = states.length;
+            const turns = 2;
+            const theta = Array.from({length: points}, (_, i) => (i / (points - 1)) * turns * 2 * Math.PI);
+            const radius = Array.from({length: points}, (_, i) => i * (1 / points));
+            const x = theta.map((t, i) => radius[i] * Math.cos(t));
+            const y = theta.map((t, i) => radius[i] * Math.sin(t));
+
+            // Sort data for spiral visualization
+            const sortedIndices = data.map((v, i) => i)
+                .sort((a, b) => data[b] - data[a]);
+            
+            const spiralData = [{
+                type: 'scatter',
+                x: x,
+                y: y,
+                mode: 'markers+lines+text',
+                text: sortedIndices.map(i => `${states[i]}<br>$${data[i]}`),
+                textposition: 'top center',
+                textfont: {
+                    size: 12,
+                    color: '#2c3e50'
+                },
+                marker: {
+                    size: sortedIndices.map(i => data[i]/30),
+                    color: sortedIndices.map(i => data[i]),
+                    colorscale: 'Viridis',
+                    showscale: true,
+                    colorbar: {
+                        title: 'Monthly Cost ($)',
+                        thickness: 20
+                    }
+                },
+                line: {
+                    color: '#3498db',
+                    width: 2
+                },
+                hoverinfo: 'text'
+            }];
+
+            const layout = {
+                title: {
+                    text: 'State Costs Spiral Analysis',
+                    font: { size: 24, color: '#2c3e50' }
+                },
+                showlegend: false,
+                xaxis: {
+                    zeroline: false,
+                    showgrid: false,
+                    showticklabels: false
+                },
+                yaxis: {
+                    zeroline: false,
+                    showgrid: false,
+                    showticklabels: false
+                },
+                margin: { t: 50, b: 50, l: 50, r: 50 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                annotations: [{
+                    x: 0,
+                    y: -1,
+                    text: 'States arranged in spiral pattern by cost (highest to lowest)',
+                    showarrow: false,
+                    font: {
+                        size: 12,
+                        color: '#7f8c8d'
+                    }
+                }]
+            };
+
+            Plotly.newPlot('mainViz', spiralData, layout);
         }
 
         // Update key insights
