@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Loading Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .image-container {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .image-status {
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .image-test {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test</h1>
+    
+    <div class="card">
+        <h2>Local Images Test</h2>
+        <p>Testing images from the local images directory:</p>
+        
+        <div class="image-container">
+            <h3>Image 1: childcare_costs_map.png</h3>
+            <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="image-test" onload="imageLoaded(this)" onerror="imageError(this)">
+            <div class="image-status" id="status-1">Loading...</div>
+        </div>
+        
+        <div class="image-container">
+            <h3>Image 2: state_costs.png</h3>
+            <img src="images/state_costs.png" alt="State Costs" class="image-test" onload="imageLoaded(this)" onerror="imageError(this)">
+            <div class="image-status" id="status-2">Loading...</div>
+        </div>
+        
+        <div class="image-container">
+            <h3>Image 3: cost_trends.png</h3>
+            <img src="images/cost_trends.png" alt="Cost Trends" class="image-test" onload="imageLoaded(this)" onerror="imageError(this)">
+            <div class="image-status" id="status-3">Loading...</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>External Images Test</h2>
+        <p>Testing images from external sources:</p>
+        
+        <div class="image-container">
+            <h3>Placeholder Image</h3>
+            <img src="https://via.placeholder.com/300x200?text=Test+Image" alt="Placeholder" class="image-test" onload="imageLoaded(this)" onerror="imageError(this)">
+            <div class="image-status" id="status-4">Loading...</div>
+        </div>
+        
+        <div class="image-container">
+            <h3>GitHub Logo</h3>
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo" class="image-test" onload="imageLoaded(this)" onerror="imageError(this)">
+            <div class="image-status" id="status-5">Loading...</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Path Information</h2>
+        <div id="path-info">
+            <p>Current URL: <span id="current-url"></span></p>
+            <p>Base URL: <span id="base-url"></span></p>
+            <p>Hostname: <span id="hostname"></span></p>
+            <p>Path: <span id="path"></span></p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Navigation</h2>
+        <p>Return to:</p>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="new-dashboard.html">Dashboard</a></li>
+            <li><a href="js-test.html">JavaScript Test</a></li>
+        </ul>
+    </div>
+    
+    <script>
+        // Image loading status functions
+        function imageLoaded(img) {
+            const statusElement = img.nextElementSibling;
+            statusElement.textContent = "✅ Image loaded successfully";
+            statusElement.className = "image-status success";
+        }
+        
+        function imageError(img) {
+            const statusElement = img.nextElementSibling;
+            statusElement.textContent = "❌ Error loading image";
+            statusElement.className = "image-status error";
+        }
+        
+        // Display path information
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('base-url').textContent = window.location.origin;
+        document.getElementById('hostname').textContent = window.location.hostname;
+        document.getElementById('path').textContent = window.location.pathname;
+        
+        // Log environment information
+        console.log("Document URL:", document.URL);
+        console.log("Document location:", document.location);
+        console.log("Window location:", window.location);
+    </script>
+</body>
+</html> 

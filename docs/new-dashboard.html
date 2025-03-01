@@ -112,6 +112,14 @@
             font-size: 12px;
             z-index: 1000;
         }
+        .debug-info {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -130,7 +138,8 @@
         <div class="dashboard-header">
             <h1>U.S. Childcare Cost Analysis</h1>
             <p class="lead">Exploring childcare costs across the United States</p>
-            <img src="https://via.placeholder.com/150?text=Childcare+Analysis" alt="Childcare Analysis Logo" class="img-fluid mt-2" style="max-width: 150px;">
+            <!-- Using a more reliable external image source -->
+            <img src="https://via.placeholder.com/150/3498db/ffffff?text=Childcare+Analysis" alt="Childcare Analysis Logo" class="img-fluid mt-2" style="max-width: 150px;">
         </div>
         
         <div class="row">
@@ -221,6 +230,19 @@
                             <li>Data export functionality</li>
                         </ul>
                         <p><strong>Note:</strong> This dashboard uses embedded data to ensure reliable operation.</p>
+                        
+                        <!-- Debug information section -->
+                        <div class="debug-info">
+                            <h6>Troubleshooting Information</h6>
+                            <p>If visualizations are not loading:</p>
+                            <ol>
+                                <li>Check your browser console for errors (F12 or right-click > Inspect > Console)</li>
+                                <li>Try the <a href="js-test.html">JavaScript Test Page</a> to verify script loading</li>
+                                <li>Try the <a href="image-test.html">Image Test Page</a> to verify image loading</li>
+                                <li>Clear your browser cache or try a different browser</li>
+                            </ol>
+                            <p>Environment: <span id="environment-info">Checking...</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -229,8 +251,9 @@
         <div class="row mt-3">
             <div class="col-12 text-center">
                 <a href="index.html" class="btn btn-secondary me-2">Home</a>
-                <a href="dashboard-test.html" class="btn btn-info me-2">Test Dashboard</a>
-                <a href="debug-dashboard.html" class="btn btn-warning">Debug Dashboard</a>
+                <a href="js-test.html" class="btn btn-info me-2">JS Test</a>
+                <a href="image-test.html" class="btn btn-warning me-2">Image Test</a>
+                <a href="debug-dashboard.html" class="btn btn-danger">Debug Dashboard</a>
             </div>
         </div>
     </div>
@@ -242,6 +265,11 @@
     <script>
         // Track script loading
         document.getElementById('scriptLoadStatus').textContent = 'Script status: Loading main script...';
+        
+        // Set environment info
+        document.getElementById('environment-info').textContent = 
+            window.location.hostname + ' | ' + 
+            navigator.userAgent.substring(0, 80) + '...';
         
         function handleScriptError() {
             document.getElementById('scriptLoadStatus').textContent = 'Script status: Error loading script!';
@@ -268,6 +296,15 @@
                     window.location.reload();
                 };
                 overlay.appendChild(retryBtn);
+                
+                // Add a test button
+                const testBtn = document.createElement('button');
+                testBtn.className = 'btn btn-warning mt-2';
+                testBtn.textContent = 'Go to Test Page';
+                testBtn.onclick = function() {
+                    window.location.href = 'js-test.html';
+                };
+                overlay.appendChild(testBtn);
             }
             
             console.error('Failed to load dashboard script!');
