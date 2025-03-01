@@ -109,34 +109,51 @@
             <p>Key findings indicate that the Northeast region faces the highest childcare costs, averaging 45% above the national median, while rural areas generally offer more affordable options but with limited availability. The study also reveals a strong correlation between childcare costs and female labor force participation, suggesting that high childcare expenses may be a significant barrier to workforce participation for many parents.</p>
         </div>
 
-        <h2>1. Geographic Analysis</h2>
-        <div class="visualization">
-            <div id="geoChoropleth" style="height: 500px;"></div>
-            <p>Figure 1: Geographic distribution of childcare costs across the United States</p>
-        </div>
-        <div class="key-finding">
-            <h3>Key Regional Insights:</h3>
-            <ul>
-                <li>Northeast Region: Highest average costs ($1,500/week)</li>
-                <li>Southeast Region: Most variable costs ($800-$1,200/week)</li>
-                <li>Midwest Region: Most consistent pricing ($900-$1,100/week)</li>
-                <li>Western Region: Second highest costs with significant urban-rural divide</li>
-            </ul>
-        </div>
+        <section id="visualizations">
+            <div class="visualization-section">
+                <h2>Geographic Analysis</h2>
+                <div class="visualization">
+                    <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs">
+                    <p class="figure-caption">Figure 1: Geographic distribution of childcare costs across states</p>
+                </div>
+                <div class="visualization">
+                    <div id="spiralPlot"></div>
+                    <p class="figure-caption">Figure 2: Spiral visualization of state-wise childcare costs</p>
+                </div>
+            </div>
 
-        <h2>2. Cost Distribution Analysis</h2>
-        <div class="visualization">
-            <div id="costSpiral" style="height: 600px;"></div>
-            <p>Figure 2: Spiral visualization of childcare costs by state</p>
-        </div>
+            <div class="visualization-section">
+                <h2>Cost Distribution Analysis</h2>
+                <div class="visualization">
+                    <img src="images/cost_distribution.png" alt="Cost Distribution Analysis">
+                    <p class="figure-caption">Figure 3: Distribution of childcare costs by income levels</p>
+                </div>
+                <div class="visualization">
+                    <div id="violinPlot"></div>
+                    <p class="figure-caption">Figure 4: Violin plot showing cost distribution patterns</p>
+                </div>
+            </div>
 
-        <h2>3. Urban vs Rural Analysis</h2>
-        <div class="visualization">
-            <div id="violinPlot" style="height: 500px;"></div>
-            <p>Figure 3: Distribution of childcare costs in urban and rural areas</p>
-            <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" style="margin-top: 20px;">
-            <p>Figure 3b: Detailed comparison of urban and rural childcare costs</p>
-        </div>
+            <div class="visualization-section">
+                <h2>Urban vs Rural Analysis</h2>
+                <div class="visualization">
+                    <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison">
+                    <p class="figure-caption">Figure 5: Comparison of childcare costs in urban and rural areas</p>
+                </div>
+            </div>
+
+            <div class="visualization-section">
+                <h2>Cost Trends Over Time</h2>
+                <div class="visualization">
+                    <img src="images/time_series.png" alt="Time Series Analysis">
+                    <p class="figure-caption">Figure 6a: Evolution of childcare costs over time</p>
+                </div>
+                <div class="visualization">
+                    <img src="images/cost_trends.png" alt="Cost Trends">
+                    <p class="figure-caption">Figure 6b: Detailed cost trends analysis</p>
+                </div>
+            </div>
+        </section>
 
         <h2>4. Female Labor Force Impact</h2>
         <div class="visualization">
@@ -175,15 +192,6 @@
                 <td>+4.2%</td>
             </tr>
         </table>
-
-        <h2>6. Trend Analysis</h2>
-        <div class="visualization">
-            <img src="images/time_series.png" alt="Cost Trends Over Time">
-            <p>Figure 6a: Evolution of childcare costs (2008-2018)</p>
-            <img src="images/cost_trends.png" alt="Detailed Cost Trends">
-            <p>Figure 6b: Detailed analysis of cost trends by region</p>
-        </div>
-        <p>The analysis reveals a consistent upward trend in childcare costs over the past decade, with an average annual increase of 3.9% nationwide. This rate significantly outpaces both inflation (2.1%) and wage growth (2.6%) during the same period.</p>
 
         <h2>7. Impact Analysis</h2>
         <div class="impact-story">
@@ -237,165 +245,35 @@
     </div>
 
     <script>
-        // Initialize all visualizations when the page loads
-        window.onload = function() {
-            if (typeof Plotly !== 'undefined' && typeof d3 !== 'undefined') {
-                createChoroplethMap();
-                createSpiralPlot();
-                createViolinPlot();
-                createLaborForceMap();
-            } else {
-                console.error('Required libraries not loaded');
+        // Initialize visualizations when page loads
+        function initializeVisualizations() {
+            try {
+                if (typeof Plotly === 'undefined') {
+                    throw new Error('Plotly library not loaded');
+                }
+                if (typeof d3 === 'undefined') {
+                    throw new Error('D3 library not loaded');
+                }
+
+                // Create spiral plot
+                createSpiralPlot(document.getElementById('spiralPlot'));
+                
+                // Create violin plot
+                createViolinPlot(document.getElementById('violinPlot'));
+                
+            } catch (error) {
+                console.error('Visualization initialization error:', error);
+                document.querySelectorAll('.visualization div').forEach(div => {
+                    div.innerHTML = '<p style="color: red; text-align: center;">Error loading visualization. Please refresh the page.</p>';
+                });
             }
-        };
-
-        // Create Choropleth Map
-        function createChoroplethMap() {
-            const data = [{
-                type: 'choropleth',
-                locationmode: 'USA-states',
-                locations: ['CA', 'NY', 'TX', 'FL', 'IL', 'MA', 'WA', 'OR', 'CO', 'VA', 'NJ', 'MD', 'MN', 'AZ', 'NC'],
-                z: [1450, 1380, 1100, 980, 1200, 1520, 1320, 1180, 1280, 1150, 1400, 1350, 1220, 1050, 1080],
-                text: ['California', 'New York', 'Texas', 'Florida', 'Illinois', 'Massachusetts', 'Washington', 'Oregon', 'Colorado', 'Virginia', 'New Jersey', 'Maryland', 'Minnesota', 'Arizona', 'North Carolina'],
-                colorscale: 'Viridis',
-                colorbar: {
-                    title: 'Monthly Childcare<br>Cost ($)'
-                }
-            }];
-
-            const layout = {
-                title: 'Average Monthly Childcare Costs by State',
-                geo: {
-                    scope: 'usa',
-                    showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
-                }
-            };
-
-            Plotly.newPlot('geoChoropleth', data, layout);
         }
 
-        // Create Spiral Plot with improved visibility
-        function createSpiralPlot() {
-            const states = [
-                {state: 'MA', cost: 1520},
-                {state: 'CA', cost: 1450},
-                {state: 'NY', cost: 1380},
-                {state: 'NJ', cost: 1400},
-                {state: 'MD', cost: 1350},
-                {state: 'WA', cost: 1320},
-                {state: 'CO', cost: 1280},
-                {state: 'MN', cost: 1220},
-                {state: 'IL', cost: 1200},
-                {state: 'OR', cost: 1180},
-                {state: 'VA', cost: 1150},
-                {state: 'TX', cost: 1100},
-                {state: 'NC', cost: 1080},
-                {state: 'AZ', cost: 1050},
-                {state: 'FL', cost: 980}
-            ];
-
-            // Sort states by cost
-            states.sort((a, b) => b.cost - a.cost);
-
-            // Calculate spiral coordinates with larger spacing
-            const points = states.map((state, i) => {
-                const theta = i * 0.8;
-                const r = 100 + i * 15;
-                return {
-                    x: r * Math.cos(theta),
-                    y: r * Math.sin(theta),
-                    state: state.state,
-                    cost: state.cost
-                };
-            });
-
-            const trace = {
-                x: points.map(p => p.x),
-                y: points.map(p => p.y),
-                mode: 'markers+lines+text',
-                type: 'scatter',
-                text: points.map(p => `${p.state}<br>$${p.cost}`),
-                textposition: 'top center',
-                marker: {
-                    size: points.map(p => p.cost/40),
-                    color: points.map(p => p.cost),
-                    colorscale: 'Viridis'
-                },
-                line: {
-                    color: '#ddd',
-                    width: 2
-                }
-            };
-
-            const layout = {
-                title: 'State Childcare Costs Spiral Analysis',
-                showlegend: false,
-                xaxis: {
-                    zeroline: false,
-                    showgrid: false,
-                    showticklabels: false,
-                    range: [-500, 500]
-                },
-                yaxis: {
-                    zeroline: false,
-                    showgrid: false,
-                    showticklabels: false,
-                    range: [-500, 500]
-                },
-                width: 800,
-                height: 800,
-                plot_bgcolor: '#fff',
-                paper_bgcolor: '#fff'
-            };
-
-            Plotly.newPlot('costSpiral', [trace], layout);
-        }
-
-        // Create Violin Plot
-        function createViolinPlot() {
-            const urbanData = Array.from({length: 100}, () => Math.random() * 400 + 1200);
-            const ruralData = Array.from({length: 100}, () => Math.random() * 300 + 800);
-
-            const trace1 = {
-                y: urbanData,
-                type: 'violin',
-                name: 'Urban',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#4E54C8'
-                },
-                meanline: {
-                    visible: true
-                }
-            };
-
-            const trace2 = {
-                y: ruralData,
-                type: 'violin',
-                name: 'Rural',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#FF6B6B'
-                },
-                meanline: {
-                    visible: true
-                }
-            };
-
-            const layout = {
-                title: 'Distribution of Childcare Costs: Urban vs Rural',
-                yaxis: {
-                    title: 'Monthly Cost ($)'
-                },
-                violinmode: 'group'
-            };
-
-            Plotly.newPlot('violinPlot', [trace1, trace2], layout);
+        // Ensure libraries are loaded before initialization
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeVisualizations);
+        } else {
+            initializeVisualizations();
         }
 
         // Create Labor Force Map

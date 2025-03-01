@@ -387,8 +387,16 @@
         }
 
         // Initialize with default visualization and ensure all scripts are loaded
-        window.onload = function() {
-            if (typeof Plotly !== 'undefined' && typeof d3 !== 'undefined') {
+        function initializeDashboard() {
+            try {
+                if (typeof Plotly === 'undefined') {
+                    throw new Error('Plotly library not loaded');
+                }
+                if (typeof d3 === 'undefined') {
+                    throw new Error('D3 library not loaded');
+                }
+                
+                // Initialize default visualization
                 updateVisualization('geoChoropleth');
                 
                 // Add event listeners
@@ -400,10 +408,19 @@
                     const visType = document.getElementById('visualizationType').value;
                     updateVisualization(visType);
                 });
-            } else {
-                console.error('Required libraries not loaded');
+            } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                document.getElementById('mainVisualization').innerHTML = 
+                    '<p style="color: red; text-align: center;">Error loading visualizations. Please refresh the page.</p>';
             }
-        };
+        }
+
+        // Ensure libraries are loaded before initialization
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        } else {
+            initializeDashboard();
+        }
     </script>
 </body>
 </html> 
