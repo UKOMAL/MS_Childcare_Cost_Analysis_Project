@@ -8,22 +8,23 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #6dd5ed 0%, #2193b0 100%);
+            background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
             min-height: 100vh;
             padding: 20px;
         }
         .dashboard-container {
             background: rgba(255, 255, 255, 0.97);
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.15);
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
             padding: 20px;
             margin-bottom: 20px;
         }
         .control-panel {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #FF8E53 0%, #FF6B6B 100%);
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
+            color: white;
         }
         .visualization-container {
             background: white;
@@ -37,10 +38,11 @@
             height: 100%;
         }
         .key-insights {
-            background: #f1f9ff;
+            background: linear-gradient(135deg, #4E54C8 0%, #8F94FB 100%);
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
+            color: white;
         }
         h2 {
             color: #2c3e50;
@@ -110,14 +112,12 @@
                         <div class="mb-3">
                             <label for="vizType" class="form-label">Visualization Type</label>
                             <select class="form-select" id="vizType">
-                                <option value="choropleth">State Choropleth</option>
-                                <option value="geoplot">Advanced Geoplot</option>
-                                <option value="spiral">State Cost Spiral</option>
-                                <option value="heatmap">Cost Heatmap</option>
-                                <option value="violin">Cost Distribution (Violin)</option>
-                                <option value="bubble">Multi-dimensional Bubble</option>
-                                <option value="sunburst">Cost Hierarchy (Sunburst)</option>
-                                <option value="parallel">Parallel Coordinates</option>
+                                <option value="choropleth">Childcare Costs Map</option>
+                                <option value="laborforce">Female Labor Force Map</option>
+                                <option value="spiral">Cost Spiral Analysis</option>
+                                <option value="correlation">Cost vs. Employment</option>
+                                <option value="bubble">Regional Analysis</option>
+                                <option value="trends">Cost Trends</option>
                             </select>
                         </div>
                         <button id="updateViz" class="btn btn-primary w-100 mb-2">Update Visualization</button>
@@ -284,26 +284,20 @@
                 case 'choropleth':
                     createChoropleth(data, states);
                     break;
-                case 'geoplot':
-                    createAdvancedGeoplot(data, states);
+                case 'laborforce':
+                    createLaborForceMap(data, states);
                     break;
                 case 'spiral':
                     createSpiralPlot(data, states);
                     break;
-                case 'heatmap':
-                    createHeatmap(data, states);
-                    break;
-                case 'violin':
-                    createViolinPlot(data, states);
+                case 'correlation':
+                    createCorrelationPlot(data, states);
                     break;
                 case 'bubble':
                     createBubblePlot(data, states);
                     break;
-                case 'sunburst':
-                    createSunburst(data, states);
-                    break;
-                case 'parallel':
-                    createParallelCoordinates(data, states);
+                case 'trends':
+                    createTrendsPlot(data, states);
                     break;
             }
 
@@ -375,260 +369,57 @@
             Plotly.newPlot('mainViz', mapData, layout);
         }
 
-        // Create advanced geoplot with multiple layers
-        function createAdvancedGeoplot(data, states) {
-            const bubbleData = [{
-                type: 'scattergeo',
-                lon: [-122.4194, -74.0060, -95.7129, -81.3792, -87.6298, -75.1652, -82.9988, -84.3880, -78.6382, -83.0458],
-                lat: [37.7749, 40.7128, 30.2672, 28.5383, 41.8781, 39.9526, 39.9612, 33.7490, 35.7796, 42.3314],
-                text: states.map((state, i) => `${state}: $${data[i]}`),
-                mode: 'markers',
-                marker: {
-                    size: data.map(d => d/50),
-                    color: data,
-                    colorscale: 'Viridis',
-                    showscale: true,
-                    colorbar: {
-                        title: 'Cost ($)'
-                    }
-                },
-                name: 'Cost Centers'
-            }, {
-                type: 'scattergeo',
-                lon: [-122.4194, -74.0060, -95.7129],
-                lat: [37.7749, 40.7128, 30.2672],
-                mode: 'lines',
-                line: {
-                    width: 2,
-                    color: '#e74c3c'
-                },
-                name: 'Cost Flow'
+        // Create female labor force map
+        function createLaborForceMap(data, states) {
+            const laborForceData = {
+                'CA': 65.2, 'NY': 63.8, 'TX': 61.5, 'FL': 59.8, 'IL': 62.4,
+                'PA': 60.9, 'OH': 61.2, 'GA': 62.1, 'NC': 61.7, 'MI': 60.5
+            };
+
+            const mapData = [{
+                type: "choropleth",
+                locationmode: "USA-states",
+                locations: Object.keys(laborForceData),
+                z: Object.values(laborForceData),
+                text: Object.entries(laborForceData).map(([state, value]) => 
+                    `${state}: ${value}% female labor participation`
+                ),
+                hoverinfo: 'text',
+                colorscale: [
+                    [0, '#FF8E53'],
+                    [0.5, '#FF6B6B'],
+                    [1, '#4E54C8']
+                ],
+                showscale: true,
+                colorbar: {
+                    title: "Female Labor Force (%)",
+                    thickness: 20,
+                    len: 0.5,
+                    y: 0.5,
+                    tickfont: { color: '#2c3e50' }
+                }
             }];
 
             const layout = {
-                title: 'Multi-layer Geographic Analysis',
-                showlegend: true,
+                title: {
+                    text: "Female Labor Force Participation Rate",
+                    font: { size: 24, color: '#2c3e50' }
+                },
                 geo: {
-                    scope: 'usa',
-                    projection: {
-                        type: 'albers usa'
-                    },
+                    scope: "usa",
+                    showlakes: true,
+                    lakecolor: "rgb(255,255,255)",
+                    projection: { type: "albers usa" },
                     showland: true,
-                    landcolor: '#f8f9fa',
-                    showsubunits: true,
-                    showcountries: true,
-                    subunitcolor: '#d3d3d3',
-                    countrycolor: '#c7c7c7'
-                }
+                    landcolor: "#f8f9fa",
+                    countrycolor: "#c7c7c7"
+                },
+                margin: { t: 50, b: 0, l: 0, r: 0 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            Plotly.newPlot('mainViz', bubbleData, layout);
-        }
-
-        // Create heatmap visualization
-        function createHeatmap(data, states) {
-            const correlationMatrix = [];
-            const labels = ['Cost', 'Population', 'Income', 'Demand'];
-            
-            // Generate sample correlation data
-            for(let i = 0; i < 4; i++) {
-                correlationMatrix[i] = [];
-                for(let j = 0; j < 4; j++) {
-                    if(i === j) correlationMatrix[i][j] = 1;
-                    else correlationMatrix[i][j] = Math.random() * 2 - 1;
-                }
-            }
-
-            const heatmapData = [{
-                z: correlationMatrix,
-                x: labels,
-                y: labels,
-                type: 'heatmap',
-                colorscale: 'RdBu',
-                zmin: -1,
-                zmax: 1,
-                hoverongaps: false
-            }];
-
-            const layout = {
-                title: 'Cost Factor Correlation Heatmap',
-                annotations: [],
-                xaxis: {
-                    ticks: '',
-                    side: 'top'
-                },
-                yaxis: {
-                    ticks: '',
-                    ticksuffix: ' '
-                }
-            };
-
-            // Add correlation values as annotations
-            for(let i = 0; i < 4; i++) {
-                for(let j = 0; j < 4; j++) {
-                    layout.annotations.push({
-                        xref: 'x',
-                        yref: 'y',
-                        x: labels[j],
-                        y: labels[i],
-                        text: correlationMatrix[i][j].toFixed(2),
-                        font: {
-                            color: Math.abs(correlationMatrix[i][j]) > 0.5 ? 'white' : 'black'
-                        },
-                        showarrow: false
-                    });
-                }
-            }
-
-            Plotly.newPlot('mainViz', heatmapData, layout);
-        }
-
-        // Create violin plot
-        function createViolinPlot(data, states) {
-            // Generate sample distribution data
-            const violinData = [{
-                type: 'violin',
-                x: new Array(50).fill('Infant'),
-                y: data.map(d => d + Math.random() * 200 - 100),
-                points: 'all',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#3498db'
-                },
-                meanline: {
-                    visible: true
-                }
-            }, {
-                type: 'violin',
-                x: new Array(50).fill('Toddler'),
-                y: data.map(d => d * 0.9 + Math.random() * 200 - 100),
-                points: 'all',
-                box: {
-                    visible: true
-                },
-                line: {
-                    color: '#2ecc71'
-                },
-                meanline: {
-                    visible: true
-                }
-            }];
-
-            const layout = {
-                title: 'Cost Distribution by Age Group',
-                yaxis: {
-                    title: 'Monthly Cost ($)',
-                    zeroline: false
-                },
-                violinmode: 'group'
-            };
-
-            Plotly.newPlot('mainViz', violinData, layout);
-        }
-
-        // Create bubble plot
-        function createBubblePlot(data, states) {
-            const bubbleData = [{
-                x: data,
-                y: data.map(d => d * 0.8 + Math.random() * 200),
-                text: states,
-                mode: 'markers',
-                marker: {
-                    size: data.map(d => d/30),
-                    color: data,
-                    colorscale: 'Viridis',
-                    showscale: true,
-                    colorbar: {
-                        title: 'Base Cost ($)'
-                    }
-                }
-            }];
-
-            const layout = {
-                title: 'Multi-dimensional Cost Analysis',
-                xaxis: {
-                    title: 'Base Cost ($)'
-                },
-                yaxis: {
-                    title: 'Adjusted Cost ($)'
-                },
-                showlegend: false
-            };
-
-            Plotly.newPlot('mainViz', bubbleData, layout);
-        }
-
-        // Create sunburst chart
-        function createSunburst(data, states) {
-            const sunburstData = [{
-                type: "sunburst",
-                ids: [
-                    "Total",
-                    "West", "Midwest", "Northeast", "South",
-                    ...states
-                ],
-                labels: [
-                    "All Regions",
-                    "West", "Midwest", "Northeast", "South",
-                    ...states.map(state => globalData.stateNames[state])
-                ],
-                parents: [
-                    "",
-                    "Total", "Total", "Total", "Total",
-                    ...states.map(state => {
-                        if(['CA', 'WA', 'OR'].includes(state)) return "West";
-                        if(['IL', 'MI', 'OH'].includes(state)) return "Midwest";
-                        if(['NY', 'PA'].includes(state)) return "Northeast";
-                        return "South";
-                    })
-                ],
-                values: [
-                    data.reduce((a, b) => a + b, 0),
-                    ...Array(4).fill(0),
-                    ...data
-                ],
-                branchvalues: 'total'
-            }];
-
-            const layout = {
-                title: 'Regional Cost Hierarchy'
-            };
-
-            Plotly.newPlot('mainViz', sunburstData, layout);
-        }
-
-        // Create parallel coordinates plot
-        function createParallelCoordinates(data, states) {
-            const dimensions = [{
-                label: 'Base Cost',
-                values: data
-            }, {
-                label: 'Adjusted',
-                values: data.map(d => d * 1.1)
-            }, {
-                label: 'Subsidized',
-                values: data.map(d => d * 0.7)
-            }, {
-                label: 'Projected',
-                values: data.map(d => d * 1.2)
-            }];
-
-            const parallelData = [{
-                type: 'parcoords',
-                line: {
-                    color: data,
-                    colorscale: 'Viridis'
-                },
-                dimensions: dimensions
-            }];
-
-            const layout = {
-                title: 'Multi-variable Cost Analysis'
-            };
-
-            Plotly.newPlot('mainViz', parallelData, layout);
+            Plotly.newPlot('mainViz', mapData, layout);
         }
 
         // Create spiral plot
@@ -705,6 +496,89 @@
             };
 
             Plotly.newPlot('mainViz', spiralData, layout);
+        }
+
+        // Create correlation plot
+        function createCorrelationPlot(data, states) {
+            const employmentRates = [62.5, 61.8, 60.2, 59.5, 61.4, 60.1, 59.8, 60.5, 61.2, 59.9];
+            
+            const plotData = [{
+                x: data,
+                y: employmentRates,
+                mode: 'markers+text',
+                type: 'scatter',
+                text: states,
+                textposition: 'top',
+                marker: {
+                    size: 12,
+                    color: data,
+                    colorscale: [
+                        [0, '#FF8E53'],
+                        [0.5, '#FF6B6B'],
+                        [1, '#4E54C8']
+                    ],
+                    showscale: true,
+                    colorbar: {
+                        title: 'Childcare Cost ($)'
+                    }
+                }
+            }];
+
+            const layout = {
+                title: 'Childcare Costs vs. Female Employment',
+                xaxis: {
+                    title: 'Monthly Childcare Cost ($)',
+                    gridcolor: '#e0e0e0'
+                },
+                yaxis: {
+                    title: 'Female Employment Rate (%)',
+                    gridcolor: '#e0e0e0'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(255,255,255,0.9)'
+            };
+
+            Plotly.newPlot('mainViz', plotData, layout);
+        }
+
+        // Create trends plot
+        function createTrendsPlot(data, states) {
+            const years = [2019, 2020, 2021, 2022, 2023];
+            const trendData = states.map((state, idx) => ({
+                x: years,
+                y: years.map(year => data[idx] * (1 + (year - 2019) * 0.05)),
+                name: state,
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: {
+                    width: 3
+                },
+                marker: {
+                    size: 8
+                }
+            }));
+
+            const layout = {
+                title: 'Childcare Cost Trends by State (2019-2023)',
+                xaxis: {
+                    title: 'Year',
+                    gridcolor: '#e0e0e0'
+                },
+                yaxis: {
+                    title: 'Monthly Cost ($)',
+                    gridcolor: '#e0e0e0'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(255,255,255,0.9)',
+                showlegend: true,
+                legend: {
+                    x: 0,
+                    y: 1.1,
+                    orientation: 'h'
+                }
+            };
+
+            Plotly.newPlot('mainViz', trendData, layout);
         }
 
         // Update key insights
