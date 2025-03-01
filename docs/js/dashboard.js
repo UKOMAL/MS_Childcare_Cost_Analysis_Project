@@ -2,6 +2,8 @@
 import { initMap, updateMap } from './map.js';
 import { initNetwork, updateNetwork } from './network.js';
 
+let globalData = null;
+
 // Dashboard initialization and control logic
 async function initializeDashboard() {
     try {
@@ -10,58 +12,70 @@ async function initializeDashboard() {
         // Load data first
         const data = await loadData();
         if (!data) {
-            console.error('Failed to load data');
-            showError('Failed to load data. Please check the console for details.');
-            return;
+            throw new Error('Failed to load data: Data is null or undefined');
         }
-        console.log('Data loaded successfully:', data);
+        console.log('Data loaded successfully');
+        
+        // Store data globally
+        globalData = data;
         
         // Initialize visualizations
         try {
-            await Promise.all([
-                initMap(data),
-                initNetwork(data)
-            ]);
-            console.log('Visualizations initialized');
+            // Initialize map first
+            console.log('Initializing map...');
+            await initMap(data);
+            console.log('Map initialized');
+
+            // Initialize network
+            console.log('Initializing network...');
+            await initNetwork(data);
+            console.log('Network initialized');
             
             // Load state data
+            console.log('Loading state data...');
             loadStates(data.states);
             
             // Set initial cost range value
             const maxCost = Math.max(...data.costs.infant.filter(cost => !isNaN(cost)));
             const costRange = document.getElementById('costRange');
-            costRange.max = Math.ceil(maxCost);
-            costRange.value = maxCost;
+            if (costRange) {
+                costRange.max = Math.ceil(maxCost);
+                costRange.value = maxCost;
+                document.getElementById('costRangeValue').textContent = `$0 - $${maxCost}`;
+            }
             
-            // Event listeners for controls
-            setupEventListeners(data);
+            // Setup event listeners
+            console.log('Setting up event listeners...');
+            setupEventListeners();
             
             // Update initial visualizations
-            updateVisualizations(data);
+            console.log('Updating initial visualizations...');
+            await updateVisualizations();
             
             console.log('Dashboard initialization complete');
+            return true;
         } catch (vizError) {
             console.error('Error initializing visualizations:', vizError);
-            showError('Error initializing visualizations. Please check the console for details.');
+            throw new Error(`Visualization initialization failed: ${vizError.message}`);
         }
     } catch (error) {
         console.error('Error in dashboard initialization:', error);
-        showError('Error initializing dashboard. Please check the console for details.');
+        throw error;
     }
 }
 
 // Setup event listeners
-function setupEventListeners(data) {
+function setupEventListeners() {
     document.getElementById('stateSelect').addEventListener('change', () => {
-        updateVisualizations(data);
+        updateVisualizations();
     });
     
     document.getElementById('costRange').addEventListener('input', () => {
-        updateVisualizations(data);
+        updateVisualizations();
     });
     
     document.getElementById('vizType').addEventListener('change', () => {
-        switchVisualization(data);
+        switchVisualization();
     });
 }
 
@@ -97,7 +111,12 @@ function loadStates(stateAbbreviations) {
 }
 
 // Update all visualizations based on current filters
-function updateVisualizations(data) {
+async function updateVisualizations() {
+    if (!globalData) {
+        console.error('No data available for visualization update');
+        return;
+    }
+    
     try {
         const selectedState = document.getElementById('stateSelect').value;
         const costRange = document.getElementById('costRange').value;
@@ -108,20 +127,20 @@ function updateVisualizations(data) {
             `$0 - $${costRange}`;
         
         // Update average metrics
-        updateAverageMetrics(data);
+        updateAverageMetrics(globalData);
         
         switch(vizType) {
             case 'map':
-                updateMap(selectedState, costRange, data);
+                await updateMap(selectedState, costRange, globalData);
                 break;
             case 'network':
-                updateNetwork(selectedState, costRange, data);
+                await updateNetwork(selectedState, costRange, globalData);
                 break;
             case 'sankey':
-                updateSankey(selectedState, costRange, data);
+                await updateSankey(selectedState, costRange, globalData);
                 break;
             case '3d':
-                update3DScatter(selectedState, costRange, data);
+                await update3DScatter(selectedState, costRange, globalData);
                 break;
         }
     } catch (error) {
@@ -131,7 +150,7 @@ function updateVisualizations(data) {
 }
 
 // Switch between different visualization types
-function switchVisualization(data) {
+function switchVisualization() {
     try {
         const vizType = document.getElementById('vizType').value;
         const mainViz = document.getElementById('mainViz');
@@ -143,20 +162,20 @@ function switchVisualization(data) {
         
         switch(vizType) {
             case 'map':
-                initMap(data);
+                initMap(globalData);
                 break;
             case 'network':
-                initNetwork(data);
+                initNetwork(globalData);
                 break;
             case 'sankey':
-                initSankey(data);
+                initSankey(globalData);
                 break;
             case '3d':
-                init3DScatter(data);
+                init3DScatter(globalData);
                 break;
         }
         
-        updateVisualizations(data);
+        updateVisualizations();
     } catch (error) {
         console.error('Error switching visualization:', error);
         showError('Error switching visualization. Please try again.');
@@ -167,7 +186,12 @@ function switchVisualization(data) {
 async function loadData() {
     console.log('Starting data loading process...');
     try {
-        const dataUrl = './data/childcare_costs.json';
+        // Get the current URL
+        const currentUrl = window.location.href;
+        console.log('Current URL:', currentUrl);
+        
+        // Construct the data URL
+        const dataUrl = new URL('./data/childcare_costs.json', currentUrl).href;
         console.log('Attempting to load data from:', dataUrl);
         
         const response = await fetch(dataUrl);
@@ -176,19 +200,31 @@ async function loadData() {
         }
         
         const data = await response.json();
-        console.log('Data loaded successfully:', data);
+        console.log('Data loaded successfully');
         
         // Validate data structure
         if (!data.states || !data.costs || !data.metrics) {
             throw new Error('Invalid data structure: missing required properties');
         }
         
+        // Clean up data
+        Object.keys(data.costs).forEach(key => {
+            data.costs[key] = data.costs[key].map(val => 
+                isNaN(val) ? null : parseFloat(val.toFixed(2))
+            );
+        });
+        
+        Object.keys(data.metrics).forEach(key => {
+            data.metrics[key] = data.metrics[key].map(val => 
+                isNaN(val) ? null : parseFloat(val.toFixed(2))
+            );
+        });
+        
         return data;
     } catch (error) {
         console.error('Error loading data:', error);
         console.log('Current page URL:', window.location.href);
-        showError(`Failed to load data. Please check the console for details. Error: ${error.message}`);
-        throw error;
+        throw new Error(`Failed to load data: ${error.message}`);
     }
 }
 
@@ -202,6 +238,9 @@ function showError(message, details = '') {
                 <h4>Error</h4>
                 <p>${message}</p>
                 ${details ? `<p><small>${details}</small></p>` : ''}
+                <button class="btn btn-light mt-3" onclick="window.location.reload()">
+                    <i class="fas fa-sync-alt"></i> Reload Dashboard
+                </button>
             </div>
         `;
     }

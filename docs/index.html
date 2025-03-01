@@ -259,7 +259,56 @@
     
     <!-- Load JavaScript modules -->
     <script type="module">
-        import { initializeDashboard } from './js/dashboard.js';
+        import { 
+            initializeDashboard,
+            showError,
+            updateVisualizations,
+            switchVisualization
+        } from './js/dashboard.js';
+
+        // Function to show loading state
+        function showLoading() {
+            document.querySelectorAll('.loading').forEach(el => {
+                el.style.display = 'flex';
+            });
+        }
+
+        // Function to hide loading state
+        function hideLoading() {
+            document.querySelectorAll('.loading').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        // Initialize the dashboard
+        async function initDashboard() {
+            try {
+                showLoading();
+                console.log('Starting dashboard initialization...');
+                
+                // Initialize the dashboard
+                const success = await initializeDashboard();
+                
+                if (!success) {
+                    throw new Error('Dashboard initialization failed');
+                }
+                
+                hideLoading();
+                console.log('Dashboard initialization complete');
+                
+                // Make these functions available globally for event handlers
+                window.updateVisualizations = updateVisualizations;
+                window.switchVisualization = switchVisualization;
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Failed to initialize dashboard:', error);
+                showError(
+                    'Failed to initialize the dashboard',
+                    `Error: ${error.message}\nPlease check the console for more details.`
+                );
+            }
+        }
 
         // Wait for DOM to be fully loaded
         if (document.readyState === 'loading') {
@@ -268,22 +317,23 @@
             initDashboard();
         }
 
-        async function initDashboard() {
-            try {
-                console.log('Starting dashboard initialization...');
-                await initializeDashboard();
-                console.log('Dashboard initialization complete');
-            } catch (error) {
-                console.error('Failed to initialize dashboard:', error);
-                document.getElementById('mainViz').innerHTML = `
-                    <div class="alert alert-danger">
-                        <h4>Dashboard Initialization Error</h4>
-                        <p>${error.message}</p>
-                        <p><small>Please check the browser console for more details.</small></p>
-                    </div>
-                `;
-            }
-        }
+        // Handle global errors
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            showError(
+                'An unexpected error occurred',
+                `Error: ${event.error?.message || 'Unknown error'}`
+            );
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showError(
+                'An unexpected error occurred',
+                `Error: ${event.reason?.message || 'Unknown error'}`
+            );
+        });
     </script>
 </body>
 </html> 
