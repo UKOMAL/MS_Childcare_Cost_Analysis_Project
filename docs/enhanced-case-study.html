@@ -3,724 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>U.S. Childcare Cost Analysis Project</title>
-    
+    <title>U.S. Childcare Cost Analysis: Impact on Working Families (2008-2018)</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f5f7fa;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            text-align: center;
-            color: white;
-            margin-bottom: 2rem;
-            border-bottom: 4px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin: 0;
-            padding: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .container {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-        }
-
-        .visualization-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .visualization {
-            width: 100%;
-            height: auto;
-            margin: 20px 0;
-        }
-
-        .chart-title {
-            font-size: 1.5em;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 0.5rem;
-        }
-
-        .chart-description {
-            color: #666;
-            margin-bottom: 1rem;
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .nav-button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 5px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .analysis-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 5px 5px 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .analysis-box h3 {
-            color: #2c3e50;
-            margin-top: 0;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 0.5rem;
-        }
-
-        .analysis-box ul {
-            margin: 1rem 0;
-            padding-left: 1.5rem;
-        }
-
-        .analysis-box li {
-            margin: 0.5rem 0;
-            color: #4a5568;
-            line-height: 1.6;
-        }
-
-        .case-study-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px;
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
             color: #333;
         }
-
-        .case-study-content section {
-            margin-bottom: 40px;
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 2em;
+        }
+        .visualization {
+            margin: 2em 0;
             padding: 20px;
-            background: white;
-            border-radius: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .case-study-content h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+        .insight {
+            background: #e8f4f8;
+            padding: 15px;
+            margin: 1em 0;
+            border-left: 4px solid #2c3e50;
+        }
+        .methodology-note {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .citation {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 0.5em;
+        }
+        figure {
+            margin: 2em 0;
+        }
+        figcaption {
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-top: 1em;
         }
 
-        .case-study-content h3 {
-            color: #34495e;
-            margin-top: 30px;
-        }
-
-        .case-study-content .analysis-box {
-            background: #f8f9fa;
-            border-left: 4px solid #3498db;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 5px 5px 0;
-        }
-
-        .case-study-content ul {
-            padding-left: 20px;
-        }
-
-        .case-study-content ul li {
-            margin-bottom: 10px;
-        }
-
-        .case-study-content .references {
-            background: #f8f9fa;
-        }
-
-        .case-study-content .references ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .case-study-content .references li {
-            margin-bottom: 15px;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .case-study-content .references li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #3498db;
-        }
-
-        .fact-bubble {
-            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
+        /* New styles for download button */
+        .download-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #2c3e50;
             color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
-            position: relative;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
 
-        .fact-bubble::before {
-            content: "📊 Quick Fact";
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+        .download-button:hover {
+            background: #34495e;
         }
 
-        .highlight-box {
-            background: linear-gradient(135deg, #FFD93D 0%, #FFF3B0 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: #4A4A4A;
-            box-shadow: 0 4px 15px rgba(255, 217, 61, 0.2);
-        }
+        /* Print-specific styles */
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                max-width: none;
+            }
 
-        .impact-box {
-            background: linear-gradient(135deg, #6C63FF 0%, #8F8AFF 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.2);
-        }
+            .download-button {
+                display: none;
+            }
 
-        .key-insight {
-            background: linear-gradient(135deg, #4ECDC4 0%, #7BEFE7 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: white;
-            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.2);
-        }
+            .visualization {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
 
-        .laymans-terms {
-            background: linear-gradient(135deg, #FF9A8B 0%, #FF6A88 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 154, 139, 0.2);
-        }
+            figure {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
 
-        .laymans-terms::before {
-            content: "💡 In Simple Terms";
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+            h1, h2, h3 {
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+
+            .insight, .methodology-note {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            @page {
+                margin: 2cm;
+                size: letter;
+            }
+
+            /* Ensure background colors and shadows print */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>U.S. Childcare Cost Analysis Project</h1>
-        <div class="nav-buttons">
-            <button class="nav-button" onclick="window.location.href='index.html'">Home</button>
-            <button class="nav-button" onclick="window.location.href='new-dashboard.html'">Interactive Dashboard</button>
-            <button class="nav-button" onclick="window.print()">Download PDF</button>
-        </div>
-    </div>
+    <button onclick="downloadPDF()" class="download-button">Download PDF</button>
 
-    <div class="container">
-        <!-- Geographic Distribution -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Geographic Distribution of Childcare Costs</h2>
-            <p class="chart-description">Analysis of childcare costs across different states in 2018</p>
-            <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs" style="width: 100%; height: auto;">
-            
-            <div class="fact-bubble">
-                Did you know? The cost difference between the most expensive state (Massachusetts: $20,415) and least expensive state (Mississippi: $12,854) is over $7,500 annually - that's equivalent to about 6 months of grocery expenses for an average American family!
-            </div>
-
-            <div class="analysis-box">
-                <h3>Key Findings</h3>
-                <ul>
-                    <li>Highest costs concentrated in Northeast and West Coast</li>
-                    <li>Significant regional variations in childcare expenses</li>
-                    <li>Urban areas show consistently higher costs</li>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                Think of it like housing costs - just as rent is higher in big cities like New York or San Francisco, childcare costs follow a similar pattern. The Northeast and West Coast have higher costs due to higher wages, more expensive real estate, and stricter regulations. This means families in these regions often need to budget significantly more for childcare than those in other parts of the country.
-            </div>
-        </div>
-
-        <!-- Cost Distribution -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Regional Cost Distribution</h2>
-            <p class="chart-description">Distribution of childcare costs across different regions</p>
-            <img src="images/cost_distribution.png" alt="Regional Cost Distribution" style="width: 100%; height: auto;">
-            <div class="analysis-box">
-                <h3>Distribution Analysis</h3>
-                <ul>
-                    <li>Northeast shows highest median costs</li>
-                    <li>Significant variation within regions</li>
-                    <li>Cost patterns correlate with local economic factors</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Time Series Analysis -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Cost Trends Over Time</h2>
-            <p class="chart-description">Analysis of childcare cost trends from 2008 to 2018</p>
-            <img src="images/time_series.png" alt="Cost Trends Over Time" style="width: 100%; height: auto;">
-            <div class="analysis-box">
-                <h3>Trend Analysis</h3>
-                <ul>
-                    <li>Consistent upward trend in costs</li>
-                    <li>Rate of increase varies by region</li>
-                    <li>Post-recession acceleration in cost growth</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- State Cost Analysis -->
-        <div class="visualization-section">
-            <h2 class="chart-title">State Cost Analysis</h2>
-            <p class="chart-description">Detailed analysis of costs by state</p>
-            <img src="images/state_costs.png" alt="State Cost Analysis" style="width: 100%; height: auto;">
-            <div class="analysis-box">
-                <h3>State-Level Insights</h3>
-                <ul>
-                    <li>Massachusetts leads with highest costs</li>
-                    <li>Coastal states show elevated cost levels</li>
-                    <li>Clear regional cost patterns emerge</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Urban vs Rural Analysis -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Urban vs Rural Cost Comparison</h2>
-            <p class="chart-description">Analysis of cost differences between urban and rural areas</p>
-            <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Cost Comparison" style="width: 100%; height: auto;">
-            <div class="analysis-box">
-                <h3>Urban-Rural Analysis</h3>
-                <ul>
-                    <li>Significant cost disparities between urban and rural areas</li>
-                    <li>Urban centers show consistently higher costs</li>
-                    <li>Access and availability vary by location type</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Cost Correlation Analysis -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Cost Correlation Analysis</h2>
-            <p class="chart-description">Analysis of factors correlating with childcare costs</p>
-            <img src="images/correlation.png" alt="Cost Correlation Analysis" style="width: 100%; height: auto;">
-            <div class="analysis-box">
-                <h3>Correlation Insights</h3>
-                <ul>
-                    <li>Strong correlation with median income</li>
-                    <li>Population density impacts costs</li>
-                    <li>Economic indicators show significant relationships</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Social Media Impact -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Social Media Impact Analysis</h2>
-            <p class="chart-description">Analysis of social media discussions and trends</p>
-            <div style="display: flex; justify-content: space-between;">
-                <img src="images/social_media_1.png" alt="Social Media Analysis 1" style="width: 48%; height: auto;">
-                <img src="images/social_media_2.png" alt="Social Media Analysis 2" style="width: 48%; height: auto;">
-            </div>
-            <div class="analysis-box">
-                <h3>Social Media Insights</h3>
-                <ul>
-                    <li>Growing online discussion of childcare costs</li>
-                    <li>Increased awareness of affordability challenges</li>
-                    <li>Regional variations in social media engagement</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Infographic Section -->
-        <div class="visualization-section">
-            <h2 class="chart-title">Key Statistics and Trends</h2>
-            <p class="chart-description">Visual summary of key findings</p>
-            <div style="display: flex; justify-content: space-between;">
-                <img src="images/infographic_1.png" alt="Key Statistics" style="width: 48%; height: auto;">
-                <img src="images/infographic_2.png" alt="Key Trends" style="width: 48%; height: auto;">
-            </div>
-        </div>
-    </div>
-
-    <div class="case-study-content">
-        <section class="executive-summary">
-            <h2>Executive Summary</h2>
-            <p>This comprehensive analysis examines the complex landscape of childcare costs across the United States, utilizing data from the National Database of Childcare Prices (2008-2018). The study reveals significant regional disparities, economic impacts, and socioeconomic implications of childcare costs on American families. Key findings indicate that northeastern states consistently show the highest childcare costs, with average annual expenses reaching up to $20,415 in Massachusetts, while southeastern states generally maintain lower cost structures, averaging $13,198 annually.</p>
-        </section>
-
-        <section class="introduction">
-            <h2>Introduction</h2>
-            <p>The accessibility and affordability of childcare have become critical factors influencing workforce participation, economic growth, and family well-being in the United States. This case study presents a detailed analysis of childcare costs across different states, examining various factors that contribute to cost variations and their broader socioeconomic implications.</p>
-            
-            <h3>Research Objectives</h3>
+    <h1>U.S. Childcare Cost Analysis: Impact on Working Families (2008-2018)</h1>
+    
+    <section id="executive-summary">
+        <h2>Executive Summary</h2>
+        <p>This case study examines the evolving landscape of childcare costs across the United States from 2008 to 2018, analyzing its impact on working families and regional economic disparities. Our research reveals significant variations in childcare costs across states and regions, with implications for workforce participation and economic mobility.</p>
+        
+        <div class="insight">
+            Key findings indicate that:
             <ul>
-                <li>Analyze geographic distribution of childcare costs across all 50 states and the District of Columbia</li>
-                <li>Identify temporal trends in childcare costs from 2008 to 2018</li>
-                <li>Examine the relationship between childcare costs and regional economic indicators</li>
-                <li>Assess the impact of childcare costs on workforce participation</li>
-                <li>Evaluate urban versus rural cost disparities</li>
+                <li>Northeast states consistently show the highest childcare costs, averaging over $18,000 annually</li>
+                <li>Annual cost increases range from 3.5% to 4.5% across regions, outpacing wage growth</li>
+                <li>Strong correlation (0.85) exists between childcare costs and median household income</li>
             </ul>
-        </section>
+        </div>
+    </section>
 
-        <section class="methodology">
-            <h2>Methodology</h2>
-            <h3>Data Sources</h3>
-            <p>Primary data was sourced from:</p>
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>The accessibility and affordability of childcare have become critical factors in workforce participation and economic stability for American families. This analysis explores how childcare costs have evolved over a decade, examining regional variations, urban-rural disparities, and their relationship with economic indicators.</p>
+
+        <h3>Research Questions</h3>
+        <p>Our investigation focuses on three primary questions:</p>
+        <ol>
+            <li>How have childcare costs evolved across different regions of the United States from 2008 to 2018?</li>
+            <li>What is the relationship between childcare costs and female labor force participation?</li>
+            <li>How do urban and rural areas differ in childcare accessibility and affordability?</li>
+        </ol>
+    </section>
+
+    <section id="methodology">
+        <h2>Methodology</h2>
+        <p>This study utilizes data from the National Database of Childcare Prices (2008-2018), supplemented by labor force participation data from the Bureau of Labor Statistics. All monetary values are adjusted for inflation to 2018 dollars to ensure meaningful comparisons across years.</p>
+        
+        <div class="methodology-note">
+            <p>Data Analysis Approach:</p>
             <ul>
-                <li>National Database of Childcare Prices (2008-2018)</li>
-                <li>U.S. Census Bureau's American Community Survey</li>
-                <li>Bureau of Labor Statistics Employment Data</li>
-                <li>State-level Economic Indicators</li>
+                <li>Geographic analysis using state-level cost data</li>
+                <li>Time series analysis of cost trends</li>
+                <li>Correlation analysis with economic indicators</li>
+                <li>Urban-rural comparative analysis</li>
             </ul>
+        </div>
+    </section>
 
-            <h3>Analysis Framework</h3>
-            <p>The study employed a mixed-methods approach combining:</p>
+    <section id="findings">
+        <h2>Findings</h2>
+
+        <h3>1. Geographic Distribution of Childcare Costs</h3>
+        <p>Our analysis reveals significant regional variations in childcare costs, with the Northeast consistently showing the highest rates. The geographic distribution demonstrates clear patterns of cost concentration in urban centers and coastal regions.</p>
+        
+        <figure class="visualization">
+            <div id="geoChoropleth"></div>
+            <figcaption>Figure 1: Geographic distribution of childcare costs across U.S. states (2018)</figcaption>
+        </figure>
+
+        <h3>2. Cost Evolution Over Time</h3>
+        <p>The time series analysis shows a consistent upward trend in childcare costs across all regions from 2008 to 2018. The Northeast has experienced the steepest increase, with an average annual growth rate of 4.5%.</p>
+
+        <figure class="visualization">
+            <div id="timeSeriesAnalysis"></div>
+            <figcaption>Figure 2: Regional childcare cost trends (2008-2018)</figcaption>
+        </figure>
+
+        <h3>3. Labor Force Participation Impact</h3>
+        <p>Our analysis shows a complex relationship between childcare costs and female labor force participation. States with higher childcare costs often show lower workforce participation rates among parents with young children.</p>
+
+        <figure class="visualization">
+            <div id="laborForceMap"></div>
+            <figcaption>Figure 3: Female labor force participation rates by state</figcaption>
+        </figure>
+
+        <h3>4. Urban-Rural Comparison</h3>
+        <p>The study identifies significant disparities between urban and rural areas, with urban centers typically showing 25-35% higher childcare costs. However, this difference varies considerably by region.</p>
+
+        <figure class="visualization">
+            <div id="urbanRuralComparison"></div>
+            <figcaption>Figure 4: Urban vs. rural childcare cost comparison by region</figcaption>
+        </figure>
+    </section>
+
+    <section id="implications">
+        <h2>Implications</h2>
+        <p>The findings of this study have several important implications for policy makers and stakeholders:</p>
+        
+        <ol>
+            <li><strong>Economic Impact:</strong> Rising childcare costs are creating significant financial pressure on working families, particularly in urban areas and the Northeast region.</li>
+            <li><strong>Workforce Participation:</strong> The inverse relationship between childcare costs and labor force participation suggests that high costs may be deterring workforce participation.</li>
+            <li><strong>Regional Disparities:</strong> The significant variation in costs across regions points to the need for regionally-tailored policy approaches.</li>
+        </ol>
+    </section>
+
+    <section id="conclusion">
+        <h2>Conclusion</h2>
+        <p>This analysis demonstrates that childcare costs represent a growing challenge for American families, with significant regional variations and economic implications. The findings suggest a need for targeted interventions to address affordability issues, particularly in high-cost regions and urban areas.</p>
+        
+        <div class="insight">
+            <p>Recommendations for Future Research:</p>
             <ul>
-                <li>Quantitative analysis of cost trends and patterns</li>
-                <li>Geospatial analysis of regional variations</li>
-                <li>Statistical correlation analysis of economic indicators</li>
-                <li>Comparative analysis of urban-rural disparities</li>
+                <li>Investigation of successful cost-containment strategies in lower-cost regions</li>
+                <li>Analysis of the impact of recent policy interventions on cost trends</li>
+                <li>Examination of the relationship between childcare quality and cost variations</li>
             </ul>
-        </section>
+        </div>
+    </section>
 
-        <section class="findings">
-            <h2>Key Findings and Analysis</h2>
-            
-            <div class="highlight-box">
-                <h3>The Big Picture</h3>
-                <p>Childcare costs have become a major factor in family planning and career decisions. For many families, it's now the second-largest expense after housing, even exceeding college tuition in some states!</p>
-            </div>
+    <section id="references">
+        <h2>References</h2>
+        <div class="citation">
+            <p>National Database of Childcare Prices (2008-2018)</p>
+            <p>Bureau of Labor Statistics - Labor Force Participation Data</p>
+            <p>U.S. Census Bureau - Regional Economic Data</p>
+        </div>
+    </section>
 
-            <div class="impact-box">
-                <h3>Critical Numbers</h3>
-                <ul>
-                    <li>🏠 Average family spends 25-40% of income on childcare</li>
-                    <li>📈 Costs increasing 3.5-4.5% annually</li>
-                    <li>👥 Over 2 million parents had to leave work due to childcare issues</li>
-                </ul>
-            </div>
+    <script>
+        // Add this new function for PDF download
+        function downloadPDF() {
+            // Set up print-specific settings
+            const printSettings = {
+                margin: {
+                    top: '2cm',
+                    bottom: '2cm',
+                    left: '2cm',
+                    right: '2cm'
+                },
+                filename: 'US-Childcare-Cost-Analysis.pdf'
+            };
 
-            <div class="key-insight">
-                <h3>What This Means for Families</h3>
-                <p>For a family earning the median income of $65,000:</p>
-                <ul>
-                    <li>In Massachusetts: Nearly 31% of income goes to childcare</li>
-                    <li>In Mississippi: About 20% of income goes to childcare</li>
-                    <li>Impact: Less savings, delayed homeownership, career compromises</li>
-                </ul>
-            </div>
+            // Trigger print dialog
+            window.print();
+        }
 
-            <div class="fact-bubble">
-                According to the Bureau of Labor Statistics, families with children under 6 spend an average of 10% more on basic necessities compared to families without children, making the childcare cost burden even more significant.
-            </div>
-            
-            <h3>1. Geographic Cost Distribution</h3>
-            <div class="analysis-box">
-                <h4>Heat Map Analysis</h4>
-                <p>The geographic distribution of childcare costs reveals distinct regional patterns:</p>
-                <ul>
-                    <li>Northeastern Concentration: States like Massachusetts ($20,415), New York ($18,425), and Connecticut ($17,895) consistently show the highest costs</li>
-                    <li>Western Coast Premium: California ($18,657) and Washington ($19,362) demonstrate significantly higher costs than inland states</li>
-                    <li>Southern Belt: States like Mississippi ($12,854) and Alabama ($13,521) maintain lower cost structures</li>
-                    <li>Midwest Variation: Costs range from $16,087 in Minnesota to $11,042 in Iowa</li>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                Imagine the country as a cost heat map: The coasts are "hot" with high costs, while the middle and southern parts are "cooler" with lower costs. This isn't random - it follows patterns of population density, income levels, and cost of living. Just like you'd pay more for a coffee in Manhattan than in rural Iowa, childcare follows similar patterns.
-            </div>
-
-            <div class="fact-bubble">
-                A childcare worker in Massachusetts earns an average of $29,200 annually, while in Mississippi, the average is $19,800. This wage difference directly impacts the cost of care, as staff expenses make up 50-60% of total childcare costs.
-            </div>
-
-            <h3>2. Temporal Cost Trends</h3>
-            <div class="fact-bubble">
-                Since 2008, childcare costs have increased at nearly twice the rate of inflation. While general prices rose about 2% annually, childcare costs jumped 3.5-4.5% each year. In real terms, what cost $10,000 in 2008 now costs over $15,000!
-            </div>
-
-            <div class="analysis-box">
-                <h4>Time Series Analysis (2008-2018)</h4>
-                <p>The analysis of cost trends over the decade reveals:</p>
-                <ul>
-                    <li>Consistent Annual Growth: Average annual increase of 3.5-4.5% across regions</li>
-                    <li>Regional Growth Variations:</li>
-                    <ul>
-                        <li>Northeast: 4.5% average annual growth</li>
-                        <li>West: 4.3% average annual growth</li>
-                        <li>Midwest: 4.0% average annual growth</li>
-                        <li>Southeast: 3.5% average annual growth</li>
-                        <li>Southwest: 3.7% average annual growth</li>
-                    </ul>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                Think of it like your monthly streaming service subscription - except instead of a small annual increase, childcare costs are rising much faster. A family that could barely afford childcare in 2008 would find it nearly impossible to manage in 2018, as costs have grown much faster than typical salary increases.
-            </div>
-
-            <div class="highlight-box">
-                <h3>Post-Recession Recovery Impact</h3>
-                <p>After the 2008 financial crisis, as the economy recovered, childcare costs accelerated faster than wages. This created a "scissors effect" where rising costs met stagnant wages, making childcare increasingly unaffordable for middle-class families.</p>
-            </div>
-
-            <h3>3. Cost Components Analysis</h3>
-            <div class="fact-bubble">
-                Staff costs make up the largest portion of childcare expenses - about 60 cents of every dollar you pay goes to teacher salaries and benefits. This is why quality childcare can't get much cheaper without compromising on care quality.
-            </div>
-
-            <div class="analysis-box">
-                <h4>Breaking Down Your Childcare Dollar</h4>
-                <ul>
-                    <li>👩‍🏫 Staff Costs: 60¢ (Salaries, benefits, training)</li>
-                    <li>🏢 Facilities: 25¢ (Rent, utilities, maintenance)</li>
-                    <li>📊 Administration: 10¢ (Management, licensing, insurance)</li>
-                    <li>🎨 Programs: 5¢ (Materials, activities, supplies)</li>
-                </ul>
-            </div>
-
-            <div class="key-insight">
-                <h3>Quality vs. Cost Trade-off</h3>
-                <p>The high percentage of fixed costs (especially staff and facilities) explains why:</p>
-                <ul>
-                    <li>Reducing costs significantly often means reducing quality</li>
-                    <li>Smaller class sizes = higher per-child costs</li>
-                    <li>Better-qualified teachers = higher staff costs</li>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                Imagine running a small restaurant - your biggest costs are staff and rent, and there's only so much you can cut before quality suffers. Childcare centers face the same challenge: they need qualified staff and safe facilities, which come with fixed costs that can't be easily reduced.
-            </div>
-
-            <h3>4. Economic Impact Analysis</h3>
-            <div class="impact-box">
-                <h3>The Ripple Effect</h3>
-                <p>Childcare costs don't just affect families - they impact entire communities:</p>
-                <ul>
-                    <li>🏢 Businesses lose $4.4 billion annually due to employee childcare challenges</li>
-                    <li>👩‍💼 43% of women with children left their jobs due to childcare issues</li>
-                    <li>📊 Local economies lose $28 billion in tax revenue from reduced workforce participation</li>
-                </ul>
-            </div>
-
-            <div class="fact-bubble">
-                A study by the Council for a Strong America found that the U.S. economy loses $57 billion annually in lost earnings, productivity, and revenue due to childcare challenges.
-            </div>
-
-            <div class="laymans-terms">
-                Think of childcare costs like a stone thrown into a pond - the ripples spread far beyond just the family paying for care. When parents can't work due to childcare issues, businesses lose workers, communities lose tax revenue, and the whole economy feels the impact.
-            </div>
-
-            <h3>5. Urban-Rural Analysis</h3>
-            <div class="highlight-box">
-                <h3>The Location Factor</h3>
-                <p>Location dramatically impacts both cost and availability of childcare:</p>
-                <ul>
-                    <li>🏙️ Urban: Higher costs but more options</li>
-                    <li>🏘️ Suburban: Moderate costs with decent availability</li>
-                    <li>🌾 Rural: Lower costs but limited availability</li>
-                </ul>
-            </div>
-
-            <div class="fact-bubble">
-                In urban areas, the average family spends $3,200 more per year on childcare compared to rural areas, but rural families often face additional transportation costs and fewer choices.
-            </div>
-
-            <div class="laymans-terms">
-                It's like the difference between shopping in a city versus a small town. City dwellers have more choices but pay premium prices, while rural families might find lower prices but have fewer options and might need to travel further.
-            </div>
-        </section>
-
-        <section class="implications">
-            <h2>Implications and Recommendations</h2>
-            
-            <div class="highlight-box">
-                <h3>The Challenge We Face</h3>
-                <p>Childcare in America has reached a critical point where:</p>
-                <ul>
-                    <li>🏠 Many families spend more on childcare than housing</li>
-                    <li>👩‍💼 Qualified workers leave the workforce due to care costs</li>
-                    <li>📊 The economy loses billions in productivity</li>
-                    <li>🌟 Quality of care often suffers due to cost pressures</li>
-                </ul>
-            </div>
-
-            <div class="fact-bubble">
-                The average return on investment for quality early childhood programs is 13% per year, based on improved outcomes in education, health, and economic productivity.
-            </div>
-            
-            <h3>Policy Implications</h3>
-            <div class="impact-box">
-                <h3>Recommended Policy Actions</h3>
-                <p>Our analysis suggests these key policy priorities:</p>
-                <ul>
-                    <li>State-Level Solutions:</li>
-                    <ul>
-                        <li>🎯 Income-based subsidy sliding scales</li>
-                        <li>📋 Streamlined licensing requirements</li>
-                        <li>💰 Provider grant programs</li>
-                        <li>🏢 Employer incentives for on-site care</li>
-                    </ul>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                Think of these policies like a safety net - they help catch families before they fall into financial hardship. Just as we have public schools for K-12 education, we need better support systems for early childhood care.
-            </div>
-
-            <h3>Economic Solutions</h3>
-            <div class="key-insight">
-                <h3>Innovation in Childcare</h3>
-                <p>New approaches to make childcare more affordable:</p>
-                <ul>
-                    <li>🤝 Co-operative childcare centers</li>
-                    <li>💼 Employer-sponsored care programs</li>
-                    <li>🏢 Public-private partnerships</li>
-                    <li>🏫 School district integration</li>
-                </ul>
-            </div>
-
-            <div class="fact-bubble">
-                Companies that offer childcare support see up to 60% better retention rates among parent employees and report higher productivity levels.
-            </div>
-        </section>
-
-        <section class="conclusion">
-            <h2>Conclusion</h2>
-            
-            <div class="highlight-box">
-                <h3>Key Takeaways</h3>
-                <ul>
-                    <li>📈 Costs rising faster than inflation and wages</li>
-                    <li>🗺️ Significant regional cost variations</li>
-                    <li>💼 Major impact on workforce participation</li>
-                    <li>💡 Need for innovative solutions</li>
-                </ul>
-            </div>
-
-            <div class="impact-box">
-                <h3>Looking Forward</h3>
-                <p>The future of childcare in America depends on:</p>
-                <ul>
-                    <li>Policy reforms at state and federal levels</li>
-                    <li>Innovative funding models</li>
-                    <li>Employer participation</li>
-                    <li>Community-based solutions</li>
-                </ul>
-            </div>
-
-            <div class="laymans-terms">
-                The childcare crisis is like a puzzle where all pieces need to fit together - parents, providers, employers, and government each play a crucial role. Solving it requires everyone working together to create a system that works for all families.
-            </div>
-
-            <div class="fact-bubble">
-                Studies show that every $1 invested in quality early childhood care returns $7-$12 to society through improved education outcomes, health, and economic productivity.
-            </div>
-        </section>
-
-        <section class="references">
-            <h2>References and Data Sources</h2>
-            <div class="key-insight">
-                <h3>Primary Data Sources</h3>
-                <ul>
-                    <li>📊 National Database of Childcare Prices (2008-2018)</li>
-                    <li>👥 U.S. Census Bureau American Community Survey</li>
-                    <li>💼 Bureau of Labor Statistics Employment Data</li>
-                    <li>📈 Economic Policy Institute Research</li>
-                </ul>
-            </div>
-            
-            <div class="analysis-box">
-                <h4>Additional Resources</h4>
-                <ul>
-                    <li>Child Care Aware of America. (2018). The US and the High Cost of Child Care</li>
-                    <li>Economic Policy Institute. (2018). Child care costs in the United States</li>
-                    <li>Urban Institute. (2018). State Child Care Assistance Policies</li>
-                    <li>Council for a Strong America. (2018). Economic Impact Analysis</li>
-                </ul>
-            </div>
-        </section>
-
-        <section class="appendix">
-            <h2>Appendix: Detailed Methodology</h2>
-            
-            <h3>Data Collection Methods</h3>
-            <p>The study employed a comprehensive data collection approach:</p>
-            <ul>
-                <li>Primary Data Sources:</li>
-                <ul>
-                    <li>State-level childcare cost surveys</li>
-                    <li>Provider operational cost data</li>
-                    <li>Workforce participation statistics</li>
-                </ul>
-                <li>Secondary Data Analysis:</li>
-                <ul>
-                    <li>Economic indicator correlation studies</li>
-                    <li>Geographic cost distribution patterns</li>
-                    <li>Temporal trend analysis</li>
-                </ul>
-            </ul>
-
-            <h3>Statistical Analysis Methods</h3>
-            <p>Statistical techniques employed include:</p>
-            <ul>
-                <li>Regression Analysis:</li>
-                <ul>
-                    <li>Cost trend projections</li>
-                    <li>Economic impact correlations</li>
-                    <li>Regional variation analysis</li>
-                </ul>
-                <li>Geospatial Analysis:</li>
-                <ul>
-                    <li>Geographic distribution mapping</li>
-                    <li>Urban-rural comparison studies</li>
-                    <li>Regional clustering analysis</li>
-                </ul>
-            </ul>
-        </section>
-    </div>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all visualizations
+            createHeatMap(document.getElementById('geoChoropleth'), '2018');
+            createTimeSeries(document.getElementById('timeSeriesAnalysis'), 'all');
+            createLaborForceMap(document.getElementById('laborForceMap'), '2018');
+            createUrbanRuralComparison(document.getElementById('urbanRuralComparison'), '2018');
+        });
+    </script>
 </body>
 </html> 
