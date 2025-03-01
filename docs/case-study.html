@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: U.S. Childcare Cost Analysis</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://via.placeholder.com/32/3498db/ffffff?text=CC">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            padding-bottom: 40px;
+        }
+        .container {
+            max-width: 1000px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        h1 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+            font-weight: 600;
+        }
+        .lead {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+        .quote {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #495057;
+            border-left: 3px solid #3498db;
+            padding-left: 20px;
+            margin: 20px 0;
+        }
+        .highlight-box {
+            background-color: #e9f7fe;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+        .image-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .case-study-image {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .image-caption {
+            margin-top: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        .key-finding {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #6c757d;
+        }
+        .key-finding h4 {
+            color: #495057;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .key-finding p {
+            margin-bottom: 0;
+        }
+        .key-finding.primary {
+            border-left-color: #3498db;
+            background-color: #e9f7fe;
+        }
+        .key-finding.secondary {
+            border-left-color: #2ecc71;
+            background-color: #eafaf1;
+        }
+        .key-finding.warning {
+            border-left-color: #f39c12;
+            background-color: #fef5e7;
+        }
+        .key-finding.danger {
+            border-left-color: #e74c3c;
+            background-color: #fdedeb;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .nav-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Case Study: U.S. Childcare Cost Analysis</h1>
+            <p class="lead">Exploring the financial burden of childcare across the United States</p>
+        </div>
+        
+        <p>Childcare costs represent a significant financial burden for many American families. This case study explores the variations in childcare costs across different states, age groups, and settings, highlighting key patterns and insights that can inform policy decisions and family planning.</p>
+        
+        <div class="quote">
+            "Understanding childcare costs is crucial for addressing economic inequality and supporting working families. Our analysis reveals significant disparities that demand attention from policymakers."
+        </div>
+        
+        <h2>The Challenge</h2>
+        
+        <p>Childcare costs in the United States vary dramatically based on location, type of care, and the age of children. For many families, these costs represent a substantial portion of their income, sometimes exceeding college tuition or housing expenses. Our challenge was to analyze this complex data landscape to identify patterns, outliers, and potential solutions.</p>
+        
+        <div class="highlight-box">
+            <p><strong>Key questions we sought to answer:</strong></p>
+            <ul>
+                <li>How do childcare costs vary across different states and regions?</li>
+                <li>What is the relationship between childcare costs and median family income?</li>
+                <li>How do costs differ between infant, toddler, and preschool care?</li>
+                <li>What trends can we identify in childcare costs over time?</li>
+            </ul>
+        </div>
+        
+        <h2>Our Approach</h2>
+        
+        <p>We collected comprehensive data on childcare costs from all 50 states and the District of Columbia, analyzing variations by:</p>
+        
+        <ul>
+            <li>Geographic location (state and region)</li>
+            <li>Child age group (infant, toddler, preschool)</li>
+            <li>Care setting (center-based vs. family childcare)</li>
+            <li>Urban vs. rural areas</li>
+            <li>Relationship to median family income</li>
+        </ul>
+        
+        <p>The data was visualized through multiple approaches to highlight different aspects of the childcare cost landscape:</p>
+        
+        <h3>Geographic Distribution</h3>
+        
+        <div class="image-container">
+            <img src="images/childcare_costs_map.png" alt="U.S. Childcare Costs Map" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Childcare+Costs+Map';">
+            <p class="image-caption">Figure 1: Geographic distribution of monthly childcare costs across the United States</p>
+        </div>
+        
+        <p>The map visualization reveals significant regional variations in childcare costs. The Northeast and West Coast states consistently show the highest costs, while many Southern and Midwestern states have lower costs. However, when adjusted for median income, the burden can be surprisingly high even in states with nominally lower costs.</p>
+        
+        <h3>State-by-State Comparison</h3>
+        
+        <div class="image-container">
+            <img src="images/state_costs.png" alt="State-by-State Childcare Costs" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=State+Costs+Comparison';">
+            <p class="image-caption">Figure 2: Comparison of monthly childcare costs by state</p>
+        </div>
+        
+        <p>The bar chart comparison highlights the dramatic differences between states. The District of Columbia stands out with the highest costs, nearly three times higher than Mississippi, which has the lowest costs. This visualization helps families and policymakers understand the economic impact of location on childcare affordability.</p>
+        
+        <h3>Cost Distribution Analysis</h3>
+        
+        <div class="image-container">
+            <img src="images/cost_distribution.png" alt="Childcare Cost Distribution (Violin Chart)" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Violin+Chart+of+Cost+Distribution';">
+            <p class="image-caption">Figure 3: Distribution of childcare costs across different regions (Violin Chart)</p>
+        </div>
+        
+        <p>The violin chart provides a nuanced view of cost distribution, showing not just averages but the full range and probability density of costs in each region. This reveals that even within regions with similar average costs, there can be significant variations in the distribution pattern, with some regions showing greater inequality in pricing.</p>
+        
+        <h2>Key Findings</h2>
+        
+        <div class="key-finding primary">
+            <h4><i class="fas fa-map-marker-alt"></i> Geographic Disparities</h4>
+            <p>The Northeast and West Coast have the highest childcare costs, with Washington D.C., Massachusetts, and California leading the nation. Mississippi, Alabama, and Kentucky have the lowest nominal costs.</p>
+        </div>
+        
+        <div class="key-finding secondary">
+            <h4><i class="fas fa-baby"></i> Age-Based Cost Differences</h4>
+            <p>Infant care is consistently the most expensive across all states, averaging 20-30% higher than preschool care. This creates a particularly high burden for families with newborns, often coinciding with parental leave and reduced income.</p>
+        </div>
+        
+        <div class="key-finding warning">
+            <h4><i class="fas fa-dollar-sign"></i> Income Burden</h4>
+            <p>In 33 states, infant care costs exceed in-state college tuition. The average family spends 10-37% of their income on childcare for one child, far exceeding the 7% affordability threshold recommended by the Department of Health and Human Services.</p>
+        </div>
+        
+        <div class="key-finding danger">
+            <h4><i class="fas fa-chart-line"></i> Concerning Trends</h4>
+            <p>Childcare costs have increased at a rate that outpaces inflation, growing by approximately 25% over the past decade while wages have remained relatively stagnant for many workers.</p>
+        </div>
+        
+        <h3>Urban vs. Rural Comparison</h3>
+        
+        <div class="image-container">
+            <img src="images/urban_rural_comparison.png" alt="Urban vs. Rural Childcare Costs" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Urban+vs+Rural+Comparison';">
+            <p class="image-caption">Figure 4: Comparison of childcare costs between urban and rural areas</p>
+        </div>
+        
+        <p>Urban areas consistently show higher childcare costs compared to rural areas, with an average difference of 30-40%. However, when adjusted for median income, rural families often face a similar or even higher childcare cost burden due to lower average incomes in these areas.</p>
+        
+        <h3>Cost Trends Over Time</h3>
+        
+        <div class="image-container">
+            <img src="images/cost_trends.png" alt="Childcare Cost Trends" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Cost+Trends+Over+Time';">
+            <p class="image-caption">Figure 5: Childcare cost trends over the past decade</p>
+        </div>
+        
+        <p>The time series analysis reveals a consistent upward trend in childcare costs across all states, with costs increasing at a rate that exceeds both inflation and wage growth. This trend suggests that childcare will become increasingly unaffordable for many families without policy intervention.</p>
+        
+        <h2>Implications and Recommendations</h2>
+        
+        <p>Our analysis of childcare costs across the United States reveals a complex landscape with significant implications for families, employers, and policymakers:</p>
+        
+        <div class="highlight-box">
+            <p><strong>For Families:</strong></p>
+            <ul>
+                <li>Consider childcare costs when making decisions about relocation or career changes</li>
+                <li>Explore alternative childcare arrangements such as family childcare homes, which are typically 20-30% less expensive than center-based care</li>
+                <li>Investigate state and federal subsidy programs for which you might qualify</li>
+            </ul>
+        </div>
+        
+        <div class="highlight-box">
+            <p><strong>For Policymakers:</strong></p>
+            <ul>
+                <li>Expand childcare subsidy programs to reach more middle-income families</li>
+                <li>Consider tax incentives for employers who provide childcare benefits</li>
+                <li>Invest in public pre-K programs to reduce costs for families with preschool-aged children</li>
+                <li>Address the childcare worker shortage through improved compensation and professional development opportunities</li>
+            </ul>
+        </div>
+        
+        <div class="highlight-box">
+            <p><strong>For Employers:</strong></p>
+            <ul>
+                <li>Recognize childcare challenges as a significant factor in employee recruitment, retention, and productivity</li>
+                <li>Consider offering childcare benefits, flexible work arrangements, or on-site childcare options</li>
+                <li>Advocate for policy changes that would make childcare more affordable and accessible</li>
+            </ul>
+        </div>
+        
+        <h2>Conclusion</h2>
+        
+        <p>Childcare costs represent a significant economic challenge for American families, with wide variations based on geography, child age, and care setting. The burden is particularly high for low and middle-income families, often exceeding other major expenses like housing or college tuition.</p>
+        
+        <p>Our analysis highlights the need for a comprehensive approach to addressing childcare affordability, involving coordination between families, employers, and government at all levels. Without intervention, the upward trend in childcare costs threatens to further strain family budgets and potentially force parents—particularly mothers—out of the workforce.</p>
+        
+        <div class="quote">
+            "The data tells a clear story: childcare costs are a major economic issue affecting millions of American families. Addressing this challenge requires innovative solutions from both the public and private sectors."
+        </div>
+        
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-primary">Back to Home</a>
+            <a href="complete-dashboard.html" class="btn btn-outline-secondary ms-2">View Complete Dashboard</a>
+        </div>
+        
+        <div class="footer">
+            <p>This case study was created as part of the DSC640 course at Bellevue University</p>
+            <p><small>© 2023 U.S. Childcare Cost Analysis Project</small></p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

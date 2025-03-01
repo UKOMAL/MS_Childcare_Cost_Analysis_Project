@@ -141,6 +141,31 @@
             font-size: 0.9rem;
             color: #6c757d;
         }
+        .featured-option {
+            border: 2px solid #28a745;
+            position: relative;
+            overflow: hidden;
+        }
+        .featured-option::before {
+            content: "RECOMMENDED";
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background-color: #28a745;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 30px;
+            transform: rotate(45deg);
+            font-weight: bold;
+        }
+        .featured-option i {
+            color: #28a745;
+        }
+        .alert {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -149,7 +174,18 @@
         
         <p>Welcome to the U.S. Childcare Cost Analysis Dashboard. This interactive tool allows you to explore childcare costs across the United States for different age groups.</p>
         
+        <div class="alert alert-info">
+            <strong>New!</strong> We've created a comprehensive case study that presents our findings in a narrative format with static visualizations. This is our recommended way to explore the data.
+        </div>
+        
         <div class="dashboard-options">
+            <div class="dashboard-option featured-option">
+                <i class="fas fa-file-alt"></i>
+                <h3>Case Study</h3>
+                <p>Explore our findings in a narrative format with static visualizations and key insights.</p>
+                <a href="case-study.html" class="btn btn-success btn-sm">View Case Study</a>
+            </div>
+            
             <div class="dashboard-option">
                 <i class="fas fa-chart-line"></i>
                 <h3>New Dashboard</h3>
@@ -161,7 +197,7 @@
                 <i class="fas fa-chart-bar"></i>
                 <h3>Complete Dashboard</h3>
                 <p>Comprehensive dashboard with both interactive charts and static visualizations.</p>
-                <a href="complete-dashboard.html" class="btn btn-success btn-sm">Launch</a>
+                <a href="complete-dashboard.html" class="btn btn-primary btn-sm">Launch</a>
             </div>
             
             <div class="dashboard-option">
@@ -169,13 +205,6 @@
                 <h3>Debug Dashboard</h3>
                 <p>Dashboard with additional debugging information and tools.</p>
                 <a href="debug-dashboard.html" class="btn btn-outline-secondary btn-sm">Launch</a>
-            </div>
-            
-            <div class="dashboard-option">
-                <i class="fas fa-vial"></i>
-                <h3>Test Dashboard</h3>
-                <p>Testing version with experimental features and visualizations.</p>
-                <a href="dashboard-test.html" class="btn btn-outline-secondary btn-sm">Launch</a>
             </div>
         </div>
         
@@ -187,6 +216,7 @@
                 <li>Check your browser console for error messages (F12 or right-click > Inspect > Console)</li>
                 <li>Try clearing your browser cache or using incognito/private mode</li>
                 <li>For local development, use a local server to avoid CORS issues</li>
+                <li><strong>Recommended:</strong> View the <a href="case-study.html">Case Study</a> instead, which uses static images and doesn't require JavaScript</li>
             </ul>
         </div>
         
