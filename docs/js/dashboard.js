@@ -5,7 +5,7 @@ import { initNetwork, updateNetwork } from './network.js';
 // Dashboard initialization and control logic
 async function initializeDashboard() {
     try {
-        console.log('Initializing dashboard...');
+        console.log('Starting dashboard initialization...');
         
         // Load data first
         const data = await loadData();
@@ -14,32 +14,38 @@ async function initializeDashboard() {
             showError('Failed to load data. Please check the console for details.');
             return;
         }
-        console.log('Data loaded successfully');
+        console.log('Data loaded successfully:', data);
         
         // Initialize visualizations
-        await Promise.all([
-            initMap(data),
-            initNetwork(data)
-        ]);
-        
-        // Load state data
-        loadStates(data.states);
-        
-        // Set initial cost range value
-        const maxCost = Math.max(...data.costs.infant.filter(cost => !isNaN(cost)));
-        const costRange = document.getElementById('costRange');
-        costRange.max = Math.ceil(maxCost);
-        costRange.value = maxCost;
-        
-        // Event listeners for controls
-        setupEventListeners(data);
-        
-        // Update initial visualizations
-        updateVisualizations(data);
-        
-        console.log('Dashboard initialization complete');
+        try {
+            await Promise.all([
+                initMap(data),
+                initNetwork(data)
+            ]);
+            console.log('Visualizations initialized');
+            
+            // Load state data
+            loadStates(data.states);
+            
+            // Set initial cost range value
+            const maxCost = Math.max(...data.costs.infant.filter(cost => !isNaN(cost)));
+            const costRange = document.getElementById('costRange');
+            costRange.max = Math.ceil(maxCost);
+            costRange.value = maxCost;
+            
+            // Event listeners for controls
+            setupEventListeners(data);
+            
+            // Update initial visualizations
+            updateVisualizations(data);
+            
+            console.log('Dashboard initialization complete');
+        } catch (vizError) {
+            console.error('Error initializing visualizations:', vizError);
+            showError('Error initializing visualizations. Please check the console for details.');
+        }
     } catch (error) {
-        console.error('Error initializing dashboard:', error);
+        console.error('Error in dashboard initialization:', error);
         showError('Error initializing dashboard. Please check the console for details.');
     }
 }

@@ -1,5 +1,5 @@
 // Initialize the map visualization
-function initMap(data) {
+export function initMap(data) {
     if (!data || !data.states || !data.costs || !data.costs.infant) {
         console.error('Invalid data structure for map visualization:', data);
         document.getElementById('mainViz').innerHTML = 
@@ -119,10 +119,15 @@ function initMap(data) {
 }
 
 // Update map based on filters
-function updateMap(selectedState, costRange, data) {
-    if (!data || !data.states) return;
-
+export function updateMap(selectedState, costRange, data) {
+    if (!data || !data.states || !data.costs || !data.costs.infant) {
+        console.error('Invalid data for map update');
+        return;
+    }
+    
     try {
+        // Update map visualization based on filters
+        console.log('Updating map with:', { selectedState, costRange });
         let filteredData = {...data};
         
         if (selectedState !== 'all') {
