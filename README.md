@@ -23,15 +23,26 @@ This project provides an interactive dashboard for visualizing and analyzing chi
 ## Viewing the Dashboard
 
 The dashboard is hosted on GitHub Pages and can be accessed at:
-[https://yourusername.github.io/repository-name/](https://yourusername.github.io/repository-name/)
+[https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/new-dashboard.html](https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/new-dashboard.html)
+
+### Alternative Access Methods
+
+If GitHub Pages is not working properly, you can access the dashboard using these alternative methods:
+
+1. **Local Access**: Download the repository and open the HTML files directly in your browser
+2. **Web Server**: Host the files on any web server (Apache, Nginx, etc.)
+3. **Static Site Hosting**: Deploy to Netlify, Vercel, or similar services
 
 ## Local Development
 
 To run this project locally:
 
-1. Clone the repository
+1. Clone the repository:
+   ```
+   git clone https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project.git
+   ```
 2. Navigate to the project directory
-3. Open the `docs/index.html` file in your web browser
+3. Open the `docs/new-dashboard.html` file directly in your web browser
 
 ## Technologies Used
 
@@ -44,9 +55,15 @@ To run this project locally:
 
 If you encounter issues with the dashboard:
 
-1. Check the browser console for error messages
-2. Visit the `js-test.html` page to verify JavaScript loading
-3. Ensure all dependencies are properly loaded
+1. **Browser Console**: Check for error messages (F12 or right-click > Inspect > Console)
+2. **Test Page**: Visit the `js-test.html` page to verify JavaScript loading
+3. **CORS Issues**: If accessing locally, some browsers restrict loading local files. Use a local server:
+   ```
+   cd docs
+   python -m http.server 8000
+   ```
+   Then visit: `http://localhost:8000/new-dashboard.html`
+4. **Clear Cache**: Try clearing your browser cache or using incognito/private mode
 
 ## License
 
