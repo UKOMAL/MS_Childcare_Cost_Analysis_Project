@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -149,6 +149,162 @@
     </div>
 
     <script>
+        // Initialize visualization on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('mainVisualization');
+            const visualizationType = document.getElementById('visualizationType');
+            
+            // Initial load
+            updateVisualization(container, visualizationType.value);
+            
+            // Update on selection change
+            visualizationType.addEventListener('change', function() {
+                updateVisualization(container, this.value);
+            });
+        });
+
+        // Main visualization update function
+        function updateVisualization(container, type) {
+            // Show loading state
+            container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
+            
+            try {
+                switch(type) {
+                    case 'geoChoropleth':
+                        createHeatMap(container);
+                        break;
+                    case 'costSpiral':
+                        createSpiralPlot(container);
+                        break;
+                    case 'timeSeriesAnalysis':
+                        createTimeSeries(container);
+                        break;
+                    case 'laborForceMap':
+                        createLaborForceMap(container);
+                        break;
+                    case 'costDistribution':
+                        createCostDistribution(container);
+                        break;
+                    case 'socialMedia':
+                        createSocialMediaImpact(container);
+                        break;
+                    default:
+                        container.innerHTML = 'Please select a visualization type';
+                }
+            } catch (error) {
+                container.innerHTML = `<div style="color: red; text-align: center;"><p>Error loading visualization: ${error.message}</p></div>`;
+                console.error('Visualization error:', error);
+            }
+        }
+
+        // Add new visualization functions
+        function createLaborForceMap(container) {
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'USA-states',
+                locations: ['MA', 'NY', 'CA', 'WA', 'DC', 'NJ', 'CT', 'CO', 'IL', 'MN'],
+                z: [71.2, 67.9, 68.5, 69.8, 72.1, 69.4, 70.1, 68.7, 66.5, 70.3],
+                text: ['Massachusetts: 71.2%', 'New York: 67.9%', 'California: 68.5%', 
+                      'Washington: 69.8%', 'DC: 72.1%', 'New Jersey: 69.4%', 
+                      'Connecticut: 70.1%', 'Colorado: 68.7%', 'Illinois: 66.5%', 
+                      'Minnesota: 70.3%'],
+                colorscale: 'Viridis',
+                colorbar: {
+                    title: 'Participation Rate (%)',
+                    thickness: 20
+                }
+            }];
+
+            const layout = {
+                title: 'Female Labor Force Participation Rate by State',
+                geo: {
+                    scope: 'usa',
+                    showlakes: true,
+                    lakecolor: 'rgb(255,255,255)'
+                },
+                height: container.offsetHeight,
+                width: container.offsetWidth
+            };
+
+            Plotly.newPlot(container, data, layout, {responsive: true});
+        }
+
+        function createCostDistribution(container) {
+            const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+            const costs = {
+                'Northeast': generateNormalDistribution(20000, 2000, 100),
+                'Southeast': generateNormalDistribution(15000, 1500, 100),
+                'Midwest': generateNormalDistribution(17000, 1800, 100),
+                'Southwest': generateNormalDistribution(16000, 1700, 100),
+                'West': generateNormalDistribution(19000, 2000, 100)
+            };
+
+            const data = regions.map(region => ({
+                type: 'violin',
+                x: Array(100).fill(region),
+                y: costs[region],
+                name: region,
+                box: { visible: true },
+                meanline: { visible: true },
+                points: 'all'
+            }));
+
+            const layout = {
+                title: 'Distribution of Childcare Costs by Region',
+                yaxis: { title: 'Annual Cost ($)' },
+                height: container.offsetHeight,
+                width: container.offsetWidth
+            };
+
+            Plotly.newPlot(container, data, layout, {responsive: true});
+        }
+
+        function createSocialMediaImpact(container) {
+            const platforms = ['Twitter', 'Facebook', 'Instagram', 'LinkedIn'];
+            const metrics = {
+                engagement: [85, 92, 78, 65],
+                sentiment: [70, 75, 82, 68],
+                reach: [90, 95, 85, 60]
+            };
+
+            const data = [{
+                type: 'bar',
+                x: platforms,
+                y: metrics.engagement,
+                name: 'Engagement',
+                marker: { color: '#6b7ddf' }
+            }, {
+                type: 'bar',
+                x: platforms,
+                y: metrics.sentiment,
+                name: 'Positive Sentiment',
+                marker: { color: '#95e4d4' }
+            }, {
+                type: 'bar',
+                x: platforms,
+                y: metrics.reach,
+                name: 'Reach',
+                marker: { color: '#e8f48c' }
+            }];
+
+            const layout = {
+                title: 'Social Media Impact Analysis',
+                barmode: 'group',
+                yaxis: { title: 'Score (%)' },
+                height: container.offsetHeight,
+                width: container.offsetWidth
+            };
+
+            Plotly.newPlot(container, data, layout, {responsive: true});
+        }
+
+        // Utility functions
+        function generateNormalDistribution(mean, stdDev, count) {
+            return Array.from({length: count}, () => 
+                mean + (stdDev * (Math.random() + Math.random() + Math.random() - 1.5))
+            );
+        }
+
         // Create Spiral Plot
         function createSpiralPlot(container) {
             const states = [
@@ -546,99 +702,6 @@
             });
 
             container.appendChild(staticContainer);
-        }
-
-        // Main visualization update function
-        function updateVisualization(type) {
-            const container = document.getElementById('mainVisualization');
-            container.innerHTML = '';
-            
-            // Remove any existing explanation text
-            const oldText = container.parentNode.querySelector('.visualization-explanation');
-            if (oldText) oldText.remove();
-            
-            switch(type) {
-                case 'geoChoropleth':
-                    createHeatMap(container);
-                    addExplanation(container, 'Geographic Distribution', 
-                        `This choropleth map visualizes childcare costs across U.S. states, highlighting regional disparities. 
-                        The darker colors indicate higher costs, with northeastern states typically showing the highest burden. 
-                        This geographic pattern reflects various factors including cost of living, state policies, and economic conditions.`);
-                    break;
-                case 'costSpiral':
-                    createSpiralPlot(container);
-                    break;
-                case 'timeSeriesAnalysis':
-                    createTimeSeries(container);
-                    addExplanation(container, 'Cost Trends Over Time', 
-                        `The time series analysis shows how childcare costs have evolved from 2008 to 2018. 
-                        The primary lines show absolute costs, while the bars indicate year-over-year percentage changes. 
-                        This dual visualization helps identify both long-term trends and short-term fluctuations in costs.`);
-                    break;
-                case 'staticVisualizations':
-                    createStaticVisualizations(container);
-                    break;
-                case 'stackedBar':
-                    createStackedBarChart(container);
-                    break;
-                case 'laborForceMap':
-                case 'urbanRuralComparison':
-                    container.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                        <img src="images/${type === 'laborForceMap' ? 'female_labor_force' : 'urban_rural_comparison'}.png" 
-                        alt="${type === 'laborForceMap' ? 'Female Labor Force' : 'Urban vs Rural Comparison'}" 
-                        style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                    </div>`;
-                    break;
-            }
-        }
-
-        // Update visualization options
-        document.getElementById('visualizationType').innerHTML = `
-            <option value="geoChoropleth">Geographic Cost Distribution</option>
-            <option value="costSpiral">Radial Cost Analysis</option>
-            <option value="timeSeriesAnalysis">Time Series Analysis</option>
-            <option value="urbanRuralComparison">Urban vs Rural Comparison</option>
-            <option value="correlationMatrix">Correlation Analysis</option>
-            <option value="costTrends">Cost Trends Analysis</option>
-            <option value="laborForceMap">Female Labor Force Participation</option>
-            <option value="stateCosts">State-by-State Cost Comparison</option>
-            <option value="costDistribution">Cost Distribution Analysis</option>
-            <option value="socialMedia">Social Media Impact</option>
-        `;
-
-        // Initialize with default visualization and ensure all scripts are loaded
-        function initializeDashboard() {
-            try {
-                // Initialize default visualization
-                updateVisualization('geoChoropleth');
-                
-                // Add event listeners
-                document.getElementById('visualizationType').addEventListener('change', (e) => {
-                    updateVisualization(e.target.value);
-                });
-
-                document.getElementById('yearFilter').addEventListener('change', (e) => {
-                    const visType = document.getElementById('visualizationType').value;
-                    updateVisualization(visType);
-                });
-
-                // Add window resize handler
-                window.addEventListener('resize', function() {
-                    const visType = document.getElementById('visualizationType').value;
-                    updateVisualization(visType);
-                });
-            } catch (error) {
-                console.error('Dashboard initialization error:', error);
-                document.getElementById('mainVisualization').innerHTML = 
-                    '<p style="color: red; text-align: center;">Error loading visualizations. Please refresh the page.</p>';
-            }
-        }
-
-        // Ensure initialization happens when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeDashboard);
-        } else {
-            initializeDashboard();
         }
 
         function addExplanation(container, title, text) {

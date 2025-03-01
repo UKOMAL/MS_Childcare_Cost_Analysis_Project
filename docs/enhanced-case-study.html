@@ -561,14 +561,13 @@
                 {state: 'Oregon', cost: 15847}
             ];
 
-            // Create points in a more linear arrangement
+            // Create points in a spiral arrangement
             const points = states.map((state, i) => {
-                // Adjust layout to spread points more horizontally
-                const x = i * 100 - 400; // Center the visualization
-                const y = Math.sin(i * 0.5) * 50; // Add slight vertical variation
+                const angle = i * 0.5 * Math.PI; // Adjust angle between points
+                const radius = 150 - (i * 10); // Decreasing radius for spiral effect
                 return {
-                    x: x,
-                    y: y,
+                    x: radius * Math.cos(angle),
+                    y: radius * Math.sin(angle),
                     state: state.state,
                     cost: state.cost
                 };
@@ -601,7 +600,11 @@
                         [0.5, '#95e4d4'],  // Teal for middle values
                         [1, '#e8f48c']     // Light yellow for highest values
                     ],
-                    showscale: false
+                    showscale: true,
+                    colorbar: {
+                        title: 'Annual Cost ($)',
+                        tickformat: '$,.0f'
+                    }
                 },
                 text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
                 textposition: 'top center',
@@ -609,27 +612,37 @@
             };
 
             const layout = {
+                title: {
+                    text: 'State Childcare Costs (Spiral View)',
+                    font: {
+                        size: 24,
+                        color: '#2c3e50'
+                    }
+                },
                 showlegend: false,
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: { t: 50, l: 50, r: 50, b: 50 },
+                margin: { t: 100, l: 100, r: 100, b: 100 },
                 xaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-500, 500]
+                    range: [-200, 200]
                 },
                 yaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-100, 100]
+                    range: [-200, 200]
                 },
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 paper_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            Plotly.newPlot(container, [lineTrace, pointTrace], layout, {responsive: true});
+            Plotly.newPlot(container, [lineTrace, pointTrace], layout, {
+                responsive: true,
+                displayModeBar: false
+            });
         }
 
         function create3DAnalysis(container) {
