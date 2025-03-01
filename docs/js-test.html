@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Loading Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        .log-item {
+            margin-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .log-info {
+            color: #0c5460;
+        }
+        .log-error {
+            color: #721c24;
+        }
+        .log-warn {
+            color: #856404;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Loading Test</h1>
+    
+    <div class="card">
+        <h2>Dashboard Script Test</h2>
+        <div id="scriptStatus">Checking script loading...</div>
+        <div id="logContainer" class="log">
+            <div class="log-item log-info">Starting script test...</div>
+        </div>
+        <div style="margin-top: 15px;">
+            <button id="testBtn">Run Test</button>
+            <button id="clearLogBtn">Clear Log</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Navigation</h2>
+        <p>Return to:</p>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="new-dashboard.html">Dashboard</a></li>
+        </ul>
+    </div>
+    
+    <script>
+        // Override console methods to capture logs
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+        
+        const logContainer = document.getElementById('logContainer');
+        
+        function addLogEntry(message, type = 'info') {
+            const logItem = document.createElement('div');
+            logItem.className = `log-item log-${type}`;
+            logItem.textContent = message;
+            logContainer.appendChild(logItem);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        console.log = function(message) {
+            addLogEntry(`LOG: ${message}`);
+            originalConsole.log.apply(console, arguments);
+        };
+        
+        console.error = function(message) {
+            addLogEntry(`ERROR: ${message}`, 'error');
+            originalConsole.error.apply(console, arguments);
+        };
+        
+        console.warn = function(message) {
+            addLogEntry(`WARN: ${message}`, 'warn');
+            originalConsole.warn.apply(console, arguments);
+        };
+        
+        console.info = function(message) {
+            addLogEntry(`INFO: ${message}`, 'info');
+            originalConsole.info.apply(console, arguments);
+        };
+        
+        // Test function
+        function testDashboardScript() {
+            addLogEntry('Starting dashboard script test...');
+            
+            try {
+                // Check if script file exists
+                const scriptTest = document.createElement('script');
+                scriptTest.src = 'js/new-dashboard.js';
+                scriptTest.onload = function() {
+                    document.getElementById('scriptStatus').textContent = 'Script loaded successfully!';
+                    document.getElementById('scriptStatus').className = 'success';
+                    addLogEntry('Script file loaded successfully');
+                    
+                    // Check if expected functions exist
+                    if (typeof updateVisualization === 'function') {
+                        addLogEntry('updateVisualization function found');
+                    } else {
+                        addLogEntry('updateVisualization function NOT found', 'error');
+                    }
+                    
+                    if (typeof createMapVisualization === 'function') {
+                        addLogEntry('createMapVisualization function found');
+                    } else {
+                        addLogEntry('createMapVisualization function NOT found', 'error');
+                    }
+                    
+                    if (typeof DASHBOARD_DATA === 'object') {
+                        addLogEntry('DASHBOARD_DATA object found');
+                    } else {
+                        addLogEntry('DASHBOARD_DATA object NOT found', 'error');
+                    }
+                };
+                
+                scriptTest.onerror = function() {
+                    document.getElementById('scriptStatus').textContent = 'Error loading script!';
+                    document.getElementById('scriptStatus').className = 'error';
+                    addLogEntry('Failed to load script file', 'error');
+                };
+                
+                document.body.appendChild(scriptTest);
+            } catch (error) {
+                addLogEntry(`Test error: ${error.message}`, 'error');
+                document.getElementById('scriptStatus').textContent = 'Test failed with error!';
+                document.getElementById('scriptStatus').className = 'error';
+            }
+        }
+        
+        // Set up event listeners
+        document.getElementById('testBtn').addEventListener('click', testDashboardScript);
+        
+        document.getElementById('clearLogBtn').addEventListener('click', function() {
+            logContainer.innerHTML = '<div class="log-item log-info">Log cleared</div>';
+        });
+    </script>
+</body>
+</html> 
