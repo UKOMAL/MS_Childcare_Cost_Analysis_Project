@@ -52,14 +52,17 @@
             margin: 30px 0;
             text-align: center;
             width: 100%;
+            height: 600px;
+            position: relative;
         }
         .visualization img {
             max-width: 100%;
-            height: auto;
+            max-height: 100%;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             margin: 0 auto;
             display: block;
+            object-fit: contain;
         }
         .figure-caption {
             margin-top: 10px;
@@ -452,30 +455,34 @@
                     y: 0.95
                 },
                 showlegend: false,
-                height: 600,
+                height: container.offsetHeight,
                 width: container.offsetWidth,
                 xaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-150, 150]
+                    range: [-200, 200],
+                    fixedrange: true
                 },
                 yaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-150, 150],
+                    range: [-200, 200],
                     scaleanchor: 'x',
-                    scaleratio: 1
+                    scaleratio: 1,
+                    fixedrange: true
                 },
                 margin: {
-                    l: 30,
+                    l: 50,
                     r: 50,
                     t: 50,
-                    b: 30,
-                    pad: 4
+                    b: 50,
+                    pad: 0
                 },
-                autosize: true
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                autosize: false
             };
 
             const config = {
@@ -486,13 +493,11 @@
             Plotly.newPlot(container, [trace], layout, config);
         }
 
-        // Add spiral chart container to the geographic analysis section
         document.addEventListener('DOMContentLoaded', function() {
             // Create container for spiral plot
             const spiralContainer = document.createElement('div');
             spiralContainer.id = 'spiralPlot';
-            spiralContainer.style.width = '100%';
-            spiralContainer.style.height = '600px';
+            spiralContainer.className = 'visualization';
             spiralContainer.style.marginTop = '20px';
             
             // Insert after the first visualization
@@ -505,8 +510,12 @@
             }
 
             // Add window resize handler for responsiveness
+            let resizeTimeout;
             window.addEventListener('resize', function() {
-                createSpiralPlot(document.getElementById('spiralPlot'));
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    createSpiralPlot(document.getElementById('spiralPlot'));
+                }, 250);
             });
         });
     </script>

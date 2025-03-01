@@ -47,8 +47,9 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             width: 90%;
             max-width: 1200px;
+            height: 600px;
+            position: relative;
             overflow: hidden;
-            aspect-ratio: 16/9;
         }
         select {
             padding: 8px 15px;
@@ -84,11 +85,13 @@
             font-size: 12px;
         }
         #mainVisualization {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100% !important;
             height: 100% !important;
-            min-height: 500px;
-            max-height: 800px;
-            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -198,24 +201,28 @@
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-150, 150]
+                    range: [-200, 200],
+                    fixedrange: true
                 },
                 yaxis: {
                     showgrid: false,
                     zeroline: false,
                     showticklabels: false,
-                    range: [-150, 150],
+                    range: [-200, 200],
                     scaleanchor: 'x',
-                    scaleratio: 1
+                    scaleratio: 1,
+                    fixedrange: true
                 },
                 margin: {
-                    l: 30,
+                    l: 50,
                     r: 50,
                     t: 50,
-                    b: 30,
-                    pad: 4
+                    b: 50,
+                    pad: 0
                 },
-                autosize: true
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                autosize: false
             };
 
             const config = {
@@ -249,14 +256,18 @@
             }];
 
             const layout = {
-                title: 'Geographic Distribution of Childcare Costs',
+                title: {
+                    text: 'Geographic Distribution of Childcare Costs',
+                    y: 0.95
+                },
                 geo: {
                     scope: 'usa',
                     showlakes: true,
                     lakecolor: 'rgb(255,255,255)',
                     projection: {
                         type: 'albers usa'
-                    }
+                    },
+                    fitbounds: 'locations'
                 },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
@@ -266,7 +277,9 @@
                     t: 50,
                     b: 0
                 },
-                autosize: true
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                autosize: false
             };
 
             const config = {
@@ -302,24 +315,38 @@
 
             const data = [trace1, trace2, trace3];
             const layout = {
-                title: 'Regional Childcare Costs by Age Group',
+                title: {
+                    text: 'Regional Childcare Costs by Age Group',
+                    y: 0.95
+                },
                 barmode: 'stack',
                 height: container.offsetHeight,
                 width: container.offsetWidth,
                 margin: {
-                    l: 60,
-                    r: 30,
+                    l: 80,
+                    r: 50,
                     t: 50,
-                    b: 50,
-                    pad: 4
+                    b: 80,
+                    pad: 0
                 },
-                autosize: true,
+                bargap: 0.15,
+                bargroupgap: 0.1,
                 xaxis: {
-                    automargin: true
+                    automargin: true,
+                    tickangle: 0
                 },
                 yaxis: {
                     automargin: true,
-                    title: 'Annual Cost ($)'
+                    title: 'Annual Cost ($)',
+                    tickformat: '$,.0f'
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                autosize: false,
+                showlegend: true,
+                legend: {
+                    orientation: 'h',
+                    y: -0.15
                 }
             };
 
@@ -375,29 +402,38 @@
             ];
 
             const layout = {
-                title: 'Childcare Cost Trends by Region (2008-2018)',
+                title: {
+                    text: 'Childcare Cost Trends by Region (2008-2018)',
+                    y: 0.95
+                },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
                 margin: {
-                    l: 60,
-                    r: 30,
+                    l: 80,
+                    r: 50,
                     t: 50,
-                    b: 70,
-                    pad: 4
+                    b: 80,
+                    pad: 0
                 },
-                autosize: true,
                 xaxis: {
                     title: 'Year',
-                    automargin: true
+                    automargin: true,
+                    tickangle: 0
                 },
                 yaxis: {
                     title: 'Annual Cost ($)',
-                    automargin: true
+                    automargin: true,
+                    tickformat: '$,.0f'
                 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                autosize: false,
                 showlegend: true,
                 legend: {
                     orientation: 'h',
-                    y: -0.2
+                    y: -0.15,
+                    xanchor: 'center',
+                    x: 0.5
                 }
             };
 
@@ -429,9 +465,11 @@
                     break;
                 case 'laborForceMap':
                 case 'urbanRuralComparison':
-                    container.innerHTML = `<img src="images/${type === 'laborForceMap' ? 'female_labor_force' : 'urban_rural_comparison'}.png" 
+                    container.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <img src="images/${type === 'laborForceMap' ? 'female_labor_force' : 'urban_rural_comparison'}.png" 
                         alt="${type === 'laborForceMap' ? 'Female Labor Force' : 'Urban vs Rural Comparison'}" 
-                        style="width: 100%; height: 100%; object-fit: contain; max-height: 700px;">`;
+                        style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>`;
                     break;
             }
         }
