@@ -6,7 +6,7 @@
     <title>U.S. Childcare Cost Analysis Project</title>
     
     <!-- Load required libraries -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     
     <style>
@@ -205,31 +205,84 @@
                 </ul>
             </div>
         </div>
+
+        <!-- Stacked Bar Chart -->
+        <div class="visualization-section">
+            <h2 class="chart-title">Childcare Cost Breakdown by State</h2>
+            <p class="chart-description">Analysis of childcare costs by component</p>
+            <div id="stackedBarChart" class="visualization"></div>
+            <div class="analysis-box">
+                <h3>Breakdown Analysis</h3>
+                <ul>
+                    <li>Staff costs dominate</li>
+                    <li>Facilities costs vary by state</li>
+                    <li>Administration and Programs costs are relatively stable</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Load all visualizations when the document is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all charts
-            createHeatMap(document.getElementById('geoChoropleth'));
-            createViolinChart(document.getElementById('costDistribution'));
-            createTimeSeries(document.getElementById('timeSeriesPlot'));
-            createSpiralPlot(document.getElementById('spiralPlot'));
-            create3DAnalysis(document.getElementById('multidimensionalAnalysis'));
+        // Add error handling and loading indicator
+        function showLoadingIndicator(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
+        }
 
-            // Add window resize handler
-            let resizeTimeout;
-            window.addEventListener('resize', function() {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(function() {
-                    // Reinitialize all charts on resize
-                    createHeatMap(document.getElementById('geoChoropleth'));
-                    createViolinChart(document.getElementById('costDistribution'));
-                    createTimeSeries(document.getElementById('timeSeriesPlot'));
-                    createSpiralPlot(document.getElementById('spiralPlot'));
-                    create3DAnalysis(document.getElementById('multidimensionalAnalysis'));
-                }, 250);
-            });
+        function showError(containerId, error) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div style="color: red; text-align: center;"><p>Error loading visualization: ${error.message}</p></div>`;
+            console.error('Visualization error:', error);
+        }
+
+        // Wrap each visualization creation in try-catch
+        function safeCreateVisualization(containerName, createFn) {
+            showLoadingIndicator(containerName);
+            try {
+                const container = document.getElementById(containerName);
+                if (!container) {
+                    throw new Error(`Container ${containerName} not found`);
+                }
+                createFn(container);
+            } catch (error) {
+                showError(containerName, error);
+            }
+        }
+
+        // Load all visualizations when the document and libraries are ready
+        function initializeVisualizations() {
+            safeCreateVisualization('geoChoropleth', createHeatMap);
+            safeCreateVisualization('costDistribution', createViolinChart);
+            safeCreateVisualization('timeSeriesPlot', createTimeSeries);
+            safeCreateVisualization('spiralPlot', createSpiralPlot);
+            safeCreateVisualization('multidimensionalAnalysis', create3DAnalysis);
+            safeCreateVisualization('stackedBarChart', createStackedBarChart);
+        }
+
+        // Check if Plotly is loaded
+        function checkLibrariesLoaded() {
+            if (typeof Plotly === 'undefined') {
+                console.error('Plotly library not loaded');
+                document.querySelectorAll('.visualization').forEach(container => {
+                    container.innerHTML = '<div style="color: red; text-align: center;"><p>Error: Required visualization library not loaded. Please check your internet connection and refresh the page.</p></div>';
+                });
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkLibrariesLoaded()) {
+                initializeVisualizations();
+
+                // Add window resize handler with debouncing
+                let resizeTimeout;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(initializeVisualizations, 250);
+                });
+            }
         });
 
         // Chart creation functions
@@ -251,29 +304,64 @@
                 locations: stateData.states,
                 z: stateData.costs,
                 text: stateData.states.map((state, i) => 
-                    `${state}<br>Annual Cost: $${stateData.costs[i].toLocaleString()}`
+                    `<b>${state}</b><br>Annual Cost: $${stateData.costs[i].toLocaleString()}`
                 ),
-                colorscale: 'Viridis',
+                colorscale: [
+                    [0, '#fff5f0'],
+                    [0.2, '#fee0d2'],
+                    [0.4, '#fcbba1'],
+                    [0.6, '#fc9272'],
+                    [0.8, '#fb6a4a'],
+                    [1, '#cb181d']
+                ],
                 colorbar: {
                     title: 'Annual Cost ($)',
-                    thickness: 20
+                    thickness: 20,
+                    len: 0.9,
+                    tickformat: '$,.0f',
+                    outlinewidth: 0
                 },
-                hoverinfo: 'text'
+                hoverinfo: 'text',
+                marker: {
+                    line: {
+                        color: 'white',
+                        width: 1
+                    }
+                }
             }];
 
             const layout = {
-                title: 'Geographic Distribution of Childcare Costs',
+                title: {
+                    text: 'Geographic Distribution of Childcare Costs',
+                    font: {
+                        size: 20,
+                        color: '#2c3e50'
+                    }
+                },
                 geo: {
                     scope: 'usa',
                     showlakes: true,
-                    lakecolor: 'rgb(255,255,255)'
+                    lakecolor: 'rgb(255,255,255)',
+                    projection: {
+                        type: 'albers usa'
+                    },
+                    showland: true,
+                    landcolor: 'rgb(250,250,250)',
+                    showsubunits: true,
+                    subunitcolor: 'rgb(217,217,217)',
+                    subunitwidth: 0.5
                 },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: { t: 30, l: 0, r: 0, b: 0 }
+                margin: { t: 50, l: 0, r: 0, b: 0 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            Plotly.newPlot(container, data, layout, {responsive: true});
+            Plotly.newPlot(container, data, layout, {
+                responsive: true,
+                displayModeBar: false
+            });
         }
 
         function createViolinChart(container) {
@@ -291,48 +379,172 @@
                 x: Array(500).fill(region),
                 y: costs[region],
                 name: region,
-                box: { visible: true },
-                meanline: { visible: true },
-                points: false
+                box: {
+                    visible: true,
+                    width: 0.2
+                },
+                meanline: {
+                    visible: true,
+                    color: 'rgba(0,0,0,0.8)',
+                    width: 2
+                },
+                points: 'outliers',
+                jitter: 0.1,
+                pointpos: 0,
+                marker: {
+                    size: 4,
+                    opacity: 0.5,
+                    color: region === 'Northeast' ? '#6b7ddf' :
+                           region === 'West' ? '#95e4d4' :
+                           region === 'Midwest' ? '#e8f48c' :
+                           region === 'Southwest' ? '#fc9272' :
+                           '#fb6a4a'
+                },
+                line: {
+                    color: region === 'Northeast' ? '#6b7ddf' :
+                           region === 'West' ? '#95e4d4' :
+                           region === 'Midwest' ? '#e8f48c' :
+                           region === 'Southwest' ? '#fc9272' :
+                           '#fb6a4a'
+                },
+                fillcolor: region === 'Northeast' ? 'rgba(107,125,223,0.3)' :
+                          region === 'West' ? 'rgba(149,228,212,0.3)' :
+                          region === 'Midwest' ? 'rgba(232,244,140,0.3)' :
+                          region === 'Southwest' ? 'rgba(252,146,114,0.3)' :
+                          'rgba(251,106,74,0.3)',
+                hoveron: 'points+kde',
+                hovertemplate: `${region}<br>Cost: $%{y:,.0f}<extra></extra>`
             }));
 
             const layout = {
-                title: 'Regional Distribution of Childcare Costs',
-                yaxis: { title: 'Annual Cost ($)' },
+                title: {
+                    text: 'Regional Distribution of Childcare Costs',
+                    font: {
+                        size: 20,
+                        color: '#2c3e50'
+                    }
+                },
+                xaxis: {
+                    title: 'Region',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    }
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickformat: '$,.0f'
+                },
+                violinmode: 'group',
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: { t: 30, l: 60, r: 40, b: 60 }
+                margin: { t: 50, l: 80, r: 50, b: 60 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                showlegend: false
             };
 
-            Plotly.newPlot(container, traces, layout, {responsive: true});
+            Plotly.newPlot(container, traces, layout, {
+                responsive: true,
+                displayModeBar: false
+            });
         }
 
         function createTimeSeries(container) {
             const years = Array.from({length: 11}, (_, i) => 2008 + i);
             const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+            
+            // Generate more realistic data with some variability
+            const baseGrowth = 0.035; // 3.5% base annual growth
+            const costs = {
+                'Northeast': years.map(year => 18000 * Math.pow(1 + baseGrowth + 0.01, year - 2008) * (1 + Math.random() * 0.02)),
+                'West': years.map(year => 16500 * Math.pow(1 + baseGrowth + 0.008, year - 2008) * (1 + Math.random() * 0.02)),
+                'Midwest': years.map(year => 15000 * Math.pow(1 + baseGrowth + 0.005, year - 2008) * (1 + Math.random() * 0.02)),
+                'Southeast': years.map(year => 14000 * Math.pow(1 + baseGrowth, year - 2008) * (1 + Math.random() * 0.02)),
+                'Southwest': years.map(year => 14500 * Math.pow(1 + baseGrowth + 0.002, year - 2008) * (1 + Math.random() * 0.02))
+            };
+
             const traces = regions.map(region => ({
                 x: years,
-                y: years.map(year => 
-                    (15000 + (year - 2008) * 800) * (1 + (region === 'Northeast' ? 0.2 : 
-                                                          region === 'West' ? 0.15 : 
-                                                          region === 'Midwest' ? 0.1 : 
-                                                          region === 'Southwest' ? 0.05 : 0))
-                ),
+                y: costs[region],
                 name: region,
                 type: 'scatter',
-                mode: 'lines+markers'
+                mode: 'lines+markers',
+                line: {
+                    width: 3,
+                    shape: 'spline',
+                    smoothing: 1.3,
+                    color: region === 'Northeast' ? '#6b7ddf' :
+                           region === 'West' ? '#95e4d4' :
+                           region === 'Midwest' ? '#e8f48c' :
+                           region === 'Southwest' ? '#fc9272' :
+                           '#fb6a4a'
+                },
+                marker: {
+                    size: 8,
+                    symbol: 'circle',
+                    line: {
+                        color: 'white',
+                        width: 1
+                    }
+                },
+                hovertemplate: `${region}<br>Year: %{x}<br>Cost: $%{y:,.0f}<extra></extra>`
             }));
 
             const layout = {
-                title: 'Childcare Cost Trends by Region (2008-2018)',
-                xaxis: { title: 'Year' },
-                yaxis: { title: 'Annual Cost ($)' },
+                title: {
+                    text: 'Childcare Cost Trends by Region (2008-2018)',
+                    font: {
+                        size: 20,
+                        color: '#2c3e50'
+                    }
+                },
+                xaxis: {
+                    title: 'Year',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickmode: 'array',
+                    ticktext: years,
+                    tickvals: years,
+                    showgrid: true,
+                    gridcolor: 'rgba(0,0,0,0.1)'
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickformat: '$,.0f',
+                    showgrid: true,
+                    gridcolor: 'rgba(0,0,0,0.1)'
+                },
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: { t: 30, l: 60, r: 40, b: 60 }
+                margin: { t: 50, l: 80, r: 50, b: 60 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                showlegend: true,
+                legend: {
+                    x: 1,
+                    xanchor: 'right',
+                    y: 1,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: 'rgba(0,0,0,0.1)',
+                    borderwidth: 1
+                }
             };
 
-            Plotly.newPlot(container, traces, layout, {responsive: true});
+            Plotly.newPlot(container, traces, layout, {
+                responsive: true,
+                displayModeBar: false
+            });
         }
 
         function createSpiralPlot(container) {
@@ -349,51 +561,75 @@
                 {state: 'Oregon', cost: 15847}
             ];
 
+            // Create points in a more linear arrangement
             const points = states.map((state, i) => {
-                const angle = i * 0.6;
-                const radius = i * 20;
+                // Adjust layout to spread points more horizontally
+                const x = i * 100 - 400; // Center the visualization
+                const y = Math.sin(i * 0.5) * 50; // Add slight vertical variation
                 return {
-                    x: radius * Math.cos(angle),
-                    y: radius * Math.sin(angle),
+                    x: x,
+                    y: y,
                     state: state.state,
                     cost: state.cost
                 };
             });
 
-            const trace = {
+            // Create connecting lines between points
+            const lineTrace = {
+                x: points.map(p => p.x),
+                y: points.map(p => p.y),
+                mode: 'lines',
+                type: 'scatter',
+                line: {
+                    color: '#a8b8ff',
+                    width: 2
+                },
+                hoverinfo: 'none'
+            };
+
+            // Create points with state information
+            const pointTrace = {
                 x: points.map(p => p.x),
                 y: points.map(p => p.y),
                 mode: 'markers+text',
                 type: 'scatter',
                 marker: {
-                    size: points.map(p => p.cost/800),
+                    size: 30,
                     color: points.map(p => p.cost),
-                    colorscale: 'Viridis',
-                    showscale: true
+                    colorscale: [
+                        [0, '#6b7ddf'],    // Dark blue for lowest values
+                        [0.5, '#95e4d4'],  // Teal for middle values
+                        [1, '#e8f48c']     // Light yellow for highest values
+                    ],
+                    showscale: false
                 },
                 text: points.map(p => `${p.state}<br>$${p.cost.toLocaleString()}`),
-                textposition: 'top center'
+                textposition: 'top center',
+                hoverinfo: 'text'
             };
 
             const layout = {
-                title: 'Childcare Costs by State (Spiral View)',
                 showlegend: false,
                 height: container.offsetHeight,
                 width: container.offsetWidth,
-                margin: { t: 30, l: 40, r: 40, b: 40 },
+                margin: { t: 50, l: 50, r: 50, b: 50 },
                 xaxis: {
                     showgrid: false,
                     zeroline: false,
-                    showticklabels: false
+                    showticklabels: false,
+                    range: [-500, 500]
                 },
                 yaxis: {
                     showgrid: false,
                     zeroline: false,
-                    showticklabels: false
-                }
+                    showticklabels: false,
+                    range: [-100, 100]
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)'
             };
 
-            Plotly.newPlot(container, [trace], layout, {responsive: true});
+            Plotly.newPlot(container, [lineTrace, pointTrace], layout, {responsive: true});
         }
 
         function create3DAnalysis(container) {
@@ -429,6 +665,99 @@
             };
 
             Plotly.newPlot(container, [trace], layout, {responsive: true});
+        }
+
+        function createStackedBarChart(container) {
+            const states = ['CA', 'NY', 'MA', 'WA', 'DC', 'NJ', 'CT', 'CO', 'IL', 'MN'];
+            
+            const costComponents = {
+                'Staff': {
+                    'CA': 12500, 'NY': 11800, 'MA': 11200, 'WA': 10800, 'DC': 11500,
+                    'NJ': 10200, 'CT': 10000, 'CO': 9800, 'IL': 9500, 'MN': 9200
+                },
+                'Facilities': {
+                    'CA': 6200, 'NY': 5900, 'MA': 5600, 'WA': 5400, 'DC': 5750,
+                    'NJ': 5100, 'CT': 5000, 'CO': 4900, 'IL': 4750, 'MN': 4600
+                },
+                'Administration': {
+                    'CA': 3100, 'NY': 2950, 'MA': 2800, 'WA': 2700, 'DC': 2875,
+                    'NJ': 2550, 'CT': 2500, 'CO': 2450, 'IL': 2375, 'MN': 2300
+                },
+                'Programs': {
+                    'CA': 2480, 'NY': 2360, 'MA': 2240, 'WA': 2160, 'DC': 2300,
+                    'NJ': 2040, 'CT': 2000, 'CO': 1960, 'IL': 1900, 'MN': 1840
+                }
+            };
+
+            const colors = {
+                'Staff': '#6b7ddf',
+                'Facilities': '#95e4d4',
+                'Administration': '#e8f48c',
+                'Programs': '#fc9272'
+            };
+
+            const traces = Object.keys(costComponents).map(component => ({
+                x: states,
+                y: states.map(state => costComponents[component][state]),
+                name: component,
+                type: 'bar',
+                marker: {
+                    color: colors[component],
+                    line: {
+                        color: 'white',
+                        width: 1
+                    }
+                },
+                hovertemplate: `${component}<br>State: %{x}<br>Cost: $%{y:,.0f}<extra></extra>`
+            }));
+
+            const layout = {
+                title: {
+                    text: 'Childcare Cost Breakdown by State',
+                    font: {
+                        size: 20,
+                        color: '#2c3e50'
+                    }
+                },
+                barmode: 'stack',
+                xaxis: {
+                    title: 'State',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickangle: -45
+                },
+                yaxis: {
+                    title: 'Annual Cost ($)',
+                    titlefont: {
+                        size: 16,
+                        color: '#2c3e50'
+                    },
+                    tickformat: '$,.0f',
+                    showgrid: true,
+                    gridcolor: 'rgba(0,0,0,0.1)'
+                },
+                height: container.offsetHeight,
+                width: container.offsetWidth,
+                margin: { t: 50, l: 80, r: 50, b: 100 },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                showlegend: true,
+                legend: {
+                    x: 1,
+                    xanchor: 'right',
+                    y: 1,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: 'rgba(0,0,0,0.1)',
+                    borderwidth: 1
+                }
+            };
+
+            Plotly.newPlot(container, traces, layout, {
+                responsive: true,
+                displayModeBar: false
+            });
         }
 
         function generateCostDistribution(min, max, count) {
