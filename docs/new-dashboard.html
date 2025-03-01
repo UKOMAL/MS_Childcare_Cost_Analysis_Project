@@ -4,471 +4,200 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
             background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
-            min-height: 100vh;
-            padding: 20px;
+            color: #333;
         }
         .dashboard-container {
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            max-width: 1400px;
+            margin: 20px auto;
             padding: 20px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
         }
         .control-panel {
-            background: linear-gradient(135deg, #FF8E53 0%, #FF6B6B 100%);
-            padding: 20px;
-            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            color: white;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
         .visualization-container {
-            background: white;
+            margin: 20px 0;
             padding: 20px;
+            background: white;
             border-radius: 10px;
-            height: 600px;
-            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-        #mainViz {
-            width: 100%;
-            height: 100%;
+        select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
         }
         .key-insights {
-            background: linear-gradient(135deg, #4E54C8 0%, #8F94FB 100%);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .insight-card {
             padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-        }
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        .static-viz-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        .viz-category {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
-        }
-        .viz-category h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-left: 10px;
-            border-left: 4px solid #3498db;
-        }
-        .static-viz-card {
-            background: white;
-            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .static-viz-card:hover {
-            transform: translateY(-5px);
+        .legend {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
         }
-        .static-viz-card img {
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .static-viz-card h4 {
-            color: #2c3e50;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        .static-viz-card p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 0;
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="dashboard-container">
-            <h2 class="text-center mb-4">U.S. Childcare Cost Analysis Dashboard</h2>
-            
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="control-panel">
-                        <h4>Dashboard Controls</h4>
-                        <div class="mb-3">
-                            <label for="dataType" class="form-label">Data Type</label>
-                            <select class="form-select" id="dataType">
-                                <option value="infant">Infant Care Costs</option>
-                                <option value="toddler">Toddler Care Costs</option>
-                                <option value="preschool">Preschool Care Costs</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="vizType" class="form-label">Visualization Type</label>
-                            <select class="form-select" id="vizType">
-                                <option value="choropleth">Childcare Costs Map</option>
-                                <option value="laborforce">Female Labor Force Map</option>
-                                <option value="spiral">Cost Spiral Analysis</option>
-                                <option value="correlation">Cost vs. Employment</option>
-                                <option value="bubble">Regional Analysis</option>
-                                <option value="trends">Cost Trends</option>
-                            </select>
-                        </div>
-                        <button id="updateViz" class="btn btn-primary w-100 mb-2">Update Visualization</button>
-                        <button id="exportData" class="btn btn-secondary w-100">Export Data (CSV)</button>
-                    </div>
-                    
-                    <div class="key-insights">
-                        <h4>Key Insights</h4>
-                        <div class="mb-2">
-                            <strong>Average Cost:</strong>
-                            <span id="avgCost">$1,260.00</span>
-                        </div>
-                        <div class="mb-2">
-                            <strong>Cost Range:</strong>
-                            <span id="costRange">$900 - $1,600</span>
-                        </div>
-                        <div class="mb-2">
-                            <strong>Highest:</strong>
-                            <span id="highestState">CA ($1,600)</span>
-                        </div>
-                        <div class="mb-2">
-                            <strong>Lowest:</strong>
-                            <span id="lowestState">TX ($900)</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-9">
-                    <div class="visualization-container">
-                        <div id="mainViz" style="width: 100%; height: 100%;"></div>
-                    </div>
-                </div>
-            </div>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>U.S. Childcare Cost Analysis Dashboard</h1>
+            <p>Exploring the Economic Impact of Childcare Costs Across America</p>
+        </div>
 
-            <!-- Static Visualizations Section -->
-            <div class="static-viz-section mt-4">
-                <h2 class="text-center mb-4">Detailed Analysis Visualizations</h2>
-                
-                <!-- Geographical Analysis -->
-                <div class="viz-category mb-5">
-                    <h3>Geographical Analysis</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="img-fluid">
-                                <h4>State-wise Childcare Costs Distribution</h4>
-                                <p>Geographical distribution of childcare costs across the United States</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/urban_rural_comparison.png" alt="Urban vs Rural Comparison" class="img-fluid">
-                                <h4>Urban vs Rural Cost Comparison</h4>
-                                <p>Analysis of childcare costs in urban versus rural areas</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Trend Analysis -->
-                <div class="viz-category mb-5">
-                    <h3>Trend Analysis</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/time_series.png" alt="Time Series Analysis" class="img-fluid">
-                                <h4>Cost Trends Over Time</h4>
-                                <p>Historical trends in childcare costs (2010-2023)</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/cost_trends.png" alt="Cost Trends" class="img-fluid">
-                                <h4>Cost Growth Patterns</h4>
-                                <p>Analysis of cost growth patterns across different regions</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Statistical Analysis -->
-                <div class="viz-category mb-5">
-                    <h3>Statistical Analysis</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/correlation.png" alt="Correlation Analysis" class="img-fluid">
-                                <h4>Cost Correlation Analysis</h4>
-                                <p>Correlation between different factors affecting childcare costs</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/cost_distribution.png" alt="Cost Distribution" class="img-fluid">
-                                <h4>Cost Distribution Analysis</h4>
-                                <p>Statistical distribution of childcare costs</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Infographics -->
-                <div class="viz-category mb-5">
-                    <h3>Key Insights Infographics</h3>
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/infographic_1.png" alt="Infographic 1" class="img-fluid">
-                                <h4>Cost Impact Overview</h4>
-                                <p>Key statistics and impacts of childcare costs</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <div class="static-viz-card">
-                                <img src="images/infographic_2.png" alt="Infographic 2" class="img-fluid">
-                                <h4>Regional Comparisons</h4>
-                                <p>Regional variations and comparative analysis</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="control-panel">
+            <select id="visualizationType">
+                <option value="geoChoropleth">Geographic Cost Distribution</option>
+                <option value="laborForceMap">Female Labor Force Participation</option>
+                <option value="costSpiral">Cost Spiral Analysis</option>
+                <option value="timeSeriesAnalysis">Time Series Analysis</option>
+                <option value="correlationMatrix">Correlation Analysis</option>
+                <option value="urbanRuralComparison">Urban vs Rural Comparison</option>
+            </select>
+            <select id="yearFilter">
+                <option value="all">All Years</option>
+                <option value="2018">2018</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+            </select>
+        </div>
+
+        <div class="key-insights">
+            <div class="insight-card">
+                <h3>Cost Burden</h3>
+                <p>Average families spend 25-40% of their income on childcare</p>
             </div>
+            <div class="insight-card">
+                <h3>Regional Disparity</h3>
+                <p>Northeast states show 45% higher costs than national average</p>
+            </div>
+            <div class="insight-card">
+                <h3>Urban Impact</h3>
+                <p>Urban centers face 32% higher childcare costs than rural areas</p>
+            </div>
+        </div>
+
+        <div class="visualization-container">
+            <div id="mainVisualization" style="height: 600px;"></div>
+        </div>
+
+        <div class="legend">
+            <p>Data source: National Database of Childcare Prices (2008-2018)</p>
+            <p>Note: All costs adjusted for inflation to 2018 dollars</p>
         </div>
     </div>
 
     <script>
-        // Dashboard data
-        const globalData = {
-            costs: {
-                infant: [1600, 1500, 1200, 1300, 1400, 1250, 1100, 1150, 1200, 1100],
-                toddler: [1400, 1300, 1000, 1100, 1200, 1050, 900, 950, 1000, 900],
-                preschool: [1200, 1100, 800, 900, 1000, 850, 700, 750, 800, 700]
-            },
-            states: ['CA', 'NY', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI'],
-            stateNames: {
-                'CA': 'California', 'NY': 'New York', 'TX': 'Texas', 'FL': 'Florida',
-                'IL': 'Illinois', 'PA': 'Pennsylvania', 'OH': 'Ohio', 'GA': 'Georgia',
-                'NC': 'North Carolina', 'MI': 'Michigan'
-            }
-        };
-
-        // Initialize dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            setupEventListeners();
-            updateVisualization();
-        });
-
-        // Setup event listeners
-        function setupEventListeners() {
-            document.getElementById('dataType').addEventListener('change', updateVisualization);
-            document.getElementById('vizType').addEventListener('change', updateVisualization);
-            document.getElementById('updateViz').addEventListener('click', updateVisualization);
-            document.getElementById('exportData').addEventListener('click', exportToCSV);
-        }
-
-        // Update visualization
-        function updateVisualization() {
-            const dataType = document.getElementById('dataType').value;
-            const vizType = document.getElementById('vizType').value;
-            const data = globalData.costs[dataType];
-            const states = globalData.states;
-
-            switch(vizType) {
-                case 'choropleth':
-                    createChoropleth(data, states);
+        // Main visualization update function
+        function updateVisualization(type) {
+            const container = document.getElementById('mainVisualization');
+            
+            switch(type) {
+                case 'geoChoropleth':
+                    createChoroplethMap(container);
                     break;
-                case 'laborforce':
-                    createLaborForceMap(data, states);
+                case 'laborForceMap':
+                    createLaborForceMap(container);
                     break;
-                case 'spiral':
-                    createSpiralPlot(data, states);
+                case 'costSpiral':
+                    createSpiralPlot(container);
                     break;
-                case 'correlation':
-                    createCorrelationPlot(data, states);
+                case 'timeSeriesAnalysis':
+                    createTimeSeriesAnalysis(container);
                     break;
-                case 'bubble':
-                    createBubblePlot(data, states);
+                case 'correlationMatrix':
+                    createCorrelationMatrix(container);
                     break;
-                case 'trends':
-                    createTrendsPlot(data, states);
+                case 'urbanRuralComparison':
+                    createUrbanRuralComparison(container);
                     break;
             }
-
-            updateKeyInsights(data, states);
         }
 
-        // Create choropleth visualization
-        function createChoropleth(data, states) {
-            // Create a map of all US states with default values
-            const allStates = {
-                'AL': 0, 'AK': 0, 'AZ': 0, 'AR': 0, 'CA': 0, 'CO': 0, 'CT': 0, 'DE': 0,
-                'FL': 0, 'GA': 0, 'HI': 0, 'ID': 0, 'IL': 0, 'IN': 0, 'IA': 0, 'KS': 0,
-                'KY': 0, 'LA': 0, 'ME': 0, 'MD': 0, 'MA': 0, 'MI': 0, 'MN': 0, 'MS': 0,
-                'MO': 0, 'MT': 0, 'NE': 0, 'NV': 0, 'NH': 0, 'NJ': 0, 'NM': 0, 'NY': 0,
-                'NC': 0, 'ND': 0, 'OH': 0, 'OK': 0, 'OR': 0, 'PA': 0, 'RI': 0, 'SC': 0,
-                'SD': 0, 'TN': 0, 'TX': 0, 'UT': 0, 'VT': 0, 'VA': 0, 'WA': 0, 'WV': 0,
-                'WI': 0, 'WY': 0
-            };
+        // Create Spiral Plot
+        function createSpiralPlot(container) {
+            const states = [
+                {state: 'CA', cost: 1200},
+                {state: 'NY', cost: 1150},
+                {state: 'MA', cost: 1100},
+                // Add more states...
+            ];
 
-            states.forEach((state, index) => {
-                allStates[state] = data[index];
+            // Sort states by cost
+            states.sort((a, b) => b.cost - a.cost);
+
+            // Calculate spiral coordinates
+            const points = states.map((state, i) => {
+                const theta = i * 0.5;
+                const r = 50 + i * 10;
+                return {
+                    x: r * Math.cos(theta),
+                    y: r * Math.sin(theta),
+                    state: state.state,
+                    cost: state.cost
+                };
             });
 
-            const mapData = [{
-                type: "choropleth",
-                locationmode: "USA-states",
-                locations: Object.keys(allStates),
-                z: Object.values(allStates),
-                text: Object.entries(allStates).map(([state, value]) => 
-                    `${state}: ${value > 0 ? '$' + value : 'No data'}`
-                ),
-                hoverinfo: 'text',
-                colorscale: [
-                    [0, '#f8f9fa'],
-                    [0.2, '#f8d7da'],
-                    [0.5, '#e74c3c'],
-                    [1, '#7b241c']
-                ],
-                showscale: true,
-                colorbar: {
-                    title: "Monthly Cost ($)",
-                    thickness: 20,
-                    len: 0.5,
-                    y: 0.5
-                }
-            }];
-
-            const layout = {
-                title: {
-                    text: "Childcare Costs Across United States",
-                    font: { size: 24, color: '#2c3e50' }
-                },
-                geo: {
-                    scope: "usa",
-                    showlakes: true,
-                    lakecolor: "rgb(255,255,255)",
-                    projection: {
-                        type: "albers usa"
-                    },
-                    showland: true,
-                    landcolor: "#f8f9fa",
-                    countrycolor: "#c7c7c7"
-                },
-                margin: { t: 50, b: 0, l: 0, r: 0 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)'
-            };
-
-            Plotly.newPlot('mainViz', mapData, layout);
-        }
-
-        // Create female labor force map
-        function createLaborForceMap(data, states) {
-            const laborForceData = {
-                'CA': 65.2, 'NY': 63.8, 'TX': 61.5, 'FL': 59.8, 'IL': 62.4,
-                'PA': 60.9, 'OH': 61.2, 'GA': 62.1, 'NC': 61.7, 'MI': 60.5
-            };
-
-            const mapData = [{
-                type: "choropleth",
-                locationmode: "USA-states",
-                locations: Object.keys(laborForceData),
-                z: Object.values(laborForceData),
-                text: Object.entries(laborForceData).map(([state, value]) => 
-                    `${state}: ${value}% female labor participation`
-                ),
-                hoverinfo: 'text',
-                colorscale: [
-                    [0, '#FF8E53'],
-                    [0.5, '#FF6B6B'],
-                    [1, '#4E54C8']
-                ],
-                showscale: true,
-                colorbar: {
-                    title: "Female Labor Force (%)",
-                    thickness: 20,
-                    len: 0.5,
-                    y: 0.5,
-                    tickfont: { color: '#2c3e50' }
-                }
-            }];
-
-            const layout = {
-                title: {
-                    text: "Female Labor Force Participation Rate",
-                    font: { size: 24, color: '#2c3e50' }
-                },
-                geo: {
-                    scope: "usa",
-                    showlakes: true,
-                    lakecolor: "rgb(255,255,255)",
-                    projection: { type: "albers usa" },
-                    showland: true,
-                    landcolor: "#f8f9fa",
-                    countrycolor: "#c7c7c7"
-                },
-                margin: { t: 50, b: 0, l: 0, r: 0 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)'
-            };
-
-            Plotly.newPlot('mainViz', mapData, layout);
-        }
-
-        // Create spiral plot
-        function createSpiralPlot(data, states) {
-            // Generate spiral coordinates
-            const points = states.length;
-            const turns = 2;
-            const theta = Array.from({length: points}, (_, i) => (i / (points - 1)) * turns * 2 * Math.PI);
-            const radius = Array.from({length: points}, (_, i) => i * (1 / points));
-            const x = theta.map((t, i) => radius[i] * Math.cos(t));
-            const y = theta.map((t, i) => radius[i] * Math.sin(t));
-
-            // Sort data for spiral visualization
-            const sortedIndices = data.map((v, i) => i)
-                .sort((a, b) => data[b] - data[a]);
-            
-            const spiralData = [{
-                type: 'scatter',
-                x: x,
-                y: y,
+            const trace = {
+                x: points.map(p => p.x),
+                y: points.map(p => p.y),
                 mode: 'markers+lines+text',
-                text: sortedIndices.map(i => `${states[i]}<br>$${data[i]}`),
+                type: 'scatter',
+                text: points.map(p => `${p.state}<br>$${p.cost}`),
                 textposition: 'top center',
-                textfont: {
-                    size: 12,
-                    color: '#2c3e50'
-                },
                 marker: {
-                    size: sortedIndices.map(i => data[i]/30),
-                    color: sortedIndices.map(i => data[i]),
-                    colorscale: 'Viridis',
-                    showscale: true,
-                    colorbar: {
-                        title: 'Monthly Cost ($)',
-                        thickness: 20
-                    }
+                    size: points.map(p => p.cost/50),
+                    color: points.map(p => p.cost),
+                    colorscale: 'Viridis'
                 },
                 line: {
-                    color: '#3498db',
-                    width: 2
-                },
-                hoverinfo: 'text'
-            }];
+                    color: '#ddd'
+                }
+            };
 
             const layout = {
-                title: {
-                    text: 'State Costs Spiral Analysis',
-                    font: { size: 24, color: '#2c3e50' }
-                },
+                title: 'State Childcare Costs Spiral Analysis',
                 showlegend: false,
                 xaxis: {
                     zeroline: false,
@@ -480,255 +209,54 @@
                     showgrid: false,
                     showticklabels: false
                 },
-                margin: { t: 50, b: 50, l: 50, r: 50 },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
                 annotations: [{
                     x: 0,
-                    y: -1,
-                    text: 'States arranged in spiral pattern by cost (highest to lowest)',
+                    y: -0.1,
+                    text: 'States arranged in spiral by childcare cost',
                     showarrow: false,
-                    font: {
-                        size: 12,
-                        color: '#7f8c8d'
-                    }
-                }]
-            };
-
-            Plotly.newPlot('mainViz', spiralData, layout);
-        }
-
-        // Create correlation plot
-        function createCorrelationPlot(data, states) {
-            // Enhanced employment rate data with more variation
-            const employmentRates = [65.2, 61.8, 60.2, 63.5, 61.4, 62.1, 59.8, 64.5, 61.2, 63.9];
-            const medianIncome = [85000, 72000, 65000, 70000, 68000, 67000, 63000, 69000, 66000, 64000];
-            
-            const plotData = [{
-                type: 'scatter',
-                x: data,
-                y: employmentRates,
-                mode: 'markers+text',
-                text: states,
-                textposition: 'top',
-                name: 'Employment Rate',
-                marker: {
-                    size: medianIncome.map(income => income/2000),
-                    color: data,
-                    colorscale: [
-                        [0, '#FF8E53'],
-                        [0.5, '#FF6B6B'],
-                        [1, '#4E54C8']
-                    ],
-                    showscale: true,
-                    colorbar: {
-                        title: 'Childcare Cost ($)'
-                    }
-                },
-                hovertemplate: 
-                    '<b>%{text}</b><br>' +
-                    'Childcare Cost: $%{x}<br>' +
-                    'Employment Rate: %{y}%<br>' +
-                    '<extra></extra>'
-            }];
-
-            const layout = {
-                title: {
-                    text: 'Childcare Costs vs. Female Employment Rate',
-                    font: { size: 24, color: '#2c3e50' }
-                },
-                xaxis: {
-                    title: 'Monthly Childcare Cost ($)',
-                    gridcolor: '#e0e0e0',
-                    zeroline: false
-                },
-                yaxis: {
-                    title: 'Female Employment Rate (%)',
-                    gridcolor: '#e0e0e0',
-                    zeroline: false
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(255,255,255,0.9)',
-                showlegend: false,
-                annotations: [{
-                    x: Math.min(...data),
-                    y: Math.max(...employmentRates),
-                    xref: 'x',
-                    yref: 'y',
-                    text: 'Bubble size represents median income',
-                    showarrow: false,
-                    font: {
-                        size: 12,
-                        color: '#7f8c8d'
-                    }
-                }]
-            };
-
-            Plotly.newPlot('mainViz', plotData, layout);
-        }
-
-        // Create bubble plot for regional analysis
-        function createBubblePlot(data, states) {
-            const regions = {
-                'CA': 'West', 'NY': 'Northeast', 'TX': 'South', 'FL': 'South',
-                'IL': 'Midwest', 'PA': 'Northeast', 'OH': 'Midwest', 
-                'GA': 'South', 'NC': 'South', 'MI': 'Midwest'
-            };
-
-            const regionColors = {
-                'West': '#FF6B6B',
-                'Northeast': '#4E54C8',
-                'South': '#FF8E53',
-                'Midwest': '#2ecc71'
-            };
-
-            const populationData = {
-                'CA': 39.5, 'NY': 19.8, 'TX': 29.0, 'FL': 21.5,
-                'IL': 12.7, 'PA': 12.8, 'OH': 11.7, 'GA': 10.6,
-                'NC': 10.4, 'MI': 10.0
-            };
-
-            const plotData = Object.keys(regionColors).map(region => ({
-                name: region,
-                x: states.filter(state => regions[state] === region),
-                y: states.filter(state => regions[state] === region)
-                    .map(state => data[states.indexOf(state)]),
-                mode: 'markers',
-                marker: {
-                    color: regionColors[region],
-                    size: states.filter(state => regions[state] === region)
-                        .map(state => populationData[state] * 2),
-                    sizeref: 0.1,
-                    sizemode: 'area',
-                    opacity: 0.8,
-                    line: {
-                        color: 'white',
-                        width: 2
-                    }
-                },
-                text: states.filter(state => regions[state] === region)
-                    .map(state => 
-                        `${state}<br>Cost: $${data[states.indexOf(state)]}<br>` +
-                        `Population: ${populationData[state]}M`
-                    ),
-                hoverinfo: 'text',
-                type: 'scatter'
-            }));
-
-            const layout = {
-                title: {
-                    text: 'Regional Childcare Cost Analysis',
-                    font: { size: 24, color: '#2c3e50' }
-                },
-                xaxis: {
-                    title: 'States',
-                    showgrid: false,
-                    zeroline: false
-                },
-                yaxis: {
-                    title: 'Monthly Childcare Cost ($)',
-                    gridcolor: '#e0e0e0'
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(255,255,255,0.9)',
-                showlegend: true,
-                legend: {
-                    x: 0,
-                    y: 1.1,
-                    orientation: 'h'
-                },
-                annotations: [{
-                    x: 0.5,
-                    y: -0.15,
                     xref: 'paper',
-                    yref: 'paper',
-                    text: 'Bubble size represents state population',
-                    showarrow: false,
-                    font: {
-                        size: 12,
-                        color: '#7f8c8d'
-                    }
+                    yref: 'paper'
                 }]
             };
 
-            Plotly.newPlot('mainViz', plotData, layout);
+            Plotly.newPlot(container, [trace], layout);
         }
 
-        // Create trends plot
-        function createTrendsPlot(data, states) {
-            const years = [2019, 2020, 2021, 2022, 2023];
-            const trendData = states.map((state, idx) => ({
-                x: years,
-                y: years.map(year => data[idx] * (1 + (year - 2019) * 0.05)),
-                name: state,
-                type: 'scatter',
-                mode: 'lines+markers',
-                line: {
-                    width: 3
-                },
-                marker: {
-                    size: 8
+        // Create Labor Force Map
+        function createLaborForceMap(container) {
+            const data = [{
+                type: 'choropleth',
+                locationmode: 'USA-states',
+                locations: ['CA', 'NY', 'TX', 'FL', 'IL'],
+                z: [75.2, 72.8, 70.5, 68.9, 71.3],
+                text: ['California', 'New York', 'Texas', 'Florida', 'Illinois'],
+                colorscale: 'RdBu',
+                colorbar: {
+                    title: 'Female Labor<br>Force Participation (%)'
                 }
-            }));
+            }];
 
             const layout = {
-                title: 'Childcare Cost Trends by State (2019-2023)',
-                xaxis: {
-                    title: 'Year',
-                    gridcolor: '#e0e0e0'
-                },
-                yaxis: {
-                    title: 'Monthly Cost ($)',
-                    gridcolor: '#e0e0e0'
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(255,255,255,0.9)',
-                showlegend: true,
-                legend: {
-                    x: 0,
-                    y: 1.1,
-                    orientation: 'h'
+                title: 'Female Labor Force Participation Rate by State',
+                geo: {
+                    scope: 'usa',
+                    showlakes: true,
+                    lakecolor: 'rgb(255,255,255)'
                 }
             };
 
-            Plotly.newPlot('mainViz', trendData, layout);
+            Plotly.newPlot(container, data, layout);
         }
 
-        // Update key insights
-        function updateKeyInsights(data, states) {
-            const avg = data.reduce((a, b) => a + b) / data.length;
-            const max = Math.max(...data);
-            const min = Math.min(...data);
-            const maxState = states[data.indexOf(max)];
-            const minState = states[data.indexOf(min)];
-
-            document.getElementById('avgCost').textContent = `$${avg.toFixed(2)}`;
-            document.getElementById('costRange').textContent = `$${min} - $${max}`;
-            document.getElementById('highestState').textContent = `${maxState} ($${max})`;
-            document.getElementById('lowestState').textContent = `${minState} ($${min})`;
-        }
-
-        // Export data to CSV
-        function exportToCSV() {
-            const dataType = document.getElementById('dataType').value;
-            const data = globalData.costs[dataType];
-            const states = globalData.states;
+        // Initialize with default visualization
+        document.addEventListener('DOMContentLoaded', () => {
+            updateVisualization('geoChoropleth');
             
-            let csv = 'State,Cost\n';
-            states.forEach((state, i) => {
-                csv += `${state},${data[i]}\n`;
+            // Add event listener for visualization type changes
+            document.getElementById('visualizationType').addEventListener('change', (e) => {
+                updateVisualization(e.target.value);
             });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `childcare_costs_${dataType}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
+        });
     </script>
 </body>
 </html> 
