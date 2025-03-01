@@ -6,7 +6,7 @@
     <title>Complete U.S. Childcare Cost Analysis</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://via.placeholder.com/32/3498db/ffffff?text=CC">
+    <link rel="icon" type="image/png" href="images/childcare_costs_map.png">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,128 +20,210 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
         }
+        
         .dashboard-header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            background: linear-gradient(135deg, #1a5276, #3498db);
             color: white;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
+            padding: 40px 0;
+            margin-bottom: 30px;
+            border-bottom: 5px solid #f1c40f;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
         }
-        .card {
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .viz-container {
-            min-height: 400px;
-            padding: 15px;
-        }
-        .status-message {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .status-success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .status-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-        .info-box {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .control-panel {
-            background-color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        #pageLoadingOverlay {
-            position: fixed;
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
+            right: 0;
+            bottom: 0;
+            background: url('images/childcare_costs_map.png') center/cover;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .dashboard-header .content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            background-color: white;
+            padding: 0;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        
+        .card-header.bg-success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+        
+        .card-header.bg-warning {
+            background: linear-gradient(135deg, #f39c12, #f1c40f);
+        }
+        
+        .card-header.bg-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .viz-container {
+            min-height: 400px;
+            padding: 20px;
+        }
+        
+        .status-message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .info-box h6 {
+            color: #2c3e50;
+            margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            z-index: 9999;
         }
-        #pageLoadingOverlay .spinner-border {
-            width: 3rem;
-            height: 3rem;
+        
+        .info-box h6 i {
+            margin-right: 10px;
+            color: #3498db;
         }
-        #pageLoadingOverlay p {
-            margin-top: 1rem;
-            font-size: 1.2rem;
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
         }
-        #scriptLoadStatus {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            font-size: 12px;
-            z-index: 1000;
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        .debug-info {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: none;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            border: none;
+        }
+        
+        .form-select {
+            border-radius: 10px;
             padding: 10px;
-            margin-top: 20px;
-            font-size: 12px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 15px;
         }
+        
+        .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+            border-color: #3498db;
+        }
+        
         .static-image {
             max-width: 100%;
             height: auto;
-            margin: 10px 0;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 15px 0;
         }
-        .tab-content {
-            padding: 20px 0;
+        
+        .image-caption {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+            font-style: italic;
         }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
         .nav-tabs .nav-link {
-            color: #495057;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 5px;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s ease;
         }
+        
         .nav-tabs .nav-link.active {
-            font-weight: bold;
+            color: #3498db;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-bottom: 3px solid #3498db;
+        }
+        
+        .tab-content {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        #pageLoadingOverlay {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 247, 250, 0.95));
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-spinner .spinner-border {
             color: #3498db;
         }
-        .image-caption {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-align: center;
-            margin-top: 5px;
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                margin-bottom: 20px;
+            }
+            
+            .dashboard-header {
+                padding: 30px 0;
+            }
+            
+            .viz-container {
+                min-height: 300px;
+            }
         }
     </style>
 </head>
@@ -159,193 +241,162 @@
     
     <div class="container">
         <div class="dashboard-header">
-            <h1>Complete U.S. Childcare Cost Analysis</h1>
-            <p class="lead">Exploring childcare costs across the United States</p>
-            <img src="https://via.placeholder.com/150/3498db/ffffff?text=Childcare+Analysis" alt="Childcare Analysis Logo" class="img-fluid mt-2" style="max-width: 150px;">
+            <div class="content text-center">
+                <h1 class="display-4 mb-3">U.S. Childcare Cost Analysis</h1>
+                <p class="lead mb-0">Interactive Dashboard for Exploring Childcare Costs Across the United States</p>
+            </div>
         </div>
         
         <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Dashboard Controls</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="dataType" class="form-label">Data Type</label>
-                            <select class="form-select" id="dataType">
-                                <option value="infant">Infant Care Costs</option>
-                                <option value="toddler">Toddler Care Costs</option>
-                                <option value="preschool">Preschool Care Costs</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="vizType" class="form-label">Visualization Type</label>
-                            <select class="form-select" id="vizType">
-                                <option value="map">US Map</option>
-                                <option value="bar">Bar Chart</option>
-                                <option value="comparison">Cost Comparison</option>
-                                <option value="scatter">Cost vs. Burden</option>
-                            </select>
-                        </div>
-                        <button id="updateViz" class="btn btn-primary w-100">Update Visualization</button>
-                        <button id="exportData" class="btn btn-secondary w-100 mt-2">Export Data (CSV)</button>
-                        
-                        <div class="status-message mt-3" id="statusMessage"></div>
-                    </div>
-                </div>
+            <!-- Navigation Tabs -->
+            <div class="col-12 mb-4">
+                <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="visualizations-tab" data-bs-toggle="tab" data-bs-target="#visualizations" type="button" role="tab">
+                            <i class="fas fa-chart-bar"></i> Visualizations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="case-study-tab" data-bs-toggle="tab" data-bs-target="#case-study" type="button" role="tab">
+                            <i class="fas fa-file-alt"></i> Case Study
+                        </button>
+                    </li>
+                </ul>
                 
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="card-title mb-0">Key Insights</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="info-box">
-                            <h6><i class="fas fa-info-circle"></i> Average Monthly Cost</h6>
-                            <p id="avgCost">Loading...</p>
-                        </div>
-                        <div class="info-box">
-                            <h6><i class="fas fa-chart-line"></i> Cost Range</h6>
-                            <p id="costRange">Loading...</p>
-                        </div>
-                        <div class="info-box">
-                            <h6><i class="fas fa-map-marker-alt"></i> Highest Cost State</h6>
-                            <p id="highestState">Loading...</p>
-                        </div>
-                        <div class="info-box">
-                            <h6><i class="fas fa-map-marker-alt"></i> Lowest Cost State</h6>
-                            <p id="lowestState">Loading...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="card-title mb-0" id="vizTitle">U.S. Childcare Costs by State</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="viz-container" id="mainViz">
-                            <div class="loading-spinner">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="card-title mb-0">Static Visualizations</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="nav nav-tabs" id="staticVisualizationTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-content" type="button" role="tab" aria-controls="map-content" aria-selected="true">Map</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="state-costs-tab" data-bs-toggle="tab" data-bs-target="#state-costs-content" type="button" role="tab" aria-controls="state-costs-content" aria-selected="false">State Costs</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="violin-tab" data-bs-toggle="tab" data-bs-target="#violin-content" type="button" role="tab" aria-controls="violin-content" aria-selected="false">Violin Chart</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends-content" type="button" role="tab" aria-controls="trends-content" aria-selected="false">Trends</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="infographics-tab" data-bs-toggle="tab" data-bs-target="#infographics-content" type="button" role="tab" aria-controls="infographics-content" aria-selected="false">Infographics</button>
-                            </li>
-                        </ul>
-                        
-                        <div class="tab-content" id="staticVisualizationTabContent">
-                            <div class="tab-pane fade show active" id="map-content" role="tabpanel" aria-labelledby="map-tab">
-                                <div class="text-center">
-                                    <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Map+Image+Not+Available';">
-                                    <p class="image-caption">Childcare costs across the United States</p>
+                <div class="tab-content" id="dashboardTabsContent">
+                    <!-- Visualizations Tab -->
+                    <div class="tab-pane fade show active" id="visualizations" role="tabpanel">
+                        <div class="row">
+                            <!-- Map Visualization -->
+                            <div class="col-12 mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">U.S. Childcare Costs by State</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="costMap" class="viz-container"></div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="tab-pane fade" id="state-costs-content" role="tabpanel" aria-labelledby="state-costs-tab">
-                                <div class="text-center">
-                                    <img src="images/state_costs.png" alt="State Costs" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=State+Costs+Image+Not+Available';">
-                                    <p class="image-caption">Comparison of childcare costs by state</p>
+                            <!-- Cost Comparison Chart -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-header bg-success">
+                                        <h5 class="mb-0">Cost Comparison by Region</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="costComparison" class="viz-container"></div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="tab-pane fade" id="violin-content" role="tabpanel" aria-labelledby="violin-tab">
-                                <div class="text-center">
-                                    <img src="images/cost_distribution.png" alt="Cost Distribution (Violin Chart)" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Violin+Chart+Not+Available';">
-                                    <p class="image-caption">Distribution of childcare costs (Violin Chart)</p>
+                            <!-- Trend Analysis -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-header bg-info">
+                                        <h5 class="mb-0">Cost Trends Over Time</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="trendAnalysis" class="viz-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Case Study Tab -->
+                    <div class="tab-pane fade" id="case-study" role="tabpanel">
+                        <div class="case-study-content">
+                            <div class="case-study-header mb-4">
+                                <h2 class="text-center mb-3">U.S. Childcare Cost Analysis: A Comprehensive Case Study</h2>
+                                <p class="text-center text-muted">By Komal Shahid</p>
+                                <hr class="my-4">
+                            </div>
+                            
+                            <div class="case-study-section mb-4">
+                                <h3>Executive Summary</h3>
+                                <p>This case study examines the rising costs of childcare across the United States, analyzing regional variations, economic impacts, and potential solutions. Through detailed data analysis and visualization, we explore how childcare costs affect families and the broader economy.</p>
+                            </div>
+                            
+                            <div class="case-study-section mb-4">
+                                <h3>Key Findings</h3>
+                                <div class="info-box">
+                                    <ul>
+                                        <li>Average childcare costs vary significantly by state and region</li>
+                                        <li>Urban areas consistently show higher childcare costs</li>
+                                        <li>Childcare expenses represent a significant portion of household income</li>
+                                        <li>Quality of care correlates with cost in most regions</li>
+                                    </ul>
                                 </div>
                             </div>
                             
-                            <div class="tab-pane fade" id="trends-content" role="tabpanel" aria-labelledby="trends-tab">
-                                <div class="text-center">
-                                    <img src="images/cost_trends.png" alt="Cost Trends" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Trends+Image+Not+Available';">
-                                    <p class="image-caption">Childcare cost trends over time</p>
-                                    
-                                    <img src="images/time_series.png" alt="Time Series" class="static-image mt-4" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Time+Series+Image+Not+Available';">
-                                    <p class="image-caption">Time series analysis of childcare costs</p>
+                            <div class="case-study-section mb-4">
+                                <h3>Methodology</h3>
+                                <p>Our analysis combines data from multiple sources, including:</p>
+                                <div class="info-box">
+                                    <ul>
+                                        <li>U.S. Census Bureau demographic data</li>
+                                        <li>State-level childcare cost surveys</li>
+                                        <li>Economic indicators from the Bureau of Labor Statistics</li>
+                                        <li>Quality rating systems from state agencies</li>
+                                    </ul>
                                 </div>
                             </div>
                             
-                            <div class="tab-pane fade" id="infographics-content" role="tabpanel" aria-labelledby="infographics-tab">
+                            <div class="case-study-section mb-4">
+                                <h3>Data Visualization</h3>
                                 <div class="row">
-                                    <div class="col-md-6 text-center">
-                                        <img src="images/infographic_1.png" alt="Infographic 1" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Infographic+1+Not+Available';">
-                                        <p class="image-caption">Childcare cost infographic</p>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <img src="images/childcare_costs_map.png" alt="U.S. Childcare Costs Map" class="img-fluid mb-3">
+                                                <p class="image-caption">Geographic distribution of childcare costs across the United States</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6 text-center">
-                                        <img src="images/infographic_2.png" alt="Infographic 2" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Infographic+2+Not+Available';">
-                                        <p class="image-caption">Childcare cost infographic</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="row mt-4">
-                                    <div class="col-md-6 text-center">
-                                        <img src="images/social_media_1.png" alt="Social Media 1" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Social+Media+1+Not+Available';">
-                                        <p class="image-caption">Social media visualization</p>
-                                    </div>
-                                    <div class="col-md-6 text-center">
-                                        <img src="images/social_media_2.png" alt="Social Media 2" class="static-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/f8f9fa/6c757d?text=Social+Media+2+Not+Available';">
-                                        <p class="image-caption">Social media visualization</p>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <img src="images/cost_comparison.png" alt="Regional Cost Comparison" class="img-fluid mb-3">
+                                                <p class="image-caption">Comparative analysis of childcare costs by region</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="card-title mb-0">About This Dashboard</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>This comprehensive dashboard visualizes childcare costs across the United States. The data includes monthly costs for infant, toddler, and preschool care.</p>
-                        <p>Key features:</p>
-                        <ul>
-                            <li>Interactive map showing costs by state</li>
-                            <li>Bar chart comparison of costs</li>
-                            <li>Cost comparison across different care types</li>
-                            <li>Cost vs. family budget burden analysis</li>
-                            <li>Static visualizations including violin charts and infographics</li>
-                            <li>Key insights and statistics</li>
-                            <li>Data export functionality</li>
-                        </ul>
-                        
-                        <!-- Debug information section -->
-                        <div class="debug-info">
-                            <h6>Troubleshooting Information</h6>
-                            <p>If visualizations are not loading:</p>
-                            <ol>
-                                <li>Check your browser console for errors (F12 or right-click > Inspect > Console)</li>
-                                <li>Try the <a href="js-test.html">JavaScript Test Page</a> to verify script loading</li>
-                                <li>Try the <a href="image-test.html">Image Test Page</a> to verify image loading</li>
-                                <li>Clear your browser cache or try a different browser</li>
-                            </ol>
-                            <p>Environment: <span id="environment-info">Checking...</span></p>
+                            
+                            <div class="case-study-section mb-4">
+                                <h3>Recommendations</h3>
+                                <div class="info-box">
+                                    <ol>
+                                        <li>Implement state-level subsidies for low-income families</li>
+                                        <li>Develop tax incentives for employer-provided childcare</li>
+                                        <li>Increase funding for public childcare programs</li>
+                                        <li>Create standards for quality-cost ratio measurements</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div class="case-study-section mb-4">
+                                <h3>References</h3>
+                                <div class="info-box">
+                                    <ul>
+                                        <li>U.S. Census Bureau (2023). Childcare Arrangements Survey</li>
+                                        <li>Bureau of Labor Statistics (2023). Employment Characteristics of Families</li>
+                                        <li>Child Care Aware of America (2023). The US and the High Price of Child Care</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <a href="https://github.com/komalshahid786/DSC640/tree/main/final-project" class="btn btn-primary" target="_blank">
+                                    <i class="fab fa-github"></i> View on GitHub
+                                </a>
+                                <button class="btn btn-success" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Save as PDF
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
