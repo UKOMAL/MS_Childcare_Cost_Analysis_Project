@@ -6,7 +6,7 @@
     <title>Childcare Cost Analysis Dashboard</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="https://via.placeholder.com/32/3498db/ffffff?text=CC">
+    <link rel="icon" type="image/png" href="images/childcare_costs_map.png">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,162 +17,155 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f5f5f5;
-            flex-direction: column;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
         }
         .container {
             text-align: center;
             padding: 2rem;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            max-width: 1000px;
             width: 100%;
+            margin: 40px auto;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .header-image {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         h1 {
             color: #2c3e50;
             margin-bottom: 1.5rem;
+            font-weight: bold;
+            position: relative;
+            padding-bottom: 15px;
         }
-        p {
-            margin: 1rem 0;
-            color: #7f8c8d;
-        }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #3498db;
-            animation: spin 1s linear infinite;
-            margin: 1rem auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        a {
-            color: #3498db;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .links {
-            margin-top: 1.5rem;
-        }
-        .links a {
-            margin: 0 0.5rem;
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 3px;
         }
         .dashboard-options {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 20px;
+            margin-top: 30px;
         }
         .dashboard-option {
             background-color: white;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            width: 220px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            width: 280px;
             text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .dashboard-option:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
         .dashboard-option i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: #3498db;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .dashboard-option h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-        .dashboard-option p {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 15px;
-        }
-        .btn-primary {
-            background-color: #3498db;
-            border-color: #3498db;
-        }
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-        .btn-outline-secondary {
-            color: #6c757d;
-            border-color: #6c757d;
-        }
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            color: white;
-        }
-        .troubleshooting {
-            margin-top: 2rem;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            text-align: left;
-        }
-        .troubleshooting h2 {
             font-size: 1.3rem;
+            margin-bottom: 12px;
             color: #2c3e50;
         }
-        .troubleshooting ul {
-            padding-left: 20px;
+        .dashboard-option p {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
-        .troubleshooting li {
-            margin-bottom: 8px;
+        .btn {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .footer {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #6c757d;
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .featured-option {
-            border: 2px solid #28a745;
-            position: relative;
-            overflow: hidden;
+            border: 2px solid #2ecc71;
+            background: linear-gradient(135deg, #ffffff, #f9fff9);
         }
         .featured-option::before {
             content: "RECOMMENDED";
             position: absolute;
-            top: 10px;
-            right: -30px;
-            background-color: #28a745;
+            top: 15px;
+            right: -35px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
             color: white;
             font-size: 0.7rem;
-            padding: 2px 30px;
+            padding: 3px 35px;
             transform: rotate(45deg);
             font-weight: bold;
-        }
-        .featured-option i {
-            color: #28a745;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .alert {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #e8f6ff, #f0f9ff);
+            border: 1px solid #bde0ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .dashboard-option {
+                width: 100%;
+                max-width: 320px;
+            }
+            .container {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <img src="images/childcare_costs_map.png" alt="Childcare Costs Map" class="header-image">
         <h1>Childcare Cost Analysis Dashboard</h1>
         
-        <p>Welcome to the U.S. Childcare Cost Analysis Dashboard. This interactive tool allows you to explore childcare costs across the United States for different age groups.</p>
+        <p class="lead">Welcome to the U.S. Childcare Cost Analysis Dashboard. This interactive tool allows you to explore childcare costs across the United States for different age groups.</p>
         
         <div class="alert alert-info">
             <strong>New!</strong> We've created a comprehensive case study that presents our findings in a narrative format with static visualizations. This is our recommended way to explore the data.
@@ -183,58 +176,28 @@
                 <i class="fas fa-file-alt"></i>
                 <h3>Case Study</h3>
                 <p>Explore our findings in a narrative format with static visualizations and key insights.</p>
-                <a href="case-study.html" class="btn btn-success btn-sm">View Case Study</a>
+                <a href="case-study.html" class="btn btn-success">View Case Study</a>
             </div>
             
             <div class="dashboard-option">
                 <i class="fas fa-chart-line"></i>
                 <h3>New Dashboard</h3>
                 <p>Our latest dashboard with enhanced visualizations and improved features.</p>
-                <a href="new-dashboard.html" class="btn btn-primary btn-sm">Launch</a>
+                <a href="new-dashboard.html" class="btn btn-primary">Launch</a>
             </div>
             
             <div class="dashboard-option">
                 <i class="fas fa-chart-bar"></i>
                 <h3>Complete Dashboard</h3>
                 <p>Comprehensive dashboard with both interactive charts and static visualizations.</p>
-                <a href="complete-dashboard.html" class="btn btn-primary btn-sm">Launch</a>
+                <a href="complete-dashboard.html" class="btn btn-primary">Launch</a>
             </div>
-            
-            <div class="dashboard-option">
-                <i class="fas fa-bug"></i>
-                <h3>Debug Dashboard</h3>
-                <p>Dashboard with additional debugging information and tools.</p>
-                <a href="debug-dashboard.html" class="btn btn-outline-secondary btn-sm">Launch</a>
-            </div>
-        </div>
-        
-        <div class="troubleshooting">
-            <h2>Troubleshooting</h2>
-            <p>If you encounter issues with the dashboard:</p>
-            <ul>
-                <li>Try the <a href="js-test.html">JavaScript Test Page</a> to verify script loading</li>
-                <li>Check your browser console for error messages (F12 or right-click > Inspect > Console)</li>
-                <li>Try clearing your browser cache or using incognito/private mode</li>
-                <li>For local development, use a local server to avoid CORS issues</li>
-                <li><strong>Recommended:</strong> View the <a href="case-study.html">Case Study</a> instead, which uses static images and doesn't require JavaScript</li>
-            </ul>
         </div>
         
         <div class="footer">
-            <p>Created as part of DSC640 course at Bellevue University</p>
+            <p>Created by Komal Shahid</p>
+            <p>DSC640 Course at Bellevue University</p>
         </div>
     </div>
-    
-    <script>
-        // Check if the dashboard is being loaded from GitHub Pages
-        document.addEventListener('DOMContentLoaded', function() {
-            const isGitHubPages = window.location.hostname.includes('github.io');
-            if (isGitHubPages) {
-                console.log('Running on GitHub Pages');
-            } else {
-                console.log('Running locally or on another host');
-            }
-        });
-    </script>
 </body>
 </html> 
