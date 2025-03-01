@@ -1,9 +1,9 @@
 // Import visualization modules
-import { initMap, updateMap } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/map.js';
-import { initNetwork, updateNetwork } from 'https://ukomal.github.io/MS_Childcare_Cost_Analysis_Project/js/network.js';
+import { initMap, updateMap } from './map.js';
+import { initNetwork, updateNetwork } from './network.js';
 
 // Dashboard initialization and control logic
-document.addEventListener('DOMContentLoaded', async function() {
+async function initializeDashboard() {
     try {
         console.log('Initializing dashboard...');
         
@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log('Data loaded successfully');
         
         // Initialize visualizations
-        initMap(data);
-        initNetwork(data);
+        await Promise.all([
+            initMap(data),
+            initNetwork(data)
+        ]);
         
         // Load state data
         loadStates(data.states);
@@ -32,12 +34,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Event listeners for controls
         setupEventListeners(data);
         
+        // Update initial visualizations
+        updateVisualizations(data);
+        
         console.log('Dashboard initialization complete');
     } catch (error) {
         console.error('Error initializing dashboard:', error);
         showError('Error initializing dashboard. Please check the console for details.');
     }
-});
+}
 
 // Setup event listeners
 function setupEventListeners(data) {
@@ -196,20 +201,12 @@ function showError(message, details = '') {
     }
 }
 
-// Initialize data and create visualizations
-async function initializeDashboard() {
-    const data = await loadData();
-    if (data) {
-        createVisualizations(data);
-    }
-}
-
 // Create all visualizations with the loaded data
 function createVisualizations(data) {
     try {
-        createMap(data);
-        createNetwork(data);
-        createTimeSeries(data);
+        initMap(data);
+        initNetwork(data);
+        updateVisualizations(data);
     } catch (error) {
         console.error('Error creating visualizations:', error);
         showError('Error creating visualizations. Please try again.');

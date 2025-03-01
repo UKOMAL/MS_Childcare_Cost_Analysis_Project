@@ -259,19 +259,31 @@
     
     <!-- Load JavaScript modules -->
     <script type="module">
-        import { initMap } from './js/map.js';
-        import { initNetwork } from './js/network.js';
         import { initializeDashboard } from './js/dashboard.js';
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+
+        async function initDashboard() {
             try {
-                console.log('Initializing dashboard...');
+                console.log('Starting dashboard initialization...');
                 await initializeDashboard();
-                console.log('Dashboard initialized successfully');
+                console.log('Dashboard initialization complete');
             } catch (error) {
-                console.error('Error initializing dashboard:', error);
+                console.error('Failed to initialize dashboard:', error);
+                document.getElementById('mainViz').innerHTML = `
+                    <div class="alert alert-danger">
+                        <h4>Dashboard Initialization Error</h4>
+                        <p>${error.message}</p>
+                        <p><small>Please check the browser console for more details.</small></p>
+                    </div>
+                `;
             }
-        });
+        }
     </script>
 </body>
 </html> 
