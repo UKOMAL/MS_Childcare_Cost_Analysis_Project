@@ -116,22 +116,44 @@ def save_visualizations():
     plt.close()
     print("Saved: time_series.png")
     
-    # 2. Geographic Distribution (Bar Chart)
+    # 2. Geographic Distribution (Choropleth)
     state_data = generate_state_data()
-    plt.figure(figsize=(15, 8))
-    colors = plt.cm.YlOrRd(np.linspace(0.2, 0.8, len(state_data)))
-    plt.bar(state_data['State'], state_data['Annual_Cost'], color=colors)
+    # Load US states shapefile from local file
+    states = gpd.read_file('data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp')
+    states = states.merge(state_data, left_on='STUSPS', right_on='State')
+    
+    fig, ax = plt.subplots(figsize=(15, 10))
+    states.plot(column='Annual_Cost', 
+               ax=ax,
+               legend=True,
+               legend_kwds={'label': 'Annual Cost ($)',
+                           'orientation': 'horizontal'},
+               missing_kwds={'color': 'lightgrey'},
+               cmap='YlOrRd')
+    ax.axis('off')
     plt.title('Childcare Costs by State', pad=20, fontsize=14)
-    plt.xlabel('State', fontsize=12)
-    plt.ylabel('Annual Cost ($)', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
     plt.savefig(img_dir / 'childcare_costs_map.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: childcare_costs_map.png")
     
-    # 3. Cost Distribution (Violin Plot)
+    # 3. Female Labor Force Participation
+    years = range(2008, 2019)
+    participation_rate = [65.5, 64.8, 64.2, 63.9, 63.7, 63.5, 63.2, 63.0, 62.8, 62.7, 62.5]
+    
+    plt.figure(figsize=(12, 8))
+    plt.plot(years, participation_rate, marker='o', linewidth=2, color='#FF69B4')
+    plt.fill_between(years, participation_rate, alpha=0.2, color='#FF69B4')
+    
+    plt.title('Female Labor Force Participation Rate (2008-2018)', pad=20, fontsize=14)
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Participation Rate (%)', fontsize=12)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'female_labor_force.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: female_labor_force.png")
+    
+    # 4. Cost Distribution (Violin Plot)
     plt.figure(figsize=(12, 8))
     sns.violinplot(data=data, x='Region', y='Cost', inner='box')
     plt.title('Distribution of Childcare Costs by Region', pad=20, fontsize=14)
@@ -144,7 +166,7 @@ def save_visualizations():
     plt.close()
     print("Saved: cost_distribution.png")
     
-    # 4. Correlation Analysis
+    # 5. Correlation Analysis
     corr_data = pd.DataFrame({
         'Cost': data['Cost'],
         'Year': data['Year'],
@@ -168,7 +190,7 @@ def save_visualizations():
     plt.close()
     print("Saved: correlation.png")
     
-    # 5. Cost Trends
+    # 6. Cost Trends
     plt.figure(figsize=(12, 8))
     yearly_avg = data.groupby('Year')['Cost'].mean()
     yearly_std = data.groupby('Year')['Cost'].std()
@@ -193,7 +215,7 @@ def save_visualizations():
     plt.close()
     print("Saved: cost_trends.png")
     
-    # 6. State Costs Spiral View
+    # 7. State Costs Spiral View
     theta = np.linspace(0, 4*np.pi, len(state_data))
     r = state_data['Annual_Cost'] / 1000
     
@@ -214,7 +236,7 @@ def save_visualizations():
     plt.close()
     print("Saved: state_costs.png")
     
-    # 7. Social Media Visualization 1
+    # 8. Social Media Visualization 1
     plt.figure(figsize=(10, 6))
     plt.bar(state_data['State'], state_data['Weekly_Cost'], color='#FF6B6B')
     plt.title('Weekly Salary Hours Needed for Childcare\nby State', pad=20, fontsize=14)
@@ -227,7 +249,7 @@ def save_visualizations():
     plt.close()
     print("Saved: social_media_1.png")
     
-    # 8. Social Media Visualization 2
+    # 9. Social Media Visualization 2
     plt.figure(figsize=(10, 6))
     for region in data['Region'].unique():
         region_data = data[data['Region'] == region]
