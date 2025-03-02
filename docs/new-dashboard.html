@@ -9,13 +9,13 @@
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
             color: #333;
             min-height: 100vh;
         }
         .dashboard-container {
-            max-width: 98%;
+            max-width: 95%;
             margin: 0 auto;
             padding: 20px;
             background: rgba(255, 255, 255, 0.95);
@@ -25,24 +25,14 @@
         }
         .header {
             text-align: center;
-            padding: 10px;
-            margin-bottom: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
             border-bottom: 2px solid #eee;
-        }
-        .header h1 {
-            margin: 0;
-            padding: 10px 0;
-            font-size: 2em;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 1.1em;
         }
         .control-panel {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
             margin-bottom: 20px;
             padding: 15px;
             background: #f8f9fa;
@@ -57,23 +47,22 @@
         }
         .visualization-container {
             margin: 20px auto;
-            padding: 10px;
+            padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 98%;
-            height: 75vh;
-            min-height: 600px;
-            max-width: none;
+            width: 95%;
+            height: 70vh;
+            min-height: 500px;
+            max-width: 2000px;
             position: relative;
             overflow: hidden;
         }
         .key-insights {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-            padding: 0 10px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
         }
         .insight-card {
             padding: 20px;
@@ -118,22 +107,12 @@
             display: inline-block !important;
         }
         .loading-spinner {
-            display: none;
+            display: flex;
             justify-content: center;
             align-items: center;
             height: 100%;
             font-size: 1.2em;
             color: #666;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            z-index: 1000;
-        }
-        .loading-spinner.visible {
-            display: flex;
         }
         .error {
             color: #e74c3c;
@@ -141,23 +120,7 @@
             padding: 20px;
             font-size: 1.2em;
         }
-        @media (min-width: 1600px) {
-            .dashboard-container {
-                max-width: 99%;
-            }
-            .visualization-container {
-                width: 99%;
-                height: 80vh;
-            }
-            .key-insights {
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            }
-        }
         @media (max-width: 768px) {
-            .dashboard-container {
-                max-width: 100%;
-                padding: 10px;
-            }
             .control-panel {
                 flex-direction: column;
                 gap: 10px;
@@ -165,10 +128,6 @@
             .year-filter {
                 margin-left: 0;
                 width: 250px;
-            }
-            .visualization-container {
-                height: 60vh;
-                min-height: 400px;
             }
         }
     </style>
@@ -197,11 +156,15 @@
 
         <div class="control-panel">
             <select id="visualizationType" class="form-control" onchange="updateYearFilterVisibility()">
-                <option value="geoChoropleth">State Cost Distribution</option>
-                <option value="timeSeriesAnalysis">Cost Trends Over Time</option>
-                <option value="workingParentsBurden">Working Parents Burden</option>
-                <option value="costDistribution">Cost Distribution Analysis</option>
+                <option value="geoChoropleth">Cost Distribution Map</option>
+                <option value="laborForceMap">Female Labor Force Map</option>
+                <option value="timeSeriesAnalysis">Time Series Analysis</option>
+                <option value="costDistribution">Cost Distribution</option>
+                <option value="violinPlot">Cost Distribution (Violin Plot)</option>
                 <option value="correlation">Correlation Analysis</option>
+                <option value="spiralPlot">Cost Evolution (Spiral)</option>
+                <option value="costTrends">State Cost Trends</option>
+                <option value="socialMedia">Social Media Impact</option>
             </select>
             <select id="yearFilter" class="year-filter">
                 <option value="2018">2018 (Most Recent)</option>
@@ -209,15 +172,17 @@
                 <option value="2016">2016</option>
                 <option value="2015">2015</option>
                 <option value="2014">2014</option>
+                <option value="2013">2013</option>
                 <option value="2012">2012</option>
+                <option value="2011">2011</option>
                 <option value="2010">2010</option>
+                <option value="2009">2009</option>
                 <option value="2008">2008 (Earliest)</option>
             </select>
         </div>
 
         <div class="visualization-container">
             <div id="mainVisualization"></div>
-            <div class="loading-spinner">Loading visualization...</div>
         </div>
 
         <div class="legend">
@@ -232,15 +197,6 @@
             const visualTypeSelect = document.getElementById('visualizationType');
             const yearFilter = document.getElementById('yearFilter');
             const container = document.getElementById('mainVisualization');
-            const loadingSpinner = document.querySelector('.loading-spinner');
-            
-            function showLoading() {
-                loadingSpinner.classList.add('visible');
-            }
-            
-            function hideLoading() {
-                loadingSpinner.classList.remove('visible');
-            }
             
             function updateYearFilterVisibility() {
                 if (timeBasedVisualizations.includes(visualTypeSelect.value)) {
@@ -251,22 +207,18 @@
             }
             
             visualTypeSelect.addEventListener('change', function() {
-                showLoading();
                 updateYearFilterVisibility();
                 updateVisualization();
-                setTimeout(hideLoading, 500);
             });
             
             yearFilter.addEventListener('change', function() {
-                showLoading();
                 updateVisualization();
-                setTimeout(hideLoading, 500);
             });
             
             // Initial setup
             updateYearFilterVisibility();
             updateVisualization();
-            
+
             // Add ResizeObserver to handle container resizing
             if (container) {
                 const resizeObserver = new ResizeObserver(entries => {
