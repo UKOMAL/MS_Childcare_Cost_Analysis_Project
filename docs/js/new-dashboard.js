@@ -10,7 +10,7 @@ const DASHBOARD_DATA = {
     states: ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"],
     costs: {
         2018: {
-            infant: [151.23, 78.62, 196.15, 141.92, 303.58, 242.31, 303.58, 196.15, 175.38, 168.46, 196.15, 151.23, 242.31, 196.15, 175.38, 175.38, 141.92, 141.92, 196.15, 303.58, 303.58, 196.15, 303.58, 114.08, 168.46, 168.46, 175.38, 196.15, 242.31, 242.31, 168.46, 303.58, 196.15, 175.38, 168.46, 141.92, 242.31, 196.15, 242.31, 141.92, 141.92, 141.92, 175.38, 168.46, 242.31, 242.31, 303.58, 141.92, 242.31, 168.46, 303.58],
+        infant: [151.23, 78.62, 196.15, 141.92, 303.58, 242.31, 303.58, 196.15, 175.38, 168.46, 196.15, 151.23, 242.31, 196.15, 175.38, 175.38, 141.92, 141.92, 196.15, 303.58, 303.58, 196.15, 303.58, 114.08, 168.46, 168.46, 175.38, 196.15, 242.31, 242.31, 168.46, 303.58, 196.15, 175.38, 168.46, 141.92, 242.31, 196.15, 242.31, 141.92, 141.92, 141.92, 175.38, 168.46, 242.31, 242.31, 303.58, 141.92, 242.31, 168.46, 303.58],
             toddler: [134.42, 69.88, 174.31, 126.15, 269.85, 215.38, 269.85, 174.31, 155.88, 149.73, 174.31, 134.42, 215.38, 174.31, 155.88, 155.88, 126.15, 126.15, 174.31, 269.85, 269.85, 174.31, 269.85, 101.40, 149.73, 149.73, 155.88, 169.08, 208.92, 208.92, 145.24, 261.75, 169.08, 151.20, 145.24, 122.37, 208.92, 169.08, 208.92, 122.37, 122.37, 122.37, 151.20, 145.24, 208.92, 208.92, 261.75, 122.37, 208.92, 145.24, 261.75],
             preschool: [117.62, 61.15, 152.52, 110.38, 236.12, 188.46, 236.12, 152.52, 136.40, 131.02, 152.52, 117.62, 188.46, 152.52, 136.40, 136.40, 110.38, 110.38, 152.52, 236.12, 236.12, 152.52, 236.12, 88.73, 131.02, 131.02, 136.40, 152.52, 188.46, 188.46, 131.02, 236.12, 152.52, 136.40, 131.02, 110.38, 188.46, 152.52, 188.46, 110.38, 110.38, 110.38, 136.40, 131.02, 188.46, 188.46, 236.12, 107.07, 188.46, 131.02, 236.12]
         },
@@ -52,9 +52,9 @@ const DASHBOARD_DATA = {
     },
     metrics: {
         2018: {
-            annual_cost: [7864.0, 4088.0, 10200.0, 7380.0, 15792.0, 12600.0, 15792.0, 10200.0, 9120.0, 8760.0, 10200.0, 7864.0, 12600.0, 10200.0, 9120.0, 9120.0, 7380.0, 7380.0, 10200.0, 15792.0, 15792.0, 10200.0, 15792.0, 5932.0, 8760.0, 8760.0, 9120.0, 10200.0, 12600.0, 12600.0, 8760.0, 15792.0, 10200.0, 9120.0, 8760.0, 7380.0, 12600.0, 10200.0, 12600.0, 7380.0, 7380.0, 7380.0, 9120.0, 8760.0, 12600.0, 12600.0, 15792.0, 7380.0, 12600.0, 8760.0, 15792.0],
-            cost_burden: [0.14, 0.06, 0.17, 0.15, 0.21, 0.16, 0.18, 0.14, 0.16, 0.15, 0.14, 0.15, 0.17, 0.17, 0.15, 0.15, 0.16, 0.15, 0.19, 0.18, 0.19, 0.17, 0.19, 0.14, 0.15, 0.17, 0.15, 0.16, 0.16, 0.16, 0.17, 0.21, 0.17, 0.14, 0.16, 0.15, 0.19, 0.17, 0.19, 0.15, 0.14, 0.15, 0.15, 0.14, 0.19, 0.15, 0.19, 0.16, 0.18, 0.15, 0.21],
-            working_parent_ratio: [0.65, 0.71, 0.62, 0.64, 0.64, 0.68, 0.72, 0.71, 0.63, 0.67, 0.65, 0.65, 0.69, 0.68, 0.74, 0.71, 0.65, 0.64, 0.71, 0.71, 0.71, 0.68, 0.76, 0.64, 0.71, 0.69, 0.73, 0.67, 0.73, 0.68, 0.61, 0.65, 0.68, 0.76, 0.69, 0.65, 0.65, 0.68, 0.72, 0.67, 0.74, 0.66, 0.64, 0.65, 0.74, 0.68, 0.65, 0.61, 0.73, 0.71, 0.71]
+        annual_cost: [7864.0, 4088.0, 10200.0, 7380.0, 15792.0, 12600.0, 15792.0, 10200.0, 9120.0, 8760.0, 10200.0, 7864.0, 12600.0, 10200.0, 9120.0, 9120.0, 7380.0, 7380.0, 10200.0, 15792.0, 15792.0, 10200.0, 15792.0, 5932.0, 8760.0, 8760.0, 9120.0, 10200.0, 12600.0, 12600.0, 8760.0, 15792.0, 10200.0, 9120.0, 8760.0, 7380.0, 12600.0, 10200.0, 12600.0, 7380.0, 7380.0, 7380.0, 9120.0, 8760.0, 12600.0, 12600.0, 15792.0, 7380.0, 12600.0, 8760.0, 15792.0],
+        cost_burden: [0.14, 0.06, 0.17, 0.15, 0.21, 0.16, 0.18, 0.14, 0.16, 0.15, 0.14, 0.15, 0.17, 0.17, 0.15, 0.15, 0.16, 0.15, 0.19, 0.18, 0.19, 0.17, 0.19, 0.14, 0.15, 0.17, 0.15, 0.16, 0.16, 0.16, 0.17, 0.21, 0.17, 0.14, 0.16, 0.15, 0.19, 0.17, 0.19, 0.15, 0.14, 0.15, 0.15, 0.14, 0.19, 0.15, 0.19, 0.16, 0.18, 0.15, 0.21],
+        working_parent_ratio: [0.65, 0.71, 0.62, 0.64, 0.64, 0.68, 0.72, 0.71, 0.63, 0.67, 0.65, 0.65, 0.69, 0.68, 0.74, 0.71, 0.65, 0.64, 0.71, 0.71, 0.71, 0.68, 0.76, 0.64, 0.71, 0.69, 0.73, 0.67, 0.73, 0.68, 0.61, 0.65, 0.68, 0.76, 0.69, 0.65, 0.65, 0.68, 0.72, 0.67, 0.74, 0.66, 0.64, 0.65, 0.74, 0.68, 0.65, 0.61, 0.73, 0.71, 0.71]
         },
         2017: {
             annual_cost: [7636.2, 3965.4, 9894.0, 7158.6, 15318.2, 12222.0, 15318.2, 9894.0, 8846.4, 8497.2, 9894.0, 7636.2, 12222.0, 9894.0, 8846.4, 8846.4, 7158.6, 7158.6, 9894.0, 15318.2, 15318.2, 9894.0, 15318.2, 5754.0, 8497.2, 8497.2, 8846.4, 9894.0, 12222.0, 12222.0, 8497.2, 15318.2, 9894.0, 8846.4, 8497.2, 7158.6, 12222.0, 9894.0, 12222.0, 7158.6, 7158.6, 7158.6, 8846.4, 8497.2, 12222.0, 12222.0, 15318.2, 7158.6, 12222.0, 8497.2, 15318.2],
@@ -190,63 +190,39 @@ function getDataTypeLabel(dataType) {
  * Create US map visualization
  */
 function createHeatMap(container, year, baseLayout) {
-    const metrics = DASHBOARD_DATA.metrics[year];
-    const locations = DASHBOARD_DATA.states;
-    const z = metrics.annual_cost;
-    
-    const text = locations.map((state, i) => {
-        const cost = z[i];
-        return `<b>${STATE_NAMES[state]}</b><br>` +
-               `Annual Cost: $${cost.toLocaleString()}`;
-    });
-    
     const data = [{
         type: 'choropleth',
         locationmode: 'USA-states',
-        locations: locations,
-        z: z,
-        text: text,
+        locations: DASHBOARD_DATA.states,
+        z: DASHBOARD_DATA.costs[year].infant,
+        text: DASHBOARD_DATA.states.map((state, i) => 
+            `${STATE_NAMES[state]}<br>` +
+            `Monthly Cost: $${DASHBOARD_DATA.costs[year].infant[i].toFixed(2)}<br>` +
+            `Cost Burden: ${(DASHBOARD_DATA.metrics[year].cost_burden[i] * 100).toFixed(1)}%<br>` +
+            `Working Parents: ${(DASHBOARD_DATA.metrics[year].working_parent_ratio[i] * 100).toFixed(1)}%`
+        ),
         hoverinfo: 'text',
         colorscale: 'Viridis',
         colorbar: {
-            title: 'Annual Cost ($)',
-            thickness: 20,
-            tickformat: '$,.0f'
-        },
-        marker: {
-            line: {
-                color: 'rgb(255,255,255)',
-                width: 2
-            }
+            title: 'Monthly Cost ($)',
+            thickness: 20
         }
     }];
-    
+
     const layout = {
         ...baseLayout,
-        title: {
-            text: `Average Childcare Costs by State (${year})`,
-            font: { size: 24 }
-        },
+        title: 'Childcare Cost Distribution by State',
         geo: {
             scope: 'usa',
             showlakes: true,
-            lakecolor: 'rgb(255,255,255)',
-            projection: {
-                type: 'albers usa'
-            }
-        },
-        margin: {
-            l: 0,
-            r: 0,
-            t: 50,
-            b: 0
+            lakecolor: 'rgb(255,255,255)'
         }
     };
-    
+
     Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating heat map:', err);
-            container.innerHTML = '<div class="error">Error creating heat map visualization</div>';
+            container.innerHTML = '<div class="error">Error creating cost distribution map</div>';
         });
 }
 
@@ -768,7 +744,7 @@ function createSocialMediaImpact(container, baseLayout) {
                 .reduce((sum, d) => sum + d.Value, 0) / 12;
         });
     });
-
+    
     const trace2 = {
         type: 'heatmap',
         x: metrics,
@@ -840,7 +816,7 @@ function createCostDistribution(container, baseLayout) {
     const mean = costs.reduce((a, b) => a + b) / costs.length;
     const sortedCosts = [...costs].sort((a, b) => a - b);
     const median = sortedCosts[Math.floor(sortedCosts.length / 2)];
-
+    
     const layout = {
         ...baseLayout,
         title: 'Distribution of Childcare Costs Across States',
@@ -964,7 +940,7 @@ function createCostTrends(container, year, baseLayout) {
                       'Current Cost: $%{x:,.0f}<br>' +
                       'Std Dev: $%{error_x.array:,.0f}<extra></extra>'
     };
-
+    
     const layout = {
         ...baseLayout,
         title: {
@@ -1003,32 +979,62 @@ function createCostTrends(container, year, baseLayout) {
  * Update visualization based on user selection
  */
 function updateVisualization() {
-    const container = document.getElementById('visualization');
-    const visualizationType = document.getElementById('visualizationType').value;
-    const selectedYear = document.getElementById('yearFilter').value;
+    const container = document.getElementById('mainVisualization');
+    const visualType = document.getElementById('visualizationType').value;
+    const yearFilter = document.getElementById('yearFilter');
+    const selectedYear = yearFilter.value || '2018';
     
-    // Clear previous visualization
-    container.innerHTML = '';
+    if (!container) {
+        console.error('Visualization container not found!');
+        return;
+    }
     
-    // Base layout configuration
+    // Show loading state
+    container.innerHTML = '<div class="loading-spinner"><p>Loading visualization...</p></div>';
+    
+    // Calculate container dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 120;
+    const marginBottom = 20;
+    const marginSides = 40;
+    
+    container.style.width = `${viewportWidth - marginSides}px`;
+    container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
+    container.style.maxWidth = '2000px';
+    container.style.margin = '0 auto';
+    
     const baseLayout = {
-        margin: { t: 50, r: 50, b: 50, l: 50 },
-        font: { family: 'Arial, sans-serif' }
+        autosize: true,
+        margin: {
+            l: 60,
+            r: 30,
+            t: 50,
+            b: 60,
+            pad: 4
+        },
+        width: container.clientWidth,
+        height: container.clientHeight,
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: {
+            family: 'Arial, sans-serif'
+        }
     };
     
     try {
-        switch(visualizationType) {
+        switch(visualType) {
             case 'costMap':
-                createCostMap(container, baseLayout);
-                break;
+                createHeatMap(container, selectedYear, baseLayout);
+                    break;
             case 'laborForceMap':
-                createLaborForceMap(container, baseLayout);
-                break;
+                createLaborForceMap(container, selectedYear, baseLayout);
+                    break;
             case 'timeSeries':
-                createTimeSeries(container, baseLayout);
-                break;
+                createTimeSeries(container, selectedYear, baseLayout);
+                    break;
             case 'costTrends':
-                createCostTrends(container, baseLayout);
+                createCostTrends(container, selectedYear, baseLayout);
                 break;
             case 'violinPlot':
                 createViolinPlot(container, baseLayout);
@@ -1041,12 +1047,12 @@ function updateVisualization() {
                 break;
             case 'socialMedia':
                 createSocialMediaImpact(container, baseLayout);
-                break;
-            default:
+                    break;
+                default:
                 container.innerHTML = '<div class="error">Invalid visualization type</div>';
-        }
-    } catch (error) {
-        console.error('Error updating visualization:', error);
+            }
+        } catch (error) {
+            console.error('Error updating visualization:', error);
         container.innerHTML = '<div class="error">Error creating visualization</div>';
     }
 }
@@ -1177,39 +1183,27 @@ function exportDataToCSV() {
  * Initialize dashboard
  */
 function initDashboard() {
-    console.log("Initializing dashboard...");
+    const visualTypeSelect = document.getElementById('visualizationType');
+    const yearFilter = document.getElementById('yearFilter');
     
-    // Check if Plotly is available
-    if (typeof Plotly === 'undefined') {
-        console.error("Plotly library not loaded!");
-        showStatus('Error: Plotly library not loaded', 'error');
-        return;
+    function updateYearFilterVisibility() {
+        if (timeBasedVisualizations.includes(visualTypeSelect.value)) {
+            yearFilter.classList.add('visible');
+        } else {
+            yearFilter.classList.remove('visible');
+        }
     }
     
-    console.log("Plotly is available, setting up event listeners...");
-    
-    // Set up event listeners
-    const updateBtn = document.getElementById('updateViz');
-    if (!updateBtn) {
-        console.error("Update button not found!");
-        return;
-    }
-    updateBtn.addEventListener('click', updateVisualization);
-    
-    // Add export button event listener if it exists
-    const exportBtn = document.getElementById('exportData');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportDataToCSV);
-    } else {
-        console.warn("Export button not found!");
-    }
-    
-    // Initial visualization
-    console.log("Starting initial visualization...");
+    visualTypeSelect.addEventListener('change', function() {
+        updateYearFilterVisibility();
     updateVisualization();
+    });
     
-    showStatus('Dashboard initialized successfully', 'success');
-    console.log("Dashboard initialization complete!");
+    yearFilter.addEventListener('change', updateVisualization);
+    
+    // Initial setup
+    updateYearFilterVisibility();
+    updateVisualization();
 }
 
 // Initialize when DOM is loaded
@@ -1221,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("Error initializing dashboard:", error);
         showStatus('Error initializing dashboard: ' + error.message, 'error');
     }
-});
+}); 
 
 // Update window resize handler
 window.addEventListener('resize', () => {
