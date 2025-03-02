@@ -7,33 +7,81 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
-            color: #333;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
+
         .dashboard-container {
-            max-width: 95%;
+            width: 100%;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.95);
+            background: white;
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            overflow-x: hidden;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            box-sizing: border-box;
         }
+
         .header {
             text-align: center;
-            padding: 15px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #eee;
+            padding: 10px;
         }
+
+        h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .key-insights {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .insight-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .visualization-container {
+            width: 100%;
+            height: auto;
+            min-height: 400px;
+            margin: 15px 0;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mainVisualization {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #mainVisualization img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
         .control-panel {
             display: flex;
             justify-content: space-between;
@@ -41,103 +89,26 @@
             margin-bottom: 15px;
             padding: 10px;
             background: #f8f9fa;
-            border-radius: 10px;
-        }
-        .visualization-container {
-            margin: 15px auto;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 90%;
-            max-width: 1200px;
-            min-height: 400px;
-            height: auto;
-            position: relative;
-            overflow: visible;
-        }
-        .key-insights {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-        .insight-card {
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .legend {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-            padding: 5px;
-        }
-        #mainVisualization {
-            position: relative;
-            width: 100%;
-            min-height: 400px;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        #mainVisualization img,
-        #mainVisualization .js-plotly-plot {
-            max-width: 100%;
-            max-height: 600px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-        
-        #mainVisualization > div {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border-radius: 8px;
         }
 
-        /* Grid layout for split visualizations */
-        #mainVisualization div[style*="grid"] {
-            width: 100%;
-            height: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            min-width: 200px;
         }
 
-        #mainVisualization div[style*="grid"] img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        /* Split visualization layout */
-        .split-visualization {
-            width: 100%;
-            min-height: 400px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            padding: 10px;
-        }
-
-        .split-visualization img {
-            width: 100%;
-            height: auto;
-            max-height: 500px;
-            object-fit: contain;
-        }
-
-        .year-filter {
-            display: none;  /* Hidden by default, shown for interactive charts */
+        @media (max-width: 768px) {
+            .key-insights {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -145,37 +116,13 @@
     <div class="dashboard-container">
         <div class="header">
             <h1>U.S. Childcare Cost Analysis Dashboard (2008-2018)</h1>
-            <p>Exploring the Economic Impact of Childcare Costs Across America Using the National Database of Childcare Prices</p>
-        </div>
-
-        <div class="control-panel">
-            <select id="visualizationType">
-                <option value="geoChoropleth">Geographic Cost Distribution</option>
-                <option value="laborForceMap">Female Labor Force by State</option>
-                <option value="timeSeriesAnalysis">Time Series Analysis (2008-2018)</option>
-                <option value="costSpiral">Cost Evolution (2008-2018)</option>
-                <option value="correlation">Correlation Analysis</option>
-                <option value="socialMedia">Social Media Impact</option>
-            </select>
-            <select id="yearFilter" class="year-filter">
-                <option value="2018">2018 (Most Recent)</option>
-                <option value="2017">2017</option>
-                <option value="2016">2016</option>
-                <option value="2015">2015</option>
-                <option value="2014">2014</option>
-                <option value="2013">2013</option>
-                <option value="2012">2012</option>
-                <option value="2011">2011</option>
-                <option value="2010">2010</option>
-                <option value="2009">2009</option>
-                <option value="2008">2008 (Earliest)</option>
-            </select>
+            <p class="subtitle">Exploring the Economic Impact of Childcare Costs Across America Using the National Database of Childcare Prices</p>
         </div>
 
         <div class="key-insights">
             <div class="insight-card">
                 <h3>Cost Burden</h3>
-                <p>Average families spend between $11,000 to $21,500 annually on childcare</p>
+                <p>Average families spend between $11,000 to $21,000 annually on childcare</p>
             </div>
             <div class="insight-card">
                 <h3>Regional Disparity</h3>
@@ -187,13 +134,24 @@
             </div>
         </div>
 
-        <div class="visualization-container">
-            <div id="mainVisualization"></div>
+        <div class="control-panel">
+            <select id="yearSelect">
+                <option value="2018">2018</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+                <option value="2015">2015</option>
+                <option value="2014">2014</option>
+                <option value="2013">2013</option>
+                <option value="2012">2012</option>
+                <option value="2011">2011</option>
+                <option value="2010">2010</option>
+                <option value="2009">2009</option>
+                <option value="2008">2008</option>
+            </select>
         </div>
 
-        <div class="legend">
-            <p>Data source: National Database of Childcare Prices (2008-2018)</p>
-            <p>Note: All costs adjusted for inflation to 2018 dollars</p>
+        <div class="visualization-container">
+            <div id="mainVisualization"></div>
         </div>
     </div>
 
