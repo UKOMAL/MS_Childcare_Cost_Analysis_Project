@@ -25,7 +25,6 @@ Thumbs.db
 *.swo
 
 # Project specific
-milestones/
 output/
 figures/
 .env
