@@ -25,7 +25,7 @@ const VISUALIZATION_TYPES = {
 const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
 
 // Define which visualizations are interactive vs static images
-const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot'];
+const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'socialMedia'];
 
 // Map visualization types to their image files
 const visualizationImages = {
@@ -49,7 +49,7 @@ const chartColors = {
 // Define common chart font settings
 const chartFont = {
     family: 'Arial, sans-serif',
-    size: 14,
+    size: 18,
     color: '#333'
 };
 
@@ -57,7 +57,7 @@ const chartFont = {
 const chartTitle = {
     font: {
         family: 'Arial, sans-serif',
-        size: 20,
+        size: 26,
         color: '#4E54C8',
         weight: 'bold'
     },
@@ -79,6 +79,7 @@ function showStatus(message, isError = false) {
     const statusElement = document.createElement('div');
     statusElement.className = isError ? 'error' : 'loading-spinner';
     statusElement.textContent = message;
+    statusElement.style.fontSize = '1.5em';
     
     container.appendChild(statusElement);
 }
@@ -167,13 +168,13 @@ function createHeatMap(data, year) {
                 text: 'Cost to Income Ratio',
                 font: {
                     family: chartFont.family,
-                    size: 16,
+                    size: 20,
                     color: chartColors.primary
                 }
             },
             tickfont: {
                 family: chartFont.family,
-                size: 14,
+                size: 18,
                 color: chartColors.text
             }
         },
@@ -402,12 +403,12 @@ function displayStaticVisualization(visualizationType) {
         img.style.margin = '0 auto';
         img.onerror = function() {
             console.error(`Failed to load image: ${imagePath}`);
-            container.innerHTML = `<div class="error">Failed to load visualization image: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
+            container.innerHTML = `<div class="error" style="font-size: 1.5em;">Failed to load visualization image: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
         };
         container.appendChild(img);
     } else {
         console.error(`No image path defined for visualization type: ${visualizationType}`);
-        container.innerHTML = `<div class="error">Visualization not available: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
+        container.innerHTML = `<div class="error" style="font-size: 1.5em;">Visualization not available: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
     }
 }
 
@@ -552,7 +553,7 @@ window.addEventListener('resize', () => {
         
         // Only resize Plotly plots, not static images
         const visualType = document.getElementById('visualizationType').value;
-        if (!staticVisualizations.includes(visualType) && visualType !== 'socialMedia') {
+        if (!staticVisualizations.includes(visualType)) {
             Plotly.Plots.resize(container);
         }
     }
