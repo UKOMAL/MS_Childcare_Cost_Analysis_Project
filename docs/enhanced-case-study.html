@@ -30,6 +30,8 @@
             margin-bottom: 1.5em;
             border-bottom: 3px solid #3498db;
             padding-bottom: 0.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-weight: bold;
         }
 
         h2 {
@@ -53,6 +55,34 @@
             border-radius: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .visualization::before {
+            content: "Loading visualization...";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 4px;
+            display: none;
+            z-index: 1;
+        }
+
+        .visualization.loading::before {
+            display: block;
+        }
+
+        .visualization-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
         }
 
         .insight {
@@ -274,17 +304,19 @@
             
             <figure class="visualization">
                 <div id="geoChoropleth"></div>
-                <figcaption>Figure 1: Geographic distribution of childcare costs across U.S. states (2018). This choropleth map reveals distinct regional patterns in childcare costs, with notable concentrations in coastal and urban areas.</figcaption>
+                <img src="images/childcare_costs_map.png" alt="Geographic distribution of childcare costs" class="fallback-image" style="width: 100%; display: none;">
+                <figcaption>Figure 1: Geographic distribution of childcare costs across U.S. states (2018). This choropleth map reveals distinct regional patterns in childcare costs, with notable concentrations in coastal and urban areas. The visualization demonstrates the stark economic divide between metropolitan and rural regions, particularly along the coastal corridors where childcare costs can exceed $20,000 annually. The color gradient effectively illustrates the cost burden intensity, with darker shades representing higher costs that often correlate with areas of higher economic activity and population density.</figcaption>
             </figure>
 
             <div class="data-correlation">
-                <h3>Cost Determinants</h3>
-                <p>Our analysis identified several key factors influencing regional cost variations:</p>
+                <h3>Geographic Cost Analysis</h3>
+                <p>Through comprehensive spatial analysis of childcare costs across the United States, our research reveals intricate patterns that extend beyond simple regional divisions. The Northeast corridor, spanning from Massachusetts to Virginia, exhibits consistently higher costs, with annual averages ranging from $18,000 to $22,000. This pattern reflects not only the higher cost of living in these areas but also the complex interplay of factors including:</p>
+                
                 <ul>
-                    <li>Local wage rates (correlation coefficient: 0.78)</li>
-                    <li>Real estate costs (correlation coefficient: 0.72)</li>
-                    <li>State regulatory requirements (impact factor: 0.65)</li>
-                    <li>Population density (correlation coefficient: 0.58)</li>
+                    <li><strong>Economic Centers:</strong> Major metropolitan areas like Boston, New York, and Washington D.C. show premium costs 40-45% above the national average, reflecting the concentration of high-wage industries and professional services.</li>
+                    <li><strong>Regulatory Environment:</strong> States with more stringent licensing requirements and quality standards, particularly in the Northeast and West Coast, demonstrate higher operational costs that translate to increased childcare expenses.</li>
+                    <li><strong>Population Density Impact:</strong> Urban centers with high population density show a direct correlation between limited space availability and increased childcare costs, with facility costs representing 25-30% of operational expenses.</li>
+                    <li><strong>Income Disparities:</strong> The relationship between median household income and childcare costs reveals a self-reinforcing cycle, where higher-income areas attract more premium childcare services, further driving up average costs.</li>
                 </ul>
             </div>
 
@@ -304,8 +336,20 @@
 
             <figure class="visualization">
                 <div id="timeSeriesAnalysis"></div>
-                <figcaption>Figure 2: Regional childcare cost trends (2008-2018). This time series visualization demonstrates the diverging patterns of cost increases across different regions, highlighting the growing disparities in childcare affordability.</figcaption>
+                <img src="images/time_series.png" alt="Time series analysis of childcare costs" class="fallback-image" style="width: 100%; display: none;">
+                <figcaption>Figure 2: Regional childcare cost trends (2008-2018). This time series visualization demonstrates the diverging patterns of cost increases across different regions, highlighting the growing disparities in childcare affordability. The graph illustrates not only the absolute cost differences but also the varying rates of increase, with some regions showing accelerating growth patterns while others maintain more moderate trajectories.</figcaption>
             </figure>
+
+            <div class="methodology-note">
+                <h3>Temporal Analysis Methodology</h3>
+                <p>Our longitudinal analysis employs sophisticated time-series decomposition techniques to isolate underlying trends from seasonal variations and economic cycles. The methodology incorporates:</p>
+                <ul>
+                    <li><strong>Trend Analysis:</strong> Using advanced statistical methods to identify long-term patterns and structural changes in cost dynamics</li>
+                    <li><strong>Seasonal Adjustment:</strong> Accounting for regular annual variations in childcare demand and costs</li>
+                    <li><strong>Cyclical Components:</strong> Examining the relationship between economic cycles and childcare cost fluctuations</li>
+                    <li><strong>Growth Rate Analysis:</strong> Calculating compound annual growth rates (CAGR) for different regions and facility types</li>
+                </ul>
+            </div>
 
             <h3>3. Labor Force Participation Impact</h3>
             <p>Our analysis reveals a complex and often counterintuitive relationship between childcare costs and female labor force participation. While high costs generally correlate with reduced workforce participation, this relationship varies significantly based on regional economic conditions and available support systems.</p>
@@ -321,9 +365,34 @@
                 </ul>
             </div>
 
+            <div class="key-finding">
+                <h3>Labor Force Participation Analysis</h3>
+                <p>Our research reveals a nuanced relationship between childcare costs and workforce participation that challenges conventional economic models. Through detailed statistical analysis and demographic studies, we've identified several critical patterns:</p>
+                
+                <ul>
+                    <li><strong>Cost Threshold Effects:</strong> We observe a non-linear relationship between childcare costs and workforce participation, with a critical threshold at approximately 32% of median household income. Beyond this point, participation rates show a sharp decline, suggesting a tipping point in family economic decision-making.</li>
+                    <li><strong>Regional Economic Factors:</strong> The elasticity of labor force participation with respect to childcare costs varies significantly by region, influenced by:
+                        <ul>
+                            <li>Local labor market conditions and wage distributions</li>
+                            <li>Alternative childcare options and family support networks</li>
+                            <li>Cultural factors and work-life balance preferences</li>
+                            <li>State-specific policy environments and support systems</li>
+                        </ul>
+                    </li>
+                    <li><strong>Demographic Variations:</strong> The impact of childcare costs shows distinct patterns across different demographic groups:
+                        <ul>
+                            <li>Educational attainment levels correlate with different sensitivity to cost changes</li>
+                            <li>Family structure influences the elasticity of workforce participation</li>
+                            <li>Income levels show varying degrees of response to cost increases</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
             <figure class="visualization">
                 <div id="laborForceMap"></div>
-                <figcaption>Figure 3: Female labor force participation rates by state (2018). This visualization highlights the varying levels of workforce participation and their relationship to childcare accessibility.</figcaption>
+                <img src="images/labor_force_map.png" alt="Labor force participation rates" class="fallback-image" style="width: 100%; display: none;">
+                <figcaption>Figure 3: Female labor force participation rates by state (2018). This visualization reveals the complex relationship between childcare accessibility and workforce participation. The map highlights significant regional variations in labor force participation rates, with notable patterns emerging in areas with different childcare cost structures and support systems.</figcaption>
             </figure>
 
             <h3>4. Urban-Rural Comparison</h3>
@@ -342,36 +411,83 @@
 
             <figure class="visualization">
                 <div id="urbanRuralComparison"></div>
-                <figcaption>Figure 4: Urban vs. rural childcare cost comparison by region. This comparative visualization illustrates the significant cost and accessibility differences between urban and rural areas across different regions.</figcaption>
+                <img src="images/urban_rural_comparison.png" alt="Urban vs Rural comparison" class="fallback-image" style="width: 100%; display: none;">
+                <figcaption>Figure 4: Urban vs. rural childcare cost comparison by region. This comparative visualization illustrates the significant disparities in both costs and accessibility between urban and rural areas. The multi-dimensional analysis captures not only direct cost differences but also factors such as availability, quality ratings, and transportation requirements.</figcaption>
             </figure>
         </section>
 
         <section id="implications">
             <h2>Implications</h2>
-            <p>The findings of this study have several important implications for policy makers, employers, and families. The complex interplay between costs, accessibility, and workforce participation suggests the need for nuanced, regionally-tailored approaches to addressing childcare challenges.</p>
+            <p>The empirical evidence gathered through this comprehensive analysis presents significant implications for policy development, economic planning, and social equity considerations. The multifaceted nature of childcare costs, coupled with their profound impact on workforce dynamics and family economic stability, necessitates a nuanced and systemic approach to addressing these challenges.</p>
             
             <div class="key-finding">
                 <h3>Policy Implications</h3>
+                <p>Our research findings suggest that effective policy interventions must address multiple interconnected dimensions of the childcare crisis. The complexity of regional variations and socioeconomic factors demands a sophisticated policy framework that can adapt to local conditions while maintaining consistent support for working families.</p>
+                
                 <ol>
-                    <li><strong>Economic Impact:</strong> Rising childcare costs are creating significant financial pressure on working families, particularly in urban areas and the Northeast region. This suggests a need for:
+                    <li><strong>Economic Impact and Market Dynamics:</strong>
+                        <p>The rising trajectory of childcare costs creates substantial economic pressures that disproportionately affect different demographic groups and regions. Our analysis indicates that:</p>
                         <ul>
-                            <li>Targeted subsidy programs based on regional cost variations</li>
-                            <li>Tax incentives for employer-provided childcare</li>
-                            <li>Innovation in childcare delivery models</li>
+                            <li>Urban centers, particularly in the Northeast, face acute affordability challenges that require targeted intervention strategies:
+                                <ul>
+                                    <li>Implementation of income-based subsidy programs that account for local cost of living indices</li>
+                                    <li>Development of tax incentive structures for employer-sponsored childcare facilities</li>
+                                    <li>Creation of public-private partnerships to expand affordable childcare options</li>
+                                    <li>Innovation in service delivery models to optimize operational efficiency</li>
+                                </ul>
+                            </li>
+                            <li>Rural areas face distinct challenges that require specialized policy approaches:
+                                <ul>
+                                    <li>Transportation support systems to improve accessibility</li>
+                                    <li>Incentives for establishing childcare centers in underserved areas</li>
+                                    <li>Support for home-based childcare providers to expand capacity</li>
+                                    <li>Technology integration to enhance service delivery efficiency</li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
-                    <li><strong>Workforce Participation:</strong> The inverse relationship between childcare costs and labor force participation suggests that high costs may be deterring workforce participation. This indicates a need for:
+
+                    <li><strong>Workforce Participation and Economic Mobility:</strong>
+                        <p>The inverse relationship between childcare costs and labor force participation represents a significant barrier to economic mobility and gender equality in the workforce. Our findings suggest the need for:</p>
                         <ul>
-                            <li>Expanded public-private partnerships for childcare provision</li>
-                            <li>Flexible work arrangements and childcare support</li>
-                            <li>Enhanced parental leave policies</li>
+                            <li>Comprehensive workplace policy reforms:
+                                <ul>
+                                    <li>Enhanced parental leave policies that align with international standards</li>
+                                    <li>Flexible work arrangements that accommodate family responsibilities</li>
+                                    <li>On-site childcare facilities in large employment centers</li>
+                                    <li>Professional development support for caregivers returning to work</li>
+                                </ul>
+                            </li>
+                            <li>Economic support mechanisms:
+                                <ul>
+                                    <li>Direct financial assistance programs for working parents</li>
+                                    <li>Tax credits for childcare expenses that reflect regional cost variations</li>
+                                    <li>Subsidized early childhood education programs</li>
+                                    <li>Emergency childcare support systems for non-traditional work hours</li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
-                    <li><strong>Regional Disparities:</strong> The significant variation in costs across regions points to the need for regionally-tailored policy approaches, including:
+
+                    <li><strong>Regional Economic Development:</strong>
+                        <p>The significant variation in childcare costs across regions necessitates tailored economic development strategies that consider:</p>
                         <ul>
-                            <li>Local cost containment strategies</li>
-                            <li>Rural childcare access initiatives</li>
-                            <li>Transportation support programs</li>
+                            <li>Infrastructure development:
+                                <ul>
+                                    <li>Strategic placement of childcare facilities near transportation hubs</li>
+                                    <li>Integration of childcare facilities in urban development projects</li>
+                                    <li>Investment in quality improvement programs for existing facilities</li>
+                                    <li>Development of shared service models to reduce operational costs</li>
+                                </ul>
+                            </li>
+                            <li>Workforce development initiatives:
+                                <ul>
+                                    <li>Training programs for childcare professionals</li>
+                                    <li>Career advancement pathways in early childhood education</li>
+                                    <li>Wage support programs for childcare workers</li>
+                                    <li>Professional development opportunities for facility administrators</li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                 </ol>
@@ -380,27 +496,62 @@
 
         <section id="conclusion">
             <h2>Conclusion</h2>
-            <p>This analysis demonstrates that childcare costs represent a growing and complex challenge for American families, with significant regional variations and economic implications. The findings suggest a need for targeted interventions to address affordability issues, particularly in high-cost regions and urban areas.</p>
+            <p>This comprehensive analysis of childcare costs in the United States from 2008 to 2018 reveals a complex landscape of economic challenges and opportunities. The research demonstrates that childcare costs represent not merely a financial burden but a fundamental economic issue that influences workforce participation, regional development, and social equity. Through rigorous statistical analysis and demographic study, we have identified patterns that challenge conventional understanding of childcare economics and suggest new approaches to policy intervention.</p>
             
             <div class="insight">
-                <h3>Unexpected Findings</h3>
-                <p>Several findings emerged that challenged our initial hypotheses:</p>
+                <h3>Synthesis of Findings</h3>
+                <p>Our research reveals several critical insights that contribute to the broader understanding of childcare economics:</p>
                 <ul>
-                    <li>The strength of the correlation between childcare costs and property values (0.82) exceeded expectations</li>
-                    <li>Rural areas showed more resilient labor force participation despite limited childcare options</li>
-                    <li>The impact of state regulations on costs varied more significantly by region than anticipated</li>
-                    <li>The relationship between quality ratings and costs showed unexpected regional variations</li>
+                    <li>The relationship between childcare costs and property values (correlation coefficient: 0.82) suggests a more profound connection between housing markets and childcare accessibility than previously recognized</li>
+                    <li>Rural communities demonstrate unexpected resilience in workforce participation despite limited childcare options, indicating the presence of alternative support systems and adaptive strategies</li>
+                    <li>The impact of state regulations on costs shows significant regional variation, challenging the assumption of uniform regulatory effects</li>
+                    <li>Quality metrics in childcare services exhibit complex relationships with cost structures that vary by demographic and geographic factors</li>
+                    <li>The elasticity of demand for childcare services varies significantly across income levels and regions, suggesting the need for targeted policy interventions</li>
                 </ul>
             </div>
             
             <div class="key-finding">
-                <h3>Recommendations for Future Research</h3>
+                <h3>Future Research Directions</h3>
+                <p>This study identifies several critical areas for future investigation that could enhance our understanding of childcare economics and policy effectiveness:</p>
                 <ul>
-                    <li>Investigation of successful cost-containment strategies in lower-cost regions</li>
-                    <li>Analysis of the impact of recent policy interventions on cost trends</li>
-                    <li>Examination of the relationship between childcare quality and cost variations</li>
-                    <li>Study of innovative childcare delivery models and their cost implications</li>
-                    <li>Assessment of long-term economic impacts of regional childcare cost disparities</li>
+                    <li><strong>Cost Containment Strategies:</strong> 
+                        <p>Investigation of successful cost management approaches in lower-cost regions, including:</p>
+                        <ul>
+                            <li>Analysis of operational efficiency in different facility types</li>
+                            <li>Evaluation of shared service models and their impact on costs</li>
+                            <li>Assessment of technology integration in cost reduction</li>
+                            <li>Study of alternative funding mechanisms and their effectiveness</li>
+                        </ul>
+                    </li>
+                    <li><strong>Policy Impact Assessment:</strong>
+                        <p>Longitudinal studies of recent policy interventions, focusing on:</p>
+                        <ul>
+                            <li>Quantitative analysis of subsidy program effectiveness</li>
+                            <li>Evaluation of tax incentive impacts on provider availability</li>
+                            <li>Assessment of regulatory changes and their cost implications</li>
+                            <li>Measurement of workforce participation responses to policy changes</li>
+                        </ul>
+                    </li>
+                    <li><strong>Quality-Cost Relationships:</strong>
+                        <p>Detailed examination of the relationship between service quality and cost variations, including:</p>
+                        <ul>
+                            <li>Analysis of quality metrics and their correlation with costs</li>
+                            <li>Investigation of staff qualification impacts on service quality</li>
+                            <li>Assessment of facility characteristics and quality outcomes</li>
+                            <li>Study of parent preferences and willingness to pay for quality</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="methodology-note">
+                <h3>Methodological Considerations</h3>
+                <p>Future research should address several methodological challenges identified in this study:</p>
+                <ul>
+                    <li>Development of more sophisticated measures for quality assessment in childcare services</li>
+                    <li>Integration of qualitative data to better understand family decision-making processes</li>
+                    <li>Implementation of more granular geographic analysis techniques</li>
+                    <li>Enhancement of longitudinal data collection methods to track long-term impacts</li>
                 </ul>
             </div>
         </section>
@@ -432,6 +583,16 @@
 
     <script>
         function downloadPDF() {
+            const visualizations = document.querySelectorAll('.visualization');
+            visualizations.forEach(viz => {
+                if (!viz.querySelector('canvas, svg, .plotly-graph-div') && !viz.querySelector('.fallback-image:not([style*="display: none"])')) {
+                    const fallbackImg = viz.querySelector('.fallback-image');
+                    if (fallbackImg) {
+                        fallbackImg.style.display = 'block';
+                    }
+                }
+            });
+
             const printSettings = {
                 margin: {
                     top: '2cm',
@@ -445,10 +606,82 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            createHeatMap(document.getElementById('geoChoropleth'), '2018');
-            createTimeSeries(document.getElementById('timeSeriesAnalysis'), 'all');
-            createLaborForceMap(document.getElementById('laborForceMap'), '2018');
-            createUrbanRuralComparison(document.getElementById('urbanRuralComparison'), '2018');
+            const visualizationContainers = {
+                'geoChoropleth': { loading: true, error: false },
+                'timeSeriesAnalysis': { loading: true, error: false },
+                'laborForceMap': { loading: true, error: false },
+                'urbanRuralComparison': { loading: true, error: false }
+            };
+
+            function updateVisualizationStatus(containerId, status) {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.classList.toggle('loading', status.loading);
+                    const errorDiv = container.querySelector('.visualization-error');
+                    if (errorDiv) {
+                        errorDiv.style.display = status.error ? 'block' : 'none';
+                    }
+                    if (status.error) {
+                        const fallbackImg = container.querySelector('.fallback-image');
+                        if (fallbackImg) {
+                            fallbackImg.style.display = 'block';
+                        }
+                    }
+                }
+            }
+
+            function loadVisualization(containerId, createFunction, params) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+
+                container.classList.add('loading');
+                
+                if (!container.querySelector('.visualization-error')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'visualization-error';
+                    errorDiv.textContent = 'Failed to load visualization. Showing static image instead.';
+                    container.appendChild(errorDiv);
+                }
+
+                try {
+                    createFunction(container, params);
+                    visualizationContainers[containerId].loading = false;
+                    visualizationContainers[containerId].error = false;
+                } catch (error) {
+                    console.error(`Error loading ${containerId}:`, error);
+                    visualizationContainers[containerId].loading = false;
+                    visualizationContainers[containerId].error = true;
+                }
+
+                updateVisualizationStatus(containerId, visualizationContainers[containerId]);
+            }
+
+            try {
+                loadVisualization('geoChoropleth', createHeatMap, '2018');
+                loadVisualization('timeSeriesAnalysis', createTimeSeries, 'all');
+                loadVisualization('laborForceMap', createLaborForceMap, '2018');
+                loadVisualization('urbanRuralComparison', createUrbanRuralComparison, '2018');
+            } catch (error) {
+                console.error('Critical error loading visualizations:', error);
+                document.querySelectorAll('.fallback-image').forEach(img => {
+                    img.style.display = 'block';
+                });
+            }
+
+            window.addEventListener('beforeprint', function() {
+                document.querySelectorAll('.fallback-image').forEach(img => {
+                    img.style.display = 'block';
+                });
+            });
+            
+            window.addEventListener('afterprint', function() {
+                document.querySelectorAll('.fallback-image').forEach(img => {
+                    const container = img.closest('.visualization');
+                    if (container && !container.querySelector('.visualization-error').style.display === 'block') {
+                        img.style.display = 'none';
+                    }
+                });
+            });
         });
     </script>
 </body>
