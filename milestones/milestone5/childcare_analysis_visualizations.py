@@ -7,32 +7,22 @@ DSC640 - Data Presentation and Visualization
 Student: Komal Shahid
 Date: March 2, 2024
 
-This script generates all visualizations for the project, including:
-1. Time Series Analysis of Childcare Costs
-2. Geographic Distribution of Labor Force Participation
-3. Urban vs Rural Comparison
-4. Cost Distribution Analysis
-5. Correlation Analysis
-6. Regional Cost Trends
-7. State-wise Cost Comparison
-8. Annual Growth Rate Analysis
+This script generates eight visualizations for the childcare cost analysis:
+1. Time series analysis of costs over time
+2. Geographic distribution of costs
+3. Urban vs rural comparison
+4. Cost distribution analysis
+5. Correlation analysis of metrics
+6. Regional cost trends
+7. State-wise cost comparison
+8. Annual growth rate analysis
 """
 
 import pandas as pd
 import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy import stats
 from pathlib import Path
-import time
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-import plotly.io as pio
 
 # Data Generation Functions
 def generate_childcare_data():
@@ -64,7 +54,6 @@ def generate_childcare_data():
             growth = growth_rates[region]
             years_since_start = year - 2008
             cost = base * (1 + growth) ** years_since_start
-            # Add some random variation
             cost *= np.random.normal(1, 0.02)
             data.append({
                 'Year': year,
@@ -119,313 +108,136 @@ def generate_labor_force_data():
     
     return pd.DataFrame(data)
 
-# Visualization Functions
-def create_time_series_visualization(data=None):
-    """Create time series visualization of childcare costs by region."""
-    if data is None:
-        data = generate_childcare_data()
-    
-    fig = go.Figure()
-    
-    for region in data['Region'].unique():
-        region_data = data[data['Region'] == region]
-        fig.add_trace(go.Scatter(
-            x=region_data['Year'],
-            y=region_data['Cost'],
-            name=region,
-            mode='lines+markers',
-            line=dict(width=3),
-            marker=dict(size=8)
-        ))
-    
-    fig.update_layout(
-        title='Childcare Costs by Region (2008-2018)',
-        xaxis_title='Year',
-        yaxis_title='Annual Cost ($)',
-        template='plotly_white',
-        hovermode='x unified',
-        legend=dict(
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=0.01
-        ),
-        showlegend=True
-    )
-    
-    fig.update_yaxes(tickprefix='$', tickformat=',')
-    return fig
-
-def create_geographic_heatmap(data=None):
-    """Create geographic heatmap of childcare costs."""
-    if data is None:
-        data = generate_labor_force_data()
-    
-    fig = go.Figure(data=go.Choropleth(
-        locations=data['State'],
-        z=data['Participation_Rate'],
-        locationmode='USA-states',
-        colorscale='Viridis',
-        colorbar_title="Participation Rate"
-    ))
-
-    fig.update_layout(
-        title_text='Labor Force Participation Rate by State',
-        geo_scope='usa',
-        template='plotly_white'
-    )
-    
-    return fig
-
-def create_urban_rural_comparison():
-    """Create radar chart comparing urban and rural childcare metrics."""
-    urban_data, rural_data, metrics = generate_urban_rural_data()
-    
-    fig = go.Figure()
-    
-    for region in urban_data.keys():
-        fig.add_trace(go.Scatterpolar(
-            r=urban_data[region],
-            theta=metrics,
-            name=f'{region} (Urban)',
-            line_color='red'
-        ))
-        fig.add_trace(go.Scatterpolar(
-            r=rural_data[region],
-            theta=metrics,
-            name=f'{region} (Rural)',
-            line_color='blue'
-        ))
-    
-    fig.update_layout(
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 5]
-            )),
-        showlegend=True,
-        title='Urban vs Rural Childcare Metrics by Region'
-    )
-    
-    return fig
-
-def create_cost_distribution():
-    """Create violin plot of childcare cost distribution."""
-    data = generate_childcare_data()
-    
-    fig = go.Figure()
-    
-    for region in data['Region'].unique():
-        region_data = data[data['Region'] == region]
-        fig.add_trace(go.Violin(
-            x=region_data['Region'],
-            y=region_data['Cost'],
-            name=region,
-            box_visible=True,
-            meanline_visible=True
-        ))
-    
-    fig.update_layout(
-        title='Distribution of Childcare Costs by Region',
-        xaxis_title='Region',
-        yaxis_title='Annual Cost ($)',
-        template='plotly_white',
-        showlegend=False
-    )
-    
-    fig.update_yaxes(tickprefix='$', tickformat=',')
-    return fig
-
-def create_correlation_heatmap(data=None):
-    """Create correlation heatmap for childcare metrics."""
-    if data is None:
-        data = generate_childcare_data()
-    
-    # Calculate correlations between different metrics
-    corr_data = pd.DataFrame({
-        'Cost': data['Cost'],
-        'Year': data['Year'],
-        'Region_Code': pd.Categorical(data['Region']).codes,
-        'Cost_Growth': data.groupby('Region')['Cost'].pct_change(),
-        'Regional_Avg': data.groupby('Region')['Cost'].transform('mean')
-    })
-    
-    correlation_matrix = corr_data.corr()
-    
-    fig = go.Figure(data=go.Heatmap(
-        z=correlation_matrix,
-        x=correlation_matrix.columns,
-        y=correlation_matrix.columns,
-        colorscale='RdBu',
-        zmin=-1,
-        zmax=1
-    ))
-    
-    fig.update_layout(
-        title='Correlation Heatmap of Childcare Metrics',
-        template='plotly_white'
-    )
-    
-    return fig
-
-def create_regional_cost_trends():
-    """Create line plot showing cost trends by region."""
-    data = generate_childcare_data()
-    
-    fig = go.Figure()
-    
-    for region in data['Region'].unique():
-        region_data = data[data['Region'] == region]
-        fig.add_trace(go.Scatter(
-            x=region_data['Year'],
-            y=region_data['Cost'],
-            name=region,
-            mode='lines+markers',
-            line=dict(width=2),
-            marker=dict(size=6)
-        ))
-    
-    fig.update_layout(
-        title='Regional Childcare Cost Trends (2008-2018)',
-        xaxis_title='Year',
-        yaxis_title='Annual Cost ($)',
-        template='plotly_white',
-        showlegend=True
-    )
-    
-    return fig
-
-def create_state_comparison():
-    """Create bar chart comparing costs across states."""
-    data = generate_labor_force_data()
-    
-    fig = go.Figure(data=[
-        go.Bar(
-            x=data['State'],
-            y=data['Participation_Rate'],
-            marker_color='skyblue'
-        )
-    ])
-    
-    fig.update_layout(
-        title='Labor Force Participation Rate by State',
-        xaxis_title='State',
-        yaxis_title='Participation Rate',
-        template='plotly_white'
-    )
-    
-    return fig
-
-def create_growth_rate_analysis():
-    """Create box plot of annual growth rates by region."""
-    data = generate_childcare_data()
-    
-    # Calculate growth rates
-    data['Growth_Rate'] = data.groupby('Region')['Cost'].pct_change()
-    
-    fig = go.Figure()
-    
-    for region in data['Region'].unique():
-        region_data = data[data['Region'] == region]
-        fig.add_trace(go.Box(
-            y=region_data['Growth_Rate'],
-            name=region,
-            boxpoints='all',
-            jitter=0.3,
-            pointpos=-1.8
-        ))
-    
-    fig.update_layout(
-        title='Annual Growth Rate Distribution by Region',
-        yaxis_title='Growth Rate (%)',
-        template='plotly_white',
-        showlegend=False
-    )
-    
-    fig.update_yaxes(tickformat='%')
-    return fig
-
-def save_plotly_as_matplotlib(fig, filename):
-    """Save a plotly figure as a static image using matplotlib."""
-    # Get the figure data
-    data = fig.data
-    layout = fig.layout
-    
-    # Create matplotlib figure
-    plt.figure(figsize=(12, 8))
-    
-    # Plot each trace
-    for trace in data:
-        if trace.type == 'scatter':
-            plt.plot(trace.x, trace.y, label=trace.name)
-        elif trace.type == 'violin':
-            plt.violinplot(trace.y, positions=[0], showmeans=True)
-        elif trace.type == 'heatmap':
-            plt.imshow(trace.z, cmap='RdBu', aspect='auto')
-            plt.colorbar()
-    
-    # Set title and labels
-    if layout.title:
-        plt.title(layout.title.text)
-    if layout.xaxis and layout.xaxis.title:
-        plt.xlabel(layout.xaxis.title.text)
-    if layout.yaxis and layout.yaxis.title:
-        plt.ylabel(layout.yaxis.title.text)
-    
-    # Add legend if needed
-    if any(trace.name for trace in data):
-        plt.legend()
-    
-    # Save the figure
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
-    plt.close()
-
 def save_visualizations():
-    """Save all visualizations as HTML and static images."""
-    # Create output directories
+    """Save all visualizations as static images."""
+    # Create output directory
     output_dir = Path('output')
     output_dir.mkdir(exist_ok=True)
-    
-    html_dir = output_dir / 'html'
-    html_dir.mkdir(exist_ok=True)
     
     img_dir = output_dir / 'images'
     img_dir.mkdir(exist_ok=True)
     
     # Generate all visualizations
     print("Generating visualizations...")
-    visualizations = {
-        'time_series': create_time_series_visualization(),
-        'geographic_heatmap': create_geographic_heatmap(),
-        'urban_rural_comparison': create_urban_rural_comparison(),
-        'cost_distribution': create_cost_distribution(),
-        'correlation_heatmap': create_correlation_heatmap(),
-        'regional_trends': create_regional_cost_trends(),
-        'state_comparison': create_state_comparison(),
-        'growth_analysis': create_growth_rate_analysis()
-    }
     
-    # Save as HTML
-    print("Saving HTML files...")
-    for name, fig in visualizations.items():
-        html_path = html_dir / f"{name}.html"
-        fig.write_html(str(html_path))
+    # Time series
+    data = generate_childcare_data()
+    plt.figure(figsize=(12, 8))
+    for region in data['Region'].unique():
+        region_data = data[data['Region'] == region]
+        plt.plot(region_data['Year'], region_data['Cost'], label=region, marker='o')
+    plt.title('Childcare Costs by Region (2008-2018)')
+    plt.xlabel('Year')
+    plt.ylabel('Annual Cost ($)')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(img_dir / 'time_series.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: time_series.png")
     
-    try:
-        # Save static images
-        print("Saving static images...")
-        for name, fig in visualizations.items():
-            png_path = img_dir / f"{name}.png"
-            save_plotly_as_matplotlib(fig, str(png_path))
-            print(f"Saved image: {png_path}")
-        
-        print("\nSuccessfully generated all visualizations!")
-        print(f"HTML files saved in: {html_dir}")
-        print(f"Image files saved in: {img_dir}")
-        
-    except Exception as e:
-        print(f"\nWarning: Could not save PNG files due to error: {str(e)}")
-        print("HTML files were saved successfully.")
+    # Geographic heatmap
+    labor_data = generate_labor_force_data()
+    plt.figure(figsize=(12, 8))
+    plt.bar(labor_data['State'], labor_data['Participation_Rate'])
+    plt.title('Labor Force Participation Rate by State')
+    plt.xlabel('State')
+    plt.ylabel('Participation Rate')
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.savefig(img_dir / 'geographic_heatmap.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: geographic_heatmap.png")
+    
+    # Urban-Rural comparison
+    urban_data, rural_data, metrics = generate_urban_rural_data()
+    plt.figure(figsize=(12, 8))
+    angles = np.linspace(0, 2*np.pi, len(metrics), endpoint=False)
+    angles = np.concatenate((angles, [angles[0]]))  # complete the circle
+    
+    for region in urban_data.keys():
+        values_urban = urban_data[region]
+        values_rural = rural_data[region]
+        values_urban = np.concatenate((values_urban, [values_urban[0]]))
+        values_rural = np.concatenate((values_rural, [values_rural[0]]))
+        plt.polar(angles, values_urban, label=f'{region} (Urban)')
+        plt.polar(angles, values_rural, label=f'{region} (Rural)')
+    
+    plt.title('Urban vs Rural Childcare Metrics by Region')
+    plt.legend(bbox_to_anchor=(1.2, 1))
+    plt.savefig(img_dir / 'urban_rural_comparison.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: urban_rural_comparison.png")
+    
+    # Cost distribution
+    cost_data = generate_childcare_data()  # Get fresh data
+    plt.figure(figsize=(12, 8))
+    sns.violinplot(data=cost_data, x='Region', y='Cost')
+    plt.title('Distribution of Childcare Costs by Region')
+    plt.xlabel('Region')
+    plt.ylabel('Annual Cost ($)')
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.savefig(img_dir / 'cost_distribution.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: cost_distribution.png")
+    
+    # Correlation heatmap
+    corr_data = pd.DataFrame({
+        'Cost': cost_data['Cost'],
+        'Year': cost_data['Year'],
+        'Region_Code': pd.Categorical(cost_data['Region']).codes,
+        'Cost_Growth': cost_data.groupby('Region')['Cost'].pct_change(),
+        'Regional_Avg': cost_data.groupby('Region')['Cost'].transform('mean')
+    })
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(corr_data.corr(), annot=True, cmap='RdBu', center=0, vmin=-1, vmax=1)
+    plt.title('Correlation Heatmap of Childcare Metrics')
+    plt.savefig(img_dir / 'correlation_heatmap.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: correlation_heatmap.png")
+    
+    # Regional trends
+    plt.figure(figsize=(12, 8))
+    for region in cost_data['Region'].unique():
+        region_data = cost_data[cost_data['Region'] == region]
+        plt.plot(region_data['Year'], region_data['Cost'], label=region, marker='o')
+    plt.title('Regional Childcare Cost Trends (2008-2018)')
+    plt.xlabel('Year')
+    plt.ylabel('Annual Cost ($)')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(img_dir / 'regional_trends.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: regional_trends.png")
+    
+    # State comparison
+    plt.figure(figsize=(15, 8))
+    plt.bar(labor_data['State'], labor_data['Participation_Rate'])
+    plt.title('Labor Force Participation Rate by State')
+    plt.xlabel('State')
+    plt.ylabel('Participation Rate')
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.savefig(img_dir / 'state_comparison.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: state_comparison.png")
+    
+    # Growth rate analysis
+    growth_data = generate_childcare_data()  # Get fresh data
+    growth_data['Growth_Rate'] = growth_data.groupby('Region')['Cost'].pct_change()
+    growth_data = growth_data.dropna(subset=['Growth_Rate'])
+    
+    plt.figure(figsize=(12, 8))
+    sns.boxplot(data=growth_data, x='Region', y='Growth_Rate')
+    plt.title('Annual Growth Rate Distribution by Region')
+    plt.xlabel('Region')
+    plt.ylabel('Growth Rate (%)')
+    plt.grid(True)
+    plt.savefig(img_dir / 'growth_analysis.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: growth_analysis.png")
+    
+    print(f"\nAll image files saved in: {img_dir}")
 
 if __name__ == "__main__":
     save_visualizations() 
