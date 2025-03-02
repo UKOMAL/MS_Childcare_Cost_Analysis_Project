@@ -204,48 +204,54 @@ function createTimeSeries(container, year, baseLayout) {
     const years = ['2008', '2010', '2012', '2014', '2016', '2018'];
     const states = DASHBOARD_DATA.states;
     
-    // Calculate average costs for each state over the years
-    const traces = states.map(state => {
-        const stateIndex = DASHBOARD_DATA.states.indexOf(state);
-        const costs = years.map(year => {
-            return DASHBOARD_DATA.costs[year].infant[stateIndex];
-        });
-        
-        return {
-            type: 'scatter',
-            x: years,
-            y: costs,
-            name: STATE_NAMES[state],
-            mode: 'lines+markers',
-            line: { width: 2 },
-            marker: { size: 6 }
-        };
+    // Sort states by their 2018 costs for better visualization
+    const statesByValue = [...states].sort((a, b) => {
+        const aIndex = DASHBOARD_DATA.states.indexOf(a);
+        const bIndex = DASHBOARD_DATA.states.indexOf(b);
+        return DASHBOARD_DATA.costs['2018'].infant[bIndex] - DASHBOARD_DATA.costs['2018'].infant[aIndex];
     });
+
+    // Create horizontal bar chart
+    const data = [{
+        type: 'bar',
+        x: statesByValue.map(state => {
+            const stateIndex = DASHBOARD_DATA.states.indexOf(state);
+            return DASHBOARD_DATA.costs[year].infant[stateIndex];
+        }),
+        y: statesByValue.map(state => STATE_NAMES[state]),
+        orientation: 'h',
+        marker: {
+            color: '#4E54C8',
+            opacity: 0.8
+        },
+        hovertemplate: '%{y}<br>Monthly Cost: $%{x:.2f}<extra></extra>'
+    }];
 
     const layout = {
         ...baseLayout,
-        title: 'State-wise Childcare Cost Trends (2008-2018)',
+        title: `Average Childcare Costs by State (${year})`,
         xaxis: {
-            title: 'Year',
-            showgrid: true,
-            gridcolor: 'rgba(0,0,0,0.1)',
-            dtick: 2
-        },
-        yaxis: {
             title: 'Monthly Cost ($)',
             showgrid: true,
             gridcolor: 'rgba(0,0,0,0.1)'
         },
-        showlegend: true,
-        legend: {
-            title: { text: 'States' },
-            y: 1,
-            x: 1,
-            xanchor: 'right'
+        yaxis: {
+            title: '',
+            automargin: true,
+            tickfont: {
+                size: 10
+            }
+        },
+        showlegend: false,
+        margin: {
+            l: 150,
+            r: 30,
+            t: 50,
+            b: 60
         }
     };
 
-    Plotly.newPlot(container.id, traces, layout, {responsive: true})
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating time series:', err);
             container.innerHTML = '<div class="error">Error creating time series visualization</div>';
@@ -733,61 +739,69 @@ function createCostTrends(container, year, baseLayout) {
         'West': ['CO', 'WY', 'MT', 'ID', 'UT', 'NV', 'CA', 'OR', 'WA', 'AK', 'HI']
     };
 
-    const traces = [];
-    const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
-
-    Object.entries(regions).forEach(([region, states], index) => {
-        const costs = years.map(year => {
-            const yearData = DASHBOARD_DATA.costs[year].infant;
-            const regionCosts = states.map(state => {
-                const stateIndex = DASHBOARD_DATA.states.indexOf(state);
-                return yearData[stateIndex];
-            });
-            return regionCosts.reduce((a, b) => a + b, 0) / regionCosts.length;
-        });
-
-        traces.push({
-            type: 'scatter',
-            x: years,
-            y: costs,
-            name: region,
-            mode: 'lines+markers',
-            line: {
-                width: 3,
-                color: colors[index]
-            },
-            marker: {
-                size: 8,
-                color: colors[index]
-            },
-            hovertemplate: `${region}<br>Year: %{x}<br>Average Cost: $%{y:.0f}<extra></extra>`
-        });
+    // Calculate average costs and standard deviation for each state
+    const stateData = DASHBOARD_DATA.states.map(state => {
+        const stateIndex = DASHBOARD_DATA.states.indexOf(state);
+        const costs = years.map(year => DASHBOARD_DATA.costs[year].infant[stateIndex]);
+        const avgCost = costs.reduce((a, b) => a + b, 0) / costs.length;
+        const stdDev = Math.sqrt(costs.reduce((a, b) => a + Math.pow(b - avgCost, 2), 0) / costs.length);
+        return {
+            state,
+            avgCost,
+            stdDev
+        };
     });
+
+    // Sort by average cost
+    stateData.sort((a, b) => b.avgCost - a.avgCost);
+
+    const trace = {
+        type: 'bar',
+        x: stateData.map(d => d.avgCost),
+        y: stateData.map(d => STATE_NAMES[d.state]),
+        orientation: 'h',
+        error_x: {
+            type: 'data',
+            array: stateData.map(d => d.stdDev),
+            visible: true,
+            color: '#888'
+        },
+        marker: {
+            color: stateData.map(d => d.avgCost),
+            colorscale: 'Viridis',
+            showscale: true,
+            colorbar: {
+                title: 'Average Cost Range ($)'
+            }
+        },
+        hovertemplate: '%{y}<br>Average Cost: $%{x:.2f}<br>Std Dev: $%{error_x.array:.2f}<extra></extra>'
+    };
 
     const layout = {
         ...baseLayout,
-        title: 'Regional Cost Trends (2008-2018)',
+        title: 'Average Childcare Costs by State (2008-2018)<br>with Standard Deviation',
         xaxis: {
-            title: 'Year',
-            showgrid: true,
-            gridcolor: 'rgba(0,0,0,0.1)',
-            dtick: 2
-        },
-        yaxis: {
-            title: 'Average Monthly Cost ($)',
+            title: 'Average Annual Cost ($)',
             showgrid: true,
             gridcolor: 'rgba(0,0,0,0.1)'
         },
-        showlegend: true,
-        legend: {
-            title: { text: 'Region' },
-            y: 1,
-            x: 1,
-            xanchor: 'right'
+        yaxis: {
+            title: '',
+            automargin: true,
+            tickfont: {
+                size: 10
+            }
+        },
+        showlegend: false,
+        margin: {
+            l: 150,
+            r: 100,
+            t: 80,
+            b: 60
         }
     };
 
-    Plotly.newPlot(container.id, traces, layout, {responsive: true})
+    Plotly.newPlot(container.id, [trace], layout, {responsive: true})
         .catch(err => {
             console.error('Error creating cost trends:', err);
             container.innerHTML = '<div class="error">Error creating cost trends visualization</div>';
