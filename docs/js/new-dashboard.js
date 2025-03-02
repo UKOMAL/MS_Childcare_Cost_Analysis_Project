@@ -87,9 +87,9 @@ const DASHBOARD_DATA = {
             working_parent_ratio: [0.59, 0.65, 0.56, 0.58, 0.58, 0.62, 0.66, 0.65, 0.57, 0.61, 0.59, 0.59, 0.63, 0.62, 0.68, 0.65, 0.59, 0.58, 0.65, 0.65, 0.65, 0.62, 0.70, 0.58, 0.65, 0.63, 0.67, 0.61, 0.67, 0.62, 0.55, 0.59, 0.62, 0.70, 0.63, 0.59, 0.59, 0.62, 0.66, 0.61, 0.68, 0.60, 0.58, 0.59, 0.68, 0.62, 0.59, 0.55, 0.67, 0.65, 0.65]
         },
         2008: {
-            annual_cost: [6269.4, 3230.8, 8056.0, 5830.2, 12474.4, 9958.4, 12474.4, 8056.0, 7186.8, 6891.6, 8056.0, 6269.4, 9958.4, 8056.0, 7186.8, 7186.8, 5830.2, 5830.2, 8056.0, 12474.4, 12474.4, 8056.0, 12474.4, 4684.0, 6891.6, 6891.6, 7186.8, 8056.0, 9958.4, 9958.4, 6891.6, 12474.4, 8056.0, 7186.8, 6891.6, 5830.2, 9958.4, 8056.0, 9958.4, 5830.2, 5830.2, 5830.2, 7186.8, 6891.6, 9958.4, 9958.4, 12474.4, 5830.2, 9958.4, 6891.6, 12474.4],
-            cost_burden: [0.07, 0.00, 0.10, 0.08, 0.14, 0.09, 0.11, 0.07, 0.09, 0.08, 0.07, 0.08, 0.10, 0.10, 0.08, 0.08, 0.09, 0.08, 0.12, 0.11, 0.12, 0.10, 0.12, 0.07, 0.08, 0.10, 0.08, 0.09, 0.09, 0.09, 0.10, 0.14, 0.10, 0.07, 0.09, 0.08, 0.12, 0.10, 0.12, 0.08, 0.07, 0.08, 0.08, 0.07, 0.12, 0.08, 0.12, 0.09, 0.11, 0.08, 0.14],
-            working_parent_ratio: [0.58, 0.64, 0.55, 0.57, 0.57, 0.61, 0.65, 0.64, 0.56, 0.60, 0.58, 0.58, 0.62, 0.61, 0.67, 0.64, 0.58, 0.57, 0.64, 0.64, 0.64, 0.61, 0.69, 0.57, 0.64, 0.62, 0.66, 0.60, 0.66, 0.61, 0.54, 0.58, 0.61, 0.69, 0.62, 0.58, 0.58, 0.61, 0.65, 0.60, 0.67, 0.59, 0.57, 0.58, 0.67, 0.61, 0.58, 0.54, 0.66, 0.64, 0.64]
+            infant: [120.57, 62.10, 154.99, 112.40, 239.81, 191.57, 239.81, 154.99, 138.61, 133.17, 154.99, 120.57, 191.57, 154.99, 138.61, 138.61, 112.40, 112.40, 154.99, 239.81, 239.81, 154.99, 239.81, 90.44, 133.17, 133.17, 138.61, 154.99, 191.57, 191.57, 133.17, 239.81, 154.99, 138.61, 133.17, 112.40, 191.57, 154.99, 191.57, 112.40, 112.40, 112.40, 138.61, 133.17, 191.57, 191.57, 239.81, 112.40, 191.57, 133.17, 239.81],
+            toddler: [107.39, 55.25, 137.79, 99.91, 213.25, 170.27, 213.25, 137.79, 123.22, 118.39, 137.79, 107.39, 170.27, 137.79, 123.22, 123.22, 99.91, 99.91, 137.79, 213.25, 213.25, 137.79, 213.25, 80.38, 118.39, 118.39, 123.22, 137.79, 170.27, 170.27, 118.39, 213.25, 137.79, 123.22, 118.39, 99.91, 170.27, 137.79, 170.27, 99.91, 99.91, 99.91, 123.22, 118.39, 170.27, 170.27, 213.25, 99.91, 170.27, 118.39, 213.25],
+            preschool: [93.99, 48.27, 120.59, 87.42, 186.59, 148.99, 186.59, 120.59, 107.82, 103.59, 120.59, 93.99, 148.99, 120.59, 107.82, 107.82, 87.42, 87.42, 120.59, 186.59, 186.59, 120.59, 186.59, 70.02, 103.59, 103.59, 107.82, 120.59, 148.99, 148.99, 103.59, 186.59, 120.59, 107.82, 103.59, 87.42, 148.99, 120.59, 148.99, 87.42, 87.42, 87.42, 107.82, 103.59, 148.99, 148.99, 186.59, 87.42, 148.99, 103.59, 186.59]
         }
     }
 };
@@ -432,7 +432,8 @@ function createViolinPlot(container, baseLayout) {
  * Create labor force map visualization
  */
 function createLaborForceMap(container, year, baseLayout) {
-    const metrics = DASHBOARD_DATA.metrics[year] || DASHBOARD_DATA.metrics['2018'];
+    // Use the selected year's data, ensuring it exists
+    const metrics = DASHBOARD_DATA.metrics[year];
     const locations = DASHBOARD_DATA.states;
     const z = metrics.working_parent_ratio.map(ratio => ratio * 100);
     
@@ -443,7 +444,7 @@ function createLaborForceMap(container, year, baseLayout) {
         return `<b>${STATE_NAMES[state]}</b><br>` +
                `Working Parents: ${ratio.toFixed(1)}%<br>` +
                `Cost Burden: ${(burden * 100).toFixed(1)}%<br>` +
-               `Annual Cost: $${annualCost.toFixed(2)}`;
+               `Annual Cost: $${annualCost.toLocaleString()}`;
     });
     
     const data = [{
@@ -456,7 +457,8 @@ function createLaborForceMap(container, year, baseLayout) {
         colorscale: 'Viridis',
         colorbar: {
             title: 'Working Parents (%)',
-            thickness: 20
+            thickness: 20,
+            tickformat: '.1f'
         },
         marker: {
             line: {
@@ -468,7 +470,10 @@ function createLaborForceMap(container, year, baseLayout) {
     
     const layout = {
         ...baseLayout,
-        title: `Female Labor Force Participation by State (${year})`,
+        title: {
+            text: `Female Labor Force Participation by State (${year})`,
+            font: { size: 24 }
+        },
         geo: {
             scope: 'usa',
             showlakes: true,
@@ -476,6 +481,12 @@ function createLaborForceMap(container, year, baseLayout) {
             projection: {
                 type: 'albers usa'
             }
+        },
+        margin: {
+            l: 0,
+            r: 0,
+            t: 50,
+            b: 0
         }
     };
     
@@ -813,25 +824,27 @@ function createCostDistribution(container, baseLayout) {
  * Create regional cost trends visualization
  */
 function createCostTrends(container, year, baseLayout) {
-    const years = ['2008', '2010', '2012', '2014', '2016', '2018'];
+    // Define regions and their states
     const regions = {
-        'Northeast': ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'],
-        'Southeast': ['MD', 'DE', 'VA', 'WV', 'KY', 'NC', 'SC', 'TN', 'GA', 'FL', 'AL', 'MS', 'AR', 'LA'],
-        'Midwest': ['OH', 'MI', 'IN', 'IL', 'WI', 'MN', 'IA', 'MO', 'ND', 'SD', 'NE', 'KS'],
-        'Southwest': ['TX', 'OK', 'NM', 'AZ'],
-        'West': ['CO', 'WY', 'MT', 'ID', 'UT', 'NV', 'CA', 'OR', 'WA', 'AK', 'HI']
+        'Northeast': ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont', 'New York', 'New Jersey', 'Pennsylvania'],
+        'Southeast': ['Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'West Virginia', 'Alabama', 'Kentucky', 'Mississippi', 'Tennessee', 'Arkansas', 'Louisiana'],
+        'Midwest': ['Illinois', 'Indiana', 'Michigan', 'Ohio', 'Wisconsin', 'Iowa', 'Kansas', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'South Dakota'],
+        'Southwest': ['Arizona', 'New Mexico', 'Oklahoma', 'Texas'],
+        'West': ['Alaska', 'California', 'Hawaii', 'Oregon', 'Washington', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'Utah', 'Wyoming']
     };
 
     // Calculate average costs and standard deviation for each state
+    const years = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
     const stateData = DASHBOARD_DATA.states.map(state => {
         const stateIndex = DASHBOARD_DATA.states.indexOf(state);
-        const costs = years.map(year => DASHBOARD_DATA.costs[year].infant[stateIndex]);
+        const costs = years.map(year => DASHBOARD_DATA.metrics[year].annual_cost[stateIndex]);
         const avgCost = costs.reduce((a, b) => a + b, 0) / costs.length;
         const stdDev = Math.sqrt(costs.reduce((a, b) => a + Math.pow(b - avgCost, 2), 0) / costs.length);
         return {
             state,
             avgCost,
-            stdDev
+            stdDev,
+            currentCost: DASHBOARD_DATA.metrics[year].annual_cost[stateIndex]
         };
     });
 
@@ -840,7 +853,7 @@ function createCostTrends(container, year, baseLayout) {
 
     const trace = {
         type: 'bar',
-        x: stateData.map(d => d.avgCost),
+        x: stateData.map(d => d.currentCost),
         y: stateData.map(d => STATE_NAMES[d.state]),
         orientation: 'h',
         error_x: {
@@ -850,38 +863,44 @@ function createCostTrends(container, year, baseLayout) {
             color: '#888'
         },
         marker: {
-            color: stateData.map(d => d.avgCost),
+            color: stateData.map(d => d.currentCost),
             colorscale: 'Viridis',
             showscale: true,
             colorbar: {
-                title: 'Average Cost Range ($)'
+                title: 'Annual Cost ($)',
+                tickformat: '$,.0f'
             }
         },
-        hovertemplate: '%{y}<br>Average Cost: $%{x:.2f}<br>Std Dev: $%{error_x.array:.2f}<extra></extra>'
+        hovertemplate: '<b>%{y}</b><br>' +
+                      'Current Cost: $%{x:,.0f}<br>' +
+                      'Std Dev: $%{error_x.array:,.0f}<extra></extra>'
     };
 
     const layout = {
         ...baseLayout,
-        title: 'Average Childcare Costs by State (2008-2018)<br>with Standard Deviation',
+        title: {
+            text: `State Childcare Costs (${year})`,
+            font: { size: 24 }
+        },
         xaxis: {
-            title: 'Average Annual Cost ($)',
+            title: 'Annual Cost ($)',
+            tickformat: '$,.0f',
             showgrid: true,
-            gridcolor: 'rgba(0,0,0,0.1)'
+            gridwidth: 1,
+            gridcolor: '#f0f0f0'
         },
         yaxis: {
             title: '',
-            automargin: true,
-            tickfont: {
-                size: 10
-            }
+            automargin: true
         },
-        showlegend: false,
         margin: {
-            l: 150,
-            r: 100,
-            t: 80,
-            b: 60
-        }
+            l: 200,
+            r: 50,
+            t: 50,
+            b: 50
+        },
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white'
     };
 
     Plotly.newPlot(container.id, [trace], layout, {responsive: true})
