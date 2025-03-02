@@ -11,8 +11,8 @@ const DASHBOARD_DATA = {
     costs: {
         2018: {
             infant: [151.23, 78.62, 196.15, 141.92, 303.58, 242.31, 303.58, 196.15, 175.38, 168.46, 196.15, 151.23, 242.31, 196.15, 175.38, 175.38, 141.92, 141.92, 196.15, 303.58, 303.58, 196.15, 303.58, 114.08, 168.46, 168.46, 175.38, 196.15, 242.31, 242.31, 168.46, 303.58, 196.15, 175.38, 168.46, 141.92, 242.31, 196.15, 242.31, 141.92, 141.92, 141.92, 175.38, 168.46, 242.31, 242.31, 303.58, 141.92, 242.31, 168.46, 303.58],
-            toddler: [134.42, 69.88, 174.31, 126.15, 269.85, 215.38, 269.85, 174.31, 155.88, 149.73, 174.31, 134.42, 215.38, 174.31, 155.88, 155.88, 126.15, 126.15, 174.31, 269.85, 269.85, 174.31, 269.85, 101.40, 149.73, 149.73, 155.88, 174.31, 215.38, 215.38, 149.73, 269.85, 174.31, 155.88, 149.73, 126.15, 215.38, 174.31, 215.38, 126.15, 126.15, 126.15, 155.88, 149.73, 215.38, 215.38, 269.85, 122.37, 215.38, 149.73, 269.85],
-            preschool: [117.62, 61.15, 152.52, 110.38, 236.12, 188.46, 236.12, 152.52, 136.40, 131.02, 152.52, 117.62, 188.46, 152.52, 136.40, 136.40, 110.38, 110.38, 152.52, 236.12, 236.12, 152.52, 236.12, 88.73, 131.02, 131.02, 136.40, 152.52, 188.46, 188.46, 131.02, 236.12, 152.52, 136.40, 131.02, 110.38, 188.46, 152.52, 188.46, 110.38, 110.38, 110.38, 136.40, 131.02, 188.46, 188.46, 236.12, 110.38, 188.46, 131.02, 236.12]
+            toddler: [134.42, 69.88, 174.31, 126.15, 269.85, 215.38, 269.85, 174.31, 155.88, 149.73, 174.31, 134.42, 215.38, 174.31, 155.88, 155.88, 126.15, 126.15, 174.31, 269.85, 269.85, 174.31, 269.85, 101.40, 149.73, 149.73, 155.88, 169.08, 208.92, 208.92, 145.24, 261.75, 169.08, 151.20, 145.24, 122.37, 208.92, 169.08, 208.92, 122.37, 122.37, 122.37, 151.20, 145.24, 208.92, 208.92, 261.75, 122.37, 208.92, 145.24, 261.75],
+            preschool: [117.62, 61.15, 152.52, 110.38, 236.12, 188.46, 236.12, 152.52, 136.40, 131.02, 152.52, 117.62, 188.46, 152.52, 136.40, 136.40, 110.38, 110.38, 152.52, 236.12, 236.12, 152.52, 236.12, 88.73, 131.02, 131.02, 136.40, 152.52, 188.46, 188.46, 131.02, 236.12, 152.52, 136.40, 131.02, 110.38, 188.46, 152.52, 188.46, 110.38, 110.38, 110.38, 136.40, 131.02, 188.46, 188.46, 236.12, 107.07, 188.46, 131.02, 236.12]
         },
         2017: {
             infant: [146.85, 76.26, 190.27, 137.66, 294.47, 235.04, 294.47, 190.27, 170.12, 163.41, 190.27, 146.85, 235.04, 190.27, 170.12, 170.12, 137.66, 137.66, 190.27, 294.47, 294.47, 190.27, 294.47, 110.66, 163.41, 163.41, 170.12, 190.27, 235.04, 235.04, 163.41, 294.47, 190.27, 170.12, 163.41, 137.66, 235.04, 190.27, 235.04, 137.66, 137.66, 137.66, 170.12, 163.41, 235.04, 235.04, 294.47, 137.66, 235.04, 163.41, 294.47],
@@ -500,17 +500,40 @@ function updateVisualization() {
     }
     
     // Show loading state
-    container.innerHTML = '<div class="loading">Loading visualization...</div>';
+    container.innerHTML = '<div class="loading-spinner" style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
     
-    // Calculate container dimensions
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
+    // Calculate container dimensions based on viewport
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 120;
+    const marginBottom = 20;
+    const marginSides = 40;
     
-    // Common layout settings
+    // Set container dimensions for wide orientation
+    container.style.width = `${viewportWidth - marginSides}px`;
+    container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
+    container.style.maxWidth = '2000px'; // Prevent excessive stretching
+    container.style.margin = '0 auto'; // Center the container
+    
+    // Common layout settings for all visualizations
     const baseLayout = {
-        width: containerWidth,
-        height: containerHeight,
-        margin: { l: 50, r: 50, t: 50, b: 50 },
+        autosize: true,
+        margin: {
+            l: 60,  // Increased left margin for labels
+            r: 30,  // Reduced right margin
+            t: 50,  // Top margin for title
+            b: 60,  // Increased bottom margin for labels
+            pad: 4
+        },
+        width: container.clientWidth,
+        height: container.clientHeight,
+        showlegend: true,
+        legend: {
+            orientation: 'h',
+            y: -0.2,
+            x: 0.5,
+            xanchor: 'center'
+        },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: {
