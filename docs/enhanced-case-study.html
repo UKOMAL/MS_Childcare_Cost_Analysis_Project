@@ -9,62 +9,66 @@
         body {
             font-family: 'Georgia', serif;
             line-height: 1.6;
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 40px;
             color: #2c3e50;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: #ffffff;
         }
 
         .container {
             background: white;
             padding: 0;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px auto;
-            overflow: hidden;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .content-wrapper {
-            padding: 30px;
+            padding: 0 60px;
+            text-align: justify;
         }
 
         h1 {
-            font-size: 2.2em;
-            margin-bottom: 1em;
-            text-align: center;
+            font-size: 2em;
+            margin-bottom: 1.5em;
+            text-align: left;
+            color: #2c3e50;
         }
 
         h2 {
-            font-size: 1.8em;
-            margin-top: 1.5em;
+            font-size: 1.6em;
+            margin-top: 2em;
+            margin-bottom: 1em;
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
             padding-bottom: 0.3em;
+            text-align: left;
         }
 
         h3 {
-            font-size: 1.4em;
-            margin-top: 1.2em;
+            font-size: 1.3em;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
             color: #34495e;
+            text-align: left;
         }
 
         p {
             margin: 1em 0;
             line-height: 1.8;
+            text-align: justify;
+            hyphens: auto;
         }
 
         .visualization {
-            margin: 2em 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 2.5em 0;
+            padding: 20px 0;
             text-align: center;
+            page-break-inside: avoid;
         }
 
         .visualization img {
-            max-width: 100%;
+            max-width: 90%;
             height: auto;
             margin: 0 auto;
             display: block;
@@ -72,20 +76,21 @@
 
         /* Adjust visualization sizes */
         #costMap img, #laborForce img {
-            max-height: 500px;
+            max-height: 450px;
             width: auto;
         }
 
         #timeSeries img {
-            max-height: 400px;
+            max-height: 350px;
             width: auto;
         }
 
         .visualization-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2em;
-            margin: 2em 0;
+            grid-template-columns: 1fr;
+            gap: 2.5em;
+            margin: 2.5em 0;
+            page-break-inside: avoid;
         }
 
         .visualization::before {
@@ -193,25 +198,27 @@
 
         @media print {
             body {
-                background: white;
-                margin: 0;
                 padding: 0;
+                margin: 0;
+                background: white;
             }
 
-            .container {
-                max-width: none;
-                margin: 0;
-                padding: 2cm;
+            .content-wrapper {
+                padding: 40px;
+            }
+
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+
+            p {
+                orphans: 3;
+                widows: 3;
             }
 
             .visualization {
-                break-inside: avoid;
                 page-break-inside: avoid;
-            }
-
-            @page {
-                size: letter landscape;
-                margin: 2cm;
+                margin: 2em 0;
             }
 
             .download-button {
@@ -221,11 +228,6 @@
             figure {
                 break-inside: avoid;
                 page-break-inside: avoid;
-            }
-
-            h1, h2, h3 {
-                break-after: avoid;
-                page-break-after: avoid;
             }
 
             .insight, .methodology-note, .data-correlation, .key-finding {

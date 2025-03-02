@@ -380,65 +380,30 @@ function updateVisualization() {
     const dataType = document.getElementById('dataType').value;
     const vizType = document.getElementById('vizType').value;
     
-    // Show loading spinner
-    document.getElementById('mainViz').innerHTML = `
-        <div class="loading-spinner">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-    `;
-    
-    // Update title
-    const dataTypeLabel = getDataTypeLabel(dataType);
-    let titleText = '';
-    
-    switch(vizType) {
-        case 'map':
-            titleText = `U.S. ${dataTypeLabel} Costs by State`;
-            break;
-        case 'bar':
-            titleText = `Top 15 States by ${dataTypeLabel} Costs`;
-            break;
-        case 'comparison':
-            titleText = 'Cost Comparison Across Care Types';
-            break;
-        case 'scatter':
-            titleText = `${dataTypeLabel} Cost vs. Family Budget Burden`;
-            break;
-        default:
-            titleText = `U.S. ${dataTypeLabel} Costs Analysis`;
-    }
-    
-    document.getElementById('vizTitle').textContent = titleText;
-    
-    // Update insights
-    updateInsights(dataType);
-    
-    // Create visualization
-    setTimeout(() => {
-        try {
-            switch(vizType) {
-                case 'map':
-                    createMapVisualization(dataType);
-                    break;
-                case 'bar':
-                    createBarVisualization(dataType);
-                    break;
-                case 'comparison':
-                    createComparisonVisualization();
-                    break;
-                case 'scatter':
-                    createScatterVisualization(dataType);
-                    break;
-                default:
-                    createMapVisualization(dataType);
-            }
-        } catch (error) {
-            console.error('Error updating visualization:', error);
-            showStatus('Error updating visualization: ' + error.message, 'error');
+    try {
+        switch(vizType) {
+            case 'map':
+                createMapVisualization(dataType);
+                break;
+            case 'bar':
+                createBarVisualization(dataType);
+                break;
+            case 'comparison':
+                createComparisonVisualization();
+                break;
+            case 'scatter':
+                createScatterVisualization(dataType);
+                break;
+            default:
+                createMapVisualization(dataType);
         }
-    }, 500); // Small delay for better UX
+        
+        // Update insights
+        updateInsights(dataType);
+    } catch (error) {
+        console.error('Error updating visualization:', error);
+        showStatus('Error updating visualization: ' + error.message, 'error');
+    }
 }
 
 /**
