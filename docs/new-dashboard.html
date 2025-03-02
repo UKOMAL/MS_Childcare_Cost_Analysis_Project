@@ -140,15 +140,28 @@
         </div>
 
         <div class="control-panel">
-            <select id="visualizationType" class="form-control">
-                <option value="timeSeriesAnalysis">Time Series Analysis (2008-2018)</option>
-                <option value="urbanRuralComparison">Urban Rural Comparison (2008-2018)</option>
-                <option value="costDistribution">Cost Distribution (2008-2018)</option>
-                <option value="stateCosts">State Costs (2008-2018)</option>
-                <option value="costMap">Childcare Costs Map (2008-2018)</option>
-                <option value="laborForceMap">Female Labor Force Map (2008-2018)</option>
-                <option value="correlation">Correlation Analysis (2008-2018)</option>
-                <option value="spiralPlot">Spiral Plot (2008-2018)</option>
+            <select id="visualizationType" class="form-control" onchange="updateYearFilterVisibility()">
+                <option value="geoChoropleth">Cost Distribution Map</option>
+                <option value="laborForceMap">Female Labor Force Map</option>
+                <option value="timeSeriesAnalysis">State Cost Comparison</option>
+                <option value="costTrends">Cost Distribution with Deviation</option>
+                <option value="violinPlot">Cost Distribution (Violin Plot)</option>
+                <option value="correlation">Correlation Analysis</option>
+                <option value="socialMedia">Social Media Impact</option>
+                <option value="spiralPlot">Cost Trends (Spiral View)</option>
+            </select>
+            <select id="yearFilter" class="year-filter">
+                <option value="2018">2018 (Most Recent)</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+                <option value="2015">2015</option>
+                <option value="2014">2014</option>
+                <option value="2013">2013</option>
+                <option value="2012">2012</option>
+                <option value="2011">2011</option>
+                <option value="2010">2010</option>
+                <option value="2009">2009</option>
+                <option value="2008">2008 (Earliest)</option>
             </select>
         </div>
 
@@ -181,13 +194,31 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const visualTypeSelect = document.getElementById('visualizationType');
+            const yearFilter = document.getElementById('yearFilter');
             const container = document.getElementById('mainVisualization');
             
+            function updateYearFilterVisibility() {
+                const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap', 'costTrends'];
+                if (timeBasedVisualizations.includes(visualTypeSelect.value)) {
+                    yearFilter.classList.add('visible');
+                } else {
+                    yearFilter.classList.remove('visible');
+                }
+            }
+            
             // Event listeners
-            visualTypeSelect.addEventListener('change', updateVisualization);
+            visualTypeSelect.addEventListener('change', function() {
+                updateYearFilterVisibility();
+                updateVisualization();
+            });
+            
+            yearFilter.addEventListener('change', updateVisualization);
             
             // Initial setup
-            updateVisualization();
+            updateYearFilterVisibility();
+            
+            // Delay initial visualization to ensure DOM is ready
+            setTimeout(updateVisualization, 100);
 
             // Add ResizeObserver to handle container resizing
             if (container) {
