@@ -2,7 +2,7 @@
 function initNetwork(data) {
     if (!data || !data.costs || !data.metrics) {
         console.error('Invalid data structure for network visualization');
-        document.getElementById('networkViz').innerHTML = 
+        document.getElementById('mainViz').innerHTML = 
             '<div class="alert alert-danger">Error: Invalid or missing data for network visualization</div>';
         return;
     }
@@ -52,19 +52,37 @@ function initNetwork(data) {
                 showticklabels: false,
                 range: [-1.5, 1.5]
             },
-            height: 450
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            autosize: true,
+            height: 600
+        };
+        
+        // Plot with config
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            toImageButtonOptions: {
+                format: 'png',
+                filename: 'childcare_network_analysis',
+                height: 800,
+                width: 1200,
+                scale: 2
+            }
         };
 
-        Plotly.newPlot('networkViz', [nodeTrace, ...edgeTraces], layout)
+        Plotly.newPlot('mainViz', [nodeTrace, ...edgeTraces], layout, config)
             .then(() => console.log('Network visualization created successfully'))
             .catch(err => {
                 console.error('Error plotting network:', err);
-                document.getElementById('networkViz').innerHTML = 
+                document.getElementById('mainViz').innerHTML = 
                     '<div class="alert alert-danger">Error plotting network. Please check the console for details.</div>';
             });
     } catch (error) {
         console.error('Error creating network visualization:', error);
-        document.getElementById('networkViz').innerHTML = 
+        document.getElementById('mainViz').innerHTML = 
             '<div class="alert alert-danger">Error creating network visualization. Please check the console for details.</div>';
     }
 }
@@ -107,76 +125,63 @@ function createNodes(data) {
     ];
 }
 
-// Create edges between nodes
+// Create edges with correlations
 function createEdges(data, nodes) {
-    const edges = [];
-    const nodeIds = nodes.map(n => n.id);
-    
-    // Calculate correlations between all pairs of metrics
-    for (let i = 0; i < nodeIds.length; i++) {
-        for (let j = i + 1; j < nodeIds.length; j++) {
-            const source = nodeIds[i];
-            const target = nodeIds[j];
-            
-            // Get data arrays for correlation
-            const sourceData = source.startsWith('cost') ? 
-                data.costs[source.split('_')[1]] :
-                data.metrics[source];
-            const targetData = target.startsWith('cost') ?
-                data.costs[target.split('_')[1]] :
-                data.metrics[target];
-            
-            // Calculate correlation
-            const correlation = calculateCorrelation(sourceData, targetData);
-            
-            if (!isNaN(correlation)) {
-                edges.push({
-                    from: source,
-                    to: target,
-                    value: correlation
-                });
-            }
+    return [
+        {
+            from: 'infant',
+            to: 'toddler',
+            value: Math.abs(calculateCorrelation(data.costs.infant, data.costs.toddler))
+        },
+        {
+            from: 'toddler',
+            to: 'preschool',
+            value: Math.abs(calculateCorrelation(data.costs.toddler, data.costs.preschool))
+        },
+        {
+            from: 'infant',
+            to: 'burden',
+            value: Math.abs(calculateCorrelation(data.costs.infant, data.metrics.cost_burden))
+        },
+        {
+            from: 'burden',
+            to: 'working',
+            value: Math.abs(calculateCorrelation(data.metrics.cost_burden, data.metrics.working_parent_ratio))
         }
-    }
-    
-    return edges;
+    ];
 }
 
-// Calculate node positions in a circular layout
-function calculateNodePositions(nodes) {
-    const radius = 1;
-    const angleStep = (2 * Math.PI) / nodes.length;
-    
-    return nodes.map((node, i) => ({
-        ...node,
-        x: radius * Math.cos(i * angleStep),
-        y: radius * Math.sin(i * angleStep)
-    }));
-}
-
-// Create node trace for plotting
+// Create node trace
 function createNodeTrace(nodes) {
     return {
-        x: nodes.map(n => n.x),
-        y: nodes.map(n => n.y),
+        x: nodes.map(node => node.x),
+        y: nodes.map(node => node.y),
         mode: 'markers+text',
-        type: 'scatter',
         marker: {
-            size: nodes.map(n => Math.sqrt(n.value) * 20),
-            color: nodes.map(n => n.color),
+            size: nodes.map(node => Math.max(20, Math.min(50, node.value / 10))),
+            color: nodes.map(node => node.color),
             line: {
-                color: 'white',
-                width: 1
-            }
+                width: 2,
+                color: 'white'
+            },
+            opacity: 0.9,
+            sizemode: 'diameter'
         },
-        text: nodes.map(n => n.label),
+        text: nodes.map(node => node.label),
         textposition: 'top center',
+        textfont: {
+            family: 'Arial, sans-serif',
+            size: 14,
+            color: '#2c3e50'
+        },
         hoverinfo: 'text',
-        hovertext: nodes.map(n => `${n.label}<br>Value: ${n.value.toFixed(2)}`)
+        hovertext: nodes.map(node => `<b>${node.label}</b><br>Value: ${node.value.toFixed(2)}`),
+        name: 'Nodes',
+        type: 'scatter'
     };
 }
 
-// Create edge traces for plotting
+// Create edge traces
 function createEdgeTraces(nodes, edges) {
     return edges.map(edge => {
         const source = nodes.find(node => node.id === edge.from);
@@ -199,10 +204,13 @@ function createEdgeTraces(nodes, edges) {
             mode: 'lines',
             line: {
                 width: width,
-                color: color
+                color: color,
+                shape: 'spline',
+                smoothing: 1.3
             },
             hoverinfo: 'text',
-            hovertext: `${source.label} → ${target.label}<br>Correlation: ${edge.value.toFixed(2)}`,
+            hovertext: `<b>${source.label} → ${target.label}</b><br>Correlation: ${edge.value.toFixed(2)}`,
+            name: `${source.label} - ${target.label}`,
             type: 'scatter'
         };
     }).filter(trace => trace !== null);
@@ -210,45 +218,66 @@ function createEdgeTraces(nodes, edges) {
 
 // Calculate correlation between two arrays
 function calculateCorrelation(array1, array2) {
-    if (array1.length !== array2.length) return NaN;
+    // Filter out NaN values
+    const validPairs = array1.map((val, idx) => [val, array2[idx]])
+        .filter(pair => !isNaN(pair[0]) && !isNaN(pair[1]));
     
-    const n = array1.length;
-    const mean1 = array1.reduce((a, b) => a + b, 0) / n;
-    const mean2 = array2.reduce((a, b) => a + b, 0) / n;
+    if (validPairs.length < 2) return 0;
     
-    const variance1 = array1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
-    const variance2 = array2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+    const x = validPairs.map(pair => pair[0]);
+    const y = validPairs.map(pair => pair[1]);
     
-    const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
+    const n = x.length;
+    const mean1 = x.reduce((a, b) => a + b) / n;
+    const mean2 = y.reduce((a, b) => a + b) / n;
     
+    const variance1 = x.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
+    const variance2 = y.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+    
+    if (variance1 === 0 || variance2 === 0) return 0;
+    
+    const covariance = x.reduce((a, b, i) => a + (b - mean1) * (y[i] - mean2), 0) / n;
     return covariance / Math.sqrt(variance1 * variance2);
 }
 
+// Calculate node positions using circular layout
+function calculateNodePositions(nodes) {
+    const radius = 1;
+    return nodes.map((node, i) => {
+        const angle = (2 * Math.PI * i) / nodes.length;
+        return {
+            ...node,
+            x: radius * Math.cos(angle),
+            y: radius * Math.sin(angle)
+        };
+    });
+}
+
 // Update network based on filters
-function updateNetwork(selectedState) {
-    if (!DASHBOARD_DATA || !DASHBOARD_DATA.costs || !DASHBOARD_DATA.metrics) {
+function updateNetwork(selectedState, costRange, data) {
+    if (!data || !data.costs || !data.metrics) {
         console.error('Invalid data for network update');
         return;
     }
     
     try {
-        console.log('Updating network with:', { selectedState });
+        console.log('Updating network with:', { selectedState, costRange });
         
         // Filter data based on state selection
-        let filteredData = {...DASHBOARD_DATA};
+        let filteredData = {...data};
         if (selectedState !== 'all') {
-            const stateIndex = DASHBOARD_DATA.states.indexOf(selectedState);
+            const stateIndex = data.states.indexOf(selectedState);
             if (stateIndex !== -1) {
                 filteredData = {
-                    states: [DASHBOARD_DATA.states[stateIndex]],
+                    states: [data.states[stateIndex]],
                     costs: {
-                        infant: [DASHBOARD_DATA.costs.infant[stateIndex]],
-                        toddler: [DASHBOARD_DATA.costs.toddler[stateIndex]],
-                        preschool: [DASHBOARD_DATA.costs.preschool[stateIndex]]
+                        infant: [data.costs.infant[stateIndex]],
+                        toddler: [data.costs.toddler[stateIndex]],
+                        preschool: [data.costs.preschool[stateIndex]]
                     },
                     metrics: {
-                        cost_burden: [DASHBOARD_DATA.metrics.cost_burden[stateIndex]],
-                        working_parent_ratio: [DASHBOARD_DATA.metrics.working_parent_ratio[stateIndex]]
+                        cost_burden: [data.metrics.cost_burden[stateIndex]],
+                        working_parent_ratio: [data.metrics.working_parent_ratio[stateIndex]]
                     }
                 };
             }
@@ -258,7 +287,7 @@ function updateNetwork(selectedState) {
         initNetwork(filteredData);
     } catch (error) {
         console.error('Error updating network:', error);
-        document.getElementById('networkViz').innerHTML = 
+        document.getElementById('mainViz').innerHTML = 
             '<div class="alert alert-danger">Error updating network visualization. Please check the console for details.</div>';
     }
 }

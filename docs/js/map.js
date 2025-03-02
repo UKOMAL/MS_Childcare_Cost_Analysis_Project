@@ -2,7 +2,7 @@
 function initMap(data) {
     if (!data || !data.states || !data.costs || !data.costs.infant) {
         console.error('Invalid data structure for map visualization:', data);
-        document.getElementById('mapViz').innerHTML = 
+        document.getElementById('mainViz').innerHTML = 
             '<div class="alert alert-danger">Error: Invalid or missing data for map visualization</div>';
         return;
     }
@@ -15,10 +15,10 @@ function initMap(data) {
             const cost = z[i];
             const burden = data.metrics.cost_burden[i];
             const workingParents = data.metrics.working_parent_ratio[i];
-            return `<b>${STATE_NAMES[state]}</b><br>` +
+            return `<b>${getStateName(state)}</b><br>` +
                    `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
-                   `Cost Burden: ${burden ? (burden * 100).toFixed(1) : 'No data'}%<br>` +
-                   `Working Parents: ${workingParents ? (workingParents * 100).toFixed(1) : 'No data'}%`;
+                   `Cost Burden: ${burden ? burden.toFixed(1) : 'No data'}%<br>` +
+                   `Working Parents: ${workingParents ? workingParents.toFixed(1) : 'No data'}%`;
         });
 
         const mapData = [{
@@ -77,91 +77,84 @@ function initMap(data) {
                 subunitcolor: 'rgb(255,255,255)'
             },
             autosize: true,
-            height: 450,
+            height: 550,
             margin: {
                 l: 10,
                 r: 10,
                 b: 10,
                 t: 40,
                 pad: 0
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)'
+        };
+
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            toImageButtonOptions: {
+                format: 'png',
+                filename: 'childcare_costs_map',
+                height: 800,
+                width: 1200,
+                scale: 2
             }
         };
 
-        Plotly.newPlot('mapViz', mapData, layout).then(() => {
+        console.log('Plotting map with data:', { mapData, layout });
+        Plotly.newPlot('mainViz', mapData, layout, config).then(() => {
             console.log('Map plotted successfully');
         }).catch(err => {
             console.error('Error plotting map:', err);
-            document.getElementById('mapViz').innerHTML = 
+            document.getElementById('mainViz').innerHTML = 
                 '<div class="alert alert-danger">Error plotting map. Please check the console for details.</div>';
         });
     } catch (error) {
         console.error('Error creating map visualization:', error);
-        document.getElementById('mapViz').innerHTML = 
+        document.getElementById('mainViz').innerHTML = 
             '<div class="alert alert-danger">Error creating map visualization. Please check the console for details.</div>';
     }
 }
 
 // Update map based on filters
-function updateMap(selectedState, dataType) {
-    if (!DASHBOARD_DATA || !DASHBOARD_DATA.states) {
+function updateMap(selectedState, costRange, data) {
+    if (!data || !data.states || !data.costs || !data.costs.infant) {
         console.error('Invalid data for map update');
         return;
     }
     
     try {
-        let filteredData = {...DASHBOARD_DATA};
+        // Update map visualization based on filters
+        console.log('Updating map with:', { selectedState, costRange });
+        let filteredData = {...data};
         
-        // Filter by state if needed
         if (selectedState !== 'all') {
-            const stateIndex = DASHBOARD_DATA.states.indexOf(selectedState);
+            const stateIndex = data.states.indexOf(selectedState);
             if (stateIndex !== -1) {
                 filteredData = {
-                    states: [DASHBOARD_DATA.states[stateIndex]],
+                    states: [data.states[stateIndex]],
                     costs: {
-                        infant: [DASHBOARD_DATA.costs.infant[stateIndex]],
-                        toddler: [DASHBOARD_DATA.costs.toddler[stateIndex]],
-                        preschool: [DASHBOARD_DATA.costs.preschool[stateIndex]]
-                    },
-                    metrics: {
-                        cost_burden: [DASHBOARD_DATA.metrics.cost_burden[stateIndex]],
-                        working_parent_ratio: [DASHBOARD_DATA.metrics.working_parent_ratio[stateIndex]]
+                        infant: [data.costs.infant[stateIndex]],
+                        toddler: [data.costs.toddler[stateIndex]],
+                        preschool: [data.costs.preschool[stateIndex]]
                     }
                 };
             }
         }
-        
-        // Update map with filtered data
+
+        // Filter by cost range
+        const maxCost = parseFloat(costRange);
+        filteredData.states = filteredData.states.filter((_, i) => 
+            !isNaN(filteredData.costs.infant[i]) && 
+            filteredData.costs.infant[i] <= maxCost
+        );
+
         initMap(filteredData);
     } catch (error) {
         console.error('Error updating map:', error);
-        document.getElementById('mapViz').innerHTML = 
-            '<div class="alert alert-danger">Error updating map visualization. Please check the console for details.</div>';
     }
-}
-
-// Add cost burden overlay to map
-function addCostBurdenOverlay() {
-    const bubbleData = {
-        type: 'scattergeo',
-        locationmode: 'USA-states',
-        lon: DASHBOARD_DATA.states.map(state => STATE_COORDINATES[state].lon),
-        lat: DASHBOARD_DATA.states.map(state => STATE_COORDINATES[state].lat),
-        text: DASHBOARD_DATA.states.map((state, i) => 
-            `${STATE_NAMES[state]}<br>Cost Burden: ${(DASHBOARD_DATA.metrics.cost_burden[i] * 100).toFixed(1)}%`
-        ),
-        marker: {
-            size: DASHBOARD_DATA.metrics.cost_burden.map(x => x * 50),
-            color: DASHBOARD_DATA.metrics.cost_burden,
-            colorscale: 'RdYlBu',
-            reversescale: true,
-            colorbar: {
-                title: 'Cost Burden (%)'
-            }
-        },
-        name: 'Cost Burden'
-    };
-
-    Plotly.addTraces('mapViz', bubbleData);
 }
 
 // Filter map data based on selection

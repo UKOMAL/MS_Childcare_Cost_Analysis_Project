@@ -2,8 +2,6 @@
 function initTimeSeries(data) {
     if (!data || !data.costs || !data.states) {
         console.error('Invalid data structure for time series visualization');
-        document.getElementById('timeSeriesViz').innerHTML = 
-            '<div class="alert alert-danger">Error: Invalid or missing data for time series visualization</div>';
         return;
     }
 
@@ -18,25 +16,15 @@ function initTimeSeries(data) {
             'Preschool': data.costs.preschool
         };
 
-        // Generate years array from 2008 to 2018
-        const years = Array.from({length: 11}, (_, i) => 2008 + i);
-
         Object.entries(costTypes).forEach(([label, costs]) => {
-            // Simulate yearly growth (3-4% increase per year)
-            const yearlyData = years.map((year, i) => {
-                const baseValue = costs[0];
-                const growthRate = 0.03 + Math.random() * 0.01; // Random growth between 3-4%
-                return baseValue * Math.pow(1 + growthRate, i);
-            });
-
             traces.push({
                 type: 'scatter',
                 mode: 'lines+markers',
                 name: label,
-                x: years,
-                y: yearlyData,
-                text: yearlyData.map((cost, i) => 
-                    `${label}<br>Year: ${years[i]}<br>Cost: $${cost.toFixed(2)}`
+                x: states,
+                y: costs,
+                text: costs.map((cost, i) => 
+                    `${states[i]}<br>${label}: $${cost ? cost.toFixed(2) : 'No data'}`
                 ),
                 hoverinfo: 'text',
                 line: {
@@ -49,21 +37,21 @@ function initTimeSeries(data) {
         });
 
         const layout = {
-            title: 'Childcare Costs Over Time',
+            title: 'Childcare Costs Comparison',
             xaxis: {
-                title: 'Year',
-                tickmode: 'linear',
-                dtick: 1
+                title: 'States',
+                tickangle: 45,
+                automargin: true
             },
             yaxis: {
                 title: 'Monthly Cost ($)',
                 automargin: true
             },
-            height: 450,
+            height: 500,
             margin: {
                 l: 60,
                 r: 30,
-                b: 50,
+                b: 80,
                 t: 50,
                 pad: 4
             },
@@ -76,13 +64,8 @@ function initTimeSeries(data) {
             hovermode: 'closest'
         };
 
-        Plotly.newPlot('timeSeriesViz', traces, layout)
-            .then(() => console.log('Time series visualization created successfully'))
-            .catch(err => {
-                console.error('Error creating time series:', err);
-                document.getElementById('timeSeriesViz').innerHTML = 
-                    '<div class="alert alert-danger">Error creating time series visualization. Please check the console for details.</div>';
-            });
+        Plotly.newPlot('timeSeriesViz', traces, layout);
+        console.log('Time series visualization created successfully');
     } catch (error) {
         console.error('Error creating time series visualization:', error);
         document.getElementById('timeSeriesViz').innerHTML = 
@@ -91,43 +74,45 @@ function initTimeSeries(data) {
 }
 
 // Update time series based on filters
-function updateTimeSeries(selectedState, dataType) {
-    if (!DASHBOARD_DATA || !DASHBOARD_DATA.states) {
-        console.error('Invalid data for time series update');
-        return;
-    }
+function updateTimeSeries(selectedState, costRange, data) {
+    if (!data || !data.states) return;
 
     try {
-        let filteredData = {...DASHBOARD_DATA};
+        let filteredData = {...data};
         
-        // Filter by state if needed
         if (selectedState !== 'all') {
-            const stateIndex = DASHBOARD_DATA.states.indexOf(selectedState);
+            const stateIndex = data.states.indexOf(selectedState);
             if (stateIndex !== -1) {
                 filteredData = {
-                    states: [DASHBOARD_DATA.states[stateIndex]],
+                    states: [data.states[stateIndex]],
                     costs: {
-                        infant: [DASHBOARD_DATA.costs.infant[stateIndex]],
-                        toddler: [DASHBOARD_DATA.costs.toddler[stateIndex]],
-                        preschool: [DASHBOARD_DATA.costs.preschool[stateIndex]]
+                        infant: [data.costs.infant[stateIndex]],
+                        toddler: [data.costs.toddler[stateIndex]],
+                        preschool: [data.costs.preschool[stateIndex]]
                     }
                 };
             }
         }
 
-        // Filter by data type if needed
-        if (dataType !== 'all') {
-            filteredData.costs = {
-                [dataType]: filteredData.costs[dataType]
-            };
-        }
+        // Filter by cost range
+        const maxCost = parseFloat(costRange);
+        const validIndices = filteredData.states.map((_, i) => 
+            !isNaN(filteredData.costs.infant[i]) && 
+            filteredData.costs.infant[i] <= maxCost ? i : -1
+        ).filter(i => i !== -1);
 
-        // Reinitialize time series with filtered data
+        filteredData = {
+            states: validIndices.map(i => filteredData.states[i]),
+            costs: {
+                infant: validIndices.map(i => filteredData.costs.infant[i]),
+                toddler: validIndices.map(i => filteredData.costs.toddler[i]),
+                preschool: validIndices.map(i => filteredData.costs.preschool[i])
+            }
+        };
+
         initTimeSeries(filteredData);
     } catch (error) {
         console.error('Error updating time series:', error);
-        document.getElementById('timeSeriesViz').innerHTML = 
-            '<div class="alert alert-danger">Error updating time series visualization. Please check the console for details.</div>';
     }
 }
 
@@ -179,12 +164,9 @@ function filterByCostRange(data, costRange) {
 
 // Add cost burden overlay
 function addCostBurdenOverlay(data) {
-    const years = Array.from({length: 11}, (_, i) => 2008 + i);
-    const costBurden = data.metrics.cost_burden.map(burden => burden * 100);
-
     const trace = {
-        x: years,
-        y: costBurden,
+        x: data.years,
+        y: data.costBurden,
         type: 'scatter',
         mode: 'lines',
         name: 'Cost Burden (%)',
@@ -229,9 +211,9 @@ function createStateComparison(states, years, costs) {
         yaxis: {
             title: 'Annual Cost ($)'
         },
-        height: 450,
+        height: 400,
         showlegend: true
     };
 
-    Plotly.newPlot('timeSeriesViz', traces, layout);
+    Plotly.newPlot('supplementaryViz', traces, layout);
 } 
