@@ -201,60 +201,51 @@ function createHeatMap(container, year, baseLayout) {
  * Create time series visualization
  */
 function createTimeSeries(container, year, baseLayout) {
-    // Get data for selected year
-    const yearData = DASHBOARD_DATA.costs[year] || DASHBOARD_DATA.costs['2018'];
+    const years = ['2008', '2010', '2012', '2014', '2016', '2018'];
     const states = DASHBOARD_DATA.states;
     
-    // Calculate average costs for each state
-    const stateData = states.map((state, idx) => ({
-        state: state,
-        cost: yearData.infant[idx],
-        name: STATE_NAMES[state]
-    }));
+    // Calculate average costs for each state over the years
+    const traces = states.map(state => {
+        const stateIndex = DASHBOARD_DATA.states.indexOf(state);
+        const costs = years.map(year => {
+            return DASHBOARD_DATA.costs[year].infant[stateIndex];
+        });
+        
+        return {
+            type: 'scatter',
+            x: years,
+            y: costs,
+            name: STATE_NAMES[state],
+            mode: 'lines+markers',
+            line: { width: 2 },
+            marker: { size: 6 }
+        };
+    });
 
-    // Sort states by cost for better visualization
-    stateData.sort((a, b) => b.cost - a.cost);
-
-    const trace = {
-        type: 'bar',
-        x: stateData.map(d => d.cost),
-        y: stateData.map(d => d.name),
-        orientation: 'h',
-        marker: {
-            color: 'rgb(78, 84, 200)',
-            line: {
-                color: 'rgb(58, 64, 180)',
-                width: 1
-            }
-        },
-        hovertemplate: '%{y}<br>Cost: $%{x:.2f}<extra></extra>'
-    };
-    
     const layout = {
         ...baseLayout,
-        title: `Average Childcare Costs by State (${year})`,
+        title: 'State-wise Childcare Cost Trends (2008-2018)',
         xaxis: {
+            title: 'Year',
+            showgrid: true,
+            gridcolor: 'rgba(0,0,0,0.1)',
+            dtick: 2
+        },
+        yaxis: {
             title: 'Monthly Cost ($)',
             showgrid: true,
             gridcolor: 'rgba(0,0,0,0.1)'
         },
-        yaxis: {
-            title: '',
-            automargin: true,
-            showgrid: true,
-            gridcolor: 'rgba(0,0,0,0.1)'
-        },
-        margin: {
-            l: 200,
-            r: 50,
-            t: 50,
-            b: 100
-        },
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        paper_bgcolor: 'rgba(0,0,0,0)'
+        showlegend: true,
+        legend: {
+            title: { text: 'States' },
+            y: 1,
+            x: 1,
+            xanchor: 'right'
+        }
     };
-    
-    Plotly.newPlot(container.id, [trace], layout, {responsive: true})
+
+    Plotly.newPlot(container.id, traces, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating time series:', err);
             container.innerHTML = '<div class="error">Error creating time series visualization</div>';
@@ -549,41 +540,58 @@ function calculateCorrelation(array1, array2) {
  * Create social media impact visualization
  */
 function createSocialMediaImpact(container, baseLayout) {
-    // First chart: Working Parents vs Cost Burden
+    // Create subplot layout
+    const layout = {
+        ...baseLayout,
+        grid: {rows: 2, columns: 1, pattern: 'independent'},
+        height: container.clientHeight * 1.8,
+        title: 'Social Media Impact Analysis',
+        showlegend: true
+    };
+
+    // First subplot: Bar chart comparing metrics
     const trace1 = {
         type: 'bar',
         x: DASHBOARD_DATA.states,
         y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
         name: 'Working Parents',
+        xaxis: 'x1',
+        yaxis: 'y1',
         marker: {
             color: 'rgb(52, 152, 219)'
         }
     };
-    
+
     const trace2 = {
         type: 'bar',
         x: DASHBOARD_DATA.states,
         y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
         name: 'Cost Burden',
+        xaxis: 'x1',
+        yaxis: 'y1',
         marker: {
             color: 'rgb(231, 76, 60)'
         }
     };
 
-    // Second chart: Cost vs Working Parent Ratio
+    // Second subplot: Scatter plot
     const trace3 = {
         type: 'scatter',
         x: DASHBOARD_DATA.costs['2018'].infant,
         y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
         mode: 'markers',
         name: 'Cost vs Working Parents',
+        xaxis: 'x2',
+        yaxis: 'y2',
         marker: {
             size: 12,
             color: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
             colorscale: 'Viridis',
             showscale: true,
             colorbar: {
-                title: 'Cost Burden (%)'
+                title: 'Cost Burden (%)',
+                y: 0.15,
+                len: 0.3
             }
         },
         text: DASHBOARD_DATA.states.map((state, i) => 
@@ -593,40 +601,26 @@ function createSocialMediaImpact(container, baseLayout) {
         ),
         hoverinfo: 'text'
     };
-    
-    const layout1 = {
-        ...baseLayout,
-        grid: {rows: 2, columns: 1, pattern: 'independent'},
-        title: 'Working Parents and Cost Burden Analysis',
-        subplot1: {
-            barmode: 'group',
-            xaxis: {
-                title: 'State',
-                tickangle: -45
-            },
-            yaxis: {
-                title: 'Percentage (%)'
-            }
-        },
-        subplot2: {
-            xaxis: {
-                title: 'Monthly Cost ($)'
-            },
-            yaxis: {
-                title: 'Working Parents (%)'
-            }
-        },
-        height: container.clientHeight * 2,
-        showlegend: true,
-        legend: {
-            orientation: 'h',
-            y: -0.1,
-            x: 0.5,
-            xanchor: 'center'
-        }
+
+    layout.xaxis1 = {
+        title: 'State',
+        domain: [0, 0.95],
+        tickangle: -45
     };
-    
-    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout1, {responsive: true})
+    layout.yaxis1 = {
+        title: 'Percentage (%)',
+        domain: [0.55, 1]
+    };
+    layout.xaxis2 = {
+        title: 'Monthly Cost ($)',
+        domain: [0, 0.95]
+    };
+    layout.yaxis2 = {
+        title: 'Working Parents (%)',
+        domain: [0, 0.35]
+    };
+
+    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
         .catch(err => {
             console.error('Error creating social media impact visualization:', err);
             container.innerHTML = '<div class="error">Error creating social media visualization</div>';
@@ -807,40 +801,31 @@ function updateVisualization() {
     }
     
     // Show loading state
-    container.innerHTML = '<div class="loading-spinner" style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
+    container.innerHTML = '<div class="loading-spinner"><p>Loading visualization...</p></div>';
     
-    // Calculate container dimensions based on viewport
+    // Calculate container dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     const headerHeight = 120;
     const marginBottom = 20;
     const marginSides = 40;
     
-    // Set container dimensions for wide orientation
     container.style.width = `${viewportWidth - marginSides}px`;
     container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
-    container.style.maxWidth = '2000px'; // Prevent excessive stretching
-    container.style.margin = '0 auto'; // Center the container
+    container.style.maxWidth = '2000px';
+    container.style.margin = '0 auto';
     
-    // Common layout settings for all visualizations
     const baseLayout = {
         autosize: true,
         margin: {
-            l: 60,  // Increased left margin for labels
-            r: 30,  // Reduced right margin
-            t: 50,  // Top margin for title
-            b: 60,  // Increased bottom margin for labels
+            l: 60,
+            r: 30,
+            t: 50,
+            b: 60,
             pad: 4
         },
         width: container.clientWidth,
         height: container.clientHeight,
-        showlegend: true,
-        legend: {
-            orientation: 'h',
-            y: -0.2,
-            x: 0.5,
-            xanchor: 'center'
-        },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: {
@@ -856,11 +841,8 @@ function updateVisualization() {
             case 'timeSeriesAnalysis':
                 createTimeSeries(container, selectedYear, baseLayout);
                 break;
-            case 'costDistribution':
-                createCostDistribution(container, baseLayout);
-                break;
-            case 'costTrends':
-                createCostTrends(container, baseLayout);
+            case 'violinPlot':
+                createViolinPlot(container, baseLayout);
                 break;
             case 'laborForceMap':
                 createLaborForceMap(container, selectedYear, baseLayout);
