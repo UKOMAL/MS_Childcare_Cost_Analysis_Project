@@ -289,72 +289,83 @@ function createTimeSeries(container, year, baseLayout) {
  * Create violin plot visualization
  */
 function createViolinPlot(container, baseLayout) {
-    const states = DASHBOARD_DATA.states;
-    const costs = DASHBOARD_DATA.costs['2018'];
-    
-    // Prepare data for violin plot
-    const infantData = {
-        type: 'violin',
-        x: states,
-        y: costs.infant,
-        name: 'Infant Care',
-        box: {
-            visible: true
-        },
-        line: {
-            color: 'rgb(52, 152, 219)'
-        },
-        meanline: {
-            visible: true
-        }
+    const years = Object.keys(DASHBOARD_DATA.costs);
+    const allCosts = {
+        infant: [],
+        toddler: [],
+        preschool: []
     };
     
-    const toddlerData = {
-        type: 'violin',
-        x: states,
-        y: costs.toddler,
-        name: 'Toddler Care',
-        box: {
-            visible: true
-        },
-        line: {
-            color: 'rgb(46, 204, 113)'
-        },
-        meanline: {
-            visible: true
-        }
-    };
+    // Collect costs across all years
+    years.forEach(year => {
+        allCosts.infant.push(...DASHBOARD_DATA.costs[year].infant);
+        allCosts.toddler.push(...DASHBOARD_DATA.costs[year].toddler);
+        allCosts.preschool.push(...DASHBOARD_DATA.costs[year].preschool);
+    });
     
-    const preschoolData = {
-        type: 'violin',
-        x: states,
-        y: costs.preschool,
-        name: 'Preschool Care',
-        box: {
-            visible: true
+    const traces = [
+        {
+            type: 'violin',
+            y: allCosts.infant,
+            name: 'Infant Care',
+            box: {
+                visible: true
+            },
+            meanline: {
+                visible: true
+            },
+            line: {
+                color: '#FF6B6B'
+            }
         },
-        line: {
-            color: 'rgb(155, 89, 182)'
+        {
+            type: 'violin',
+            y: allCosts.toddler,
+            name: 'Toddler Care',
+            box: {
+                visible: true
+            },
+            meanline: {
+                visible: true
+            },
+            line: {
+                color: '#4ECDC4'
+            }
         },
-        meanline: {
-            visible: true
+        {
+            type: 'violin',
+            y: allCosts.preschool,
+            name: 'Preschool Care',
+            box: {
+                visible: true
+            },
+            meanline: {
+                visible: true
+            },
+            line: {
+                color: '#45B7D1'
+            }
         }
-    };
+    ];
     
     const layout = {
         ...baseLayout,
-        title: 'Distribution of Childcare Costs by Type',
-        xaxis: {
-            title: 'State',
-            tickangle: -45
-        },
+        title: 'Distribution of Childcare Costs by Type (2008-2018)',
         yaxis: {
-            title: 'Monthly Cost ($)'
+            title: 'Monthly Cost ($)',
+            zeroline: false
         },
-        violinmode: 'group'
+        violinmode: 'group',
+        showlegend: true,
+        legend: {
+            orientation: 'h',
+            y: -0.2,
+            x: 0.5,
+            xanchor: 'center'
+        }
     };
     
-    Plotly.newPlot(container.id, [infantData, toddlerData, preschoolData], layout, {responsive: true})
+    Plotly.newPlot(container.id, traces, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating violin plot:', err);
             container.innerHTML = '<div class="error">Error creating violin plot visualization</div>';
@@ -715,6 +726,9 @@ function updateVisualization() {
                 break;
             case 'costSpiral':
                 createSpiralPlot(container, baseLayout);
+                break;
+            case 'violinPlot':
+                createViolinPlot(container, baseLayout);
                 break;
             case 'correlation':
                 createCorrelationAnalysis(container, baseLayout);
