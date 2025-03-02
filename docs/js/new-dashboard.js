@@ -6,10 +6,23 @@
 console.log("Loading new-dashboard.js...");
 
 // Global variables
+let df = null;
+let currentVisualization = 'geoChoropleth';
 let currentYear = '2018';
 
-// Define which visualizations should show the year filter
-const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'];
+// Constants
+const VISUALIZATION_TYPES = {
+    'geoChoropleth': 'Cost Distribution Map',
+    'laborForceMap': 'Female Labor Force Map',
+    'timeSeriesAnalysis': 'Regional Cost Trends',
+    'costTrends': 'State Cost Comparison',
+    'violinPlot': 'Urban/Rural Cost Comparison',
+    'correlation': 'Cost Correlation Analysis',
+    'socialMedia': 'Cost Distribution',
+    'spiralPlot': 'Cost Trends (Spiral View)'
+};
+
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
 
 // Define which visualizations are interactive vs static images
 const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot'];
@@ -23,364 +36,391 @@ const visualizationImages = {
     'socialMedia': 'images/cost_distribution.png'
 };
 
+// Define chart colors and styling
+const chartColors = {
+    primary: '#4E54C8',
+    secondary: '#764BA2',
+    accent: '#FF6B6B',
+    background: 'rgba(255, 255, 255, 0.9)',
+    text: '#333',
+    grid: 'rgba(200, 200, 200, 0.3)'
+};
+
+// Define common chart font settings
+const chartFont = {
+    family: 'Arial, sans-serif',
+    size: 14,
+    color: '#333'
+};
+
+// Define common chart title settings
+const chartTitle = {
+    font: {
+        family: 'Arial, sans-serif',
+        size: 20,
+        color: '#4E54C8',
+        weight: 'bold'
+    },
+    xref: 'paper',
+    x: 0.5
+};
+
 /**
  * Status message functions
  * @param {string} message - The message to display
- * @param {string} type - The type of message (info, success, error, warning)
+ * @param {boolean} isError - Whether the message is an error
  */
-function showStatus(message, type = 'info') {
-    console.log(`Status: ${message} (${type})`);
-    const statusElement = document.getElementById('statusMessage');
-    if (statusElement) {
-        statusElement.textContent = message;
-        statusElement.className = 'status-message';
-        
-        switch(type) {
-            case 'success':
-                statusElement.classList.add('status-success');
-                break;
-            case 'error':
-                statusElement.classList.add('status-error');
-                break;
-            case 'warning':
-                statusElement.classList.add('status-warning');
-                break;
-            default:
-                statusElement.classList.add('status-info');
-        }
-    }
+function showStatus(message, isError = false) {
+    const container = document.getElementById('mainVisualization');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const statusElement = document.createElement('div');
+    statusElement.className = isError ? 'error' : 'loading-spinner';
+    statusElement.textContent = message;
+    
+    container.appendChild(statusElement);
 }
 
 /**
  * Update insights panel with statistics
  */
-function updateInsights(visualType) {
-    // Sample insights based on visualization type
-    const insights = {
-        'geoChoropleth': [
-            'Highest childcare costs are in Northeast and West Coast states',
-            'Rural states generally have lower childcare costs',
-            'Cost variations can exceed 300% between states'
-        ],
-        'timeSeriesAnalysis': [
-            'Childcare costs have risen 25% faster than inflation',
-            'The steepest increases occurred between 2014-2016',
-            'Regional cost differences have widened over time'
-        ],
-        'laborForceMap': [
-            'States with higher childcare costs often have higher female labor participation',
-            'Subsidized childcare correlates with 15% higher workforce participation',
-            'Rural areas show lower participation rates on average'
-        ],
-        'default': [
-            'Average families spend between $11,000 to $21,500 annually on childcare',
-            'Northeast states show highest costs, averaging $18,000+ annually',
-            'Annual costs increasing by 3.5-4.5% across regions'
-        ]
-    };
+function updateInsights(dataType) {
+    const insightCards = document.querySelectorAll('.insight-card');
     
-    // Get the insight cards
-    const insightCards = document.querySelectorAll('.insight-card p');
-    if (insightCards.length === 0) return;
-    
-    // Update with appropriate insights
-    const selectedInsights = insights[visualType] || insights['default'];
-    insightCards.forEach((card, index) => {
-        if (index < selectedInsights.length) {
-            card.textContent = selectedInsights[index];
+    if (dataType === 'geoChoropleth') {
+        if (insightCards.length >= 1 && insightCards[0].querySelector('p')) {
+            insightCards[0].querySelector('p').textContent = 'Average families spend between $11,000 to $21,500 annually on childcare';
         }
-    });
+        if (insightCards.length >= 2 && insightCards[1].querySelector('p')) {
+            insightCards[1].querySelector('p').textContent = 'Northeast states show highest costs, averaging $18,000+ annually';
+        }
+        if (insightCards.length >= 3 && insightCards[2].querySelector('p')) {
+            insightCards[2].querySelector('p').textContent = 'Annual costs increasing by 3.5-4.5% across regions';
+        }
+    } else if (dataType === 'laborForceMap') {
+        if (insightCards.length >= 1 && insightCards[0].querySelector('p')) {
+            insightCards[0].querySelector('p').textContent = 'States with higher childcare costs show 5-8% lower female workforce participation';
+        }
+        if (insightCards.length >= 2 && insightCards[1].querySelector('p')) {
+            insightCards[1].querySelector('p').textContent = 'Midwest states maintain higher female employment despite rising costs';
+        }
+        if (insightCards.length >= 3 && insightCards[2].querySelector('p')) {
+            insightCards[2].querySelector('p').textContent = 'Urban areas show 12% higher female employment rates than rural areas';
+        }
+    } else if (dataType === 'timeSeriesAnalysis') {
+        if (insightCards.length >= 1 && insightCards[0].querySelector('p')) {
+            insightCards[0].querySelector('p').textContent = 'Costs have risen 23% on average since 2008 across all regions';
+        }
+        if (insightCards.length >= 2 && insightCards[1].querySelector('p')) {
+            insightCards[1].querySelector('p').textContent = 'Western states experienced the fastest growth at 4.2% annually';
+        }
+        if (insightCards.length >= 3 && insightCards[2].querySelector('p')) {
+            insightCards[2].querySelector('p').textContent = 'Economic downturns correlate with temporary plateaus in cost increases';
+        }
+    } else {
+        // Default insights for other visualizations
+        if (insightCards.length >= 1 && insightCards[0].querySelector('p')) {
+            insightCards[0].querySelector('p').textContent = 'Average families spend between $11,000 to $21,500 annually on childcare';
+        }
+        if (insightCards.length >= 2 && insightCards[1].querySelector('p')) {
+            insightCards[1].querySelector('p').textContent = 'Northeast states show highest costs, averaging $18,000+ annually';
+        }
+        if (insightCards.length >= 3 && insightCards[2].querySelector('p')) {
+            insightCards[2].querySelector('p').textContent = 'Annual costs increasing by 3.5-4.5% across regions';
+        }
+    }
 }
 
 /**
  * Create US map visualization (interactive)
  */
-function createHeatMap(container, year, baseLayout) {
-    // Sample data for demonstration
-    const states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"];
+function createHeatMap(data, year) {
+    const container = document.getElementById('mainVisualization');
+    if (!container) return;
     
-    // Get costs for the selected year (using sample data)
-    const yearIndex = ['2018', '2017', '2016', '2015', '2014', '2012', '2010', '2008'].indexOf(year);
-    const yearOffset = yearIndex >= 0 ? yearIndex * 0.05 : 0; // Decrease values for older years
+    // Filter data for the selected year
+    const yearData = data.filter(d => d.year == year);
     
-    // Generate sample costs with variation by year
-    const costs = states.map((state, i) => {
-        const baseValue = 5000 + (i % 10) * 1000 + Math.random() * 2000;
-        return Math.round(baseValue * (1 - yearOffset));
-    });
+    // Prepare data for the heatmap
+    const states = [...new Set(yearData.map(d => d.state_name))];
+    const values = yearData.map(d => d.mhi_ratio);
     
-    const text = states.map((state, i) => {
-        return `<b>${state}</b><br>Annual Cost: $${costs[i].toLocaleString()}`;
-    });
-    
-    const data = [{
+    // Create the heatmap
+    const trace = {
         type: 'choropleth',
         locationmode: 'USA-states',
-        locations: states,
-        z: costs,
-        text: text,
-        hoverinfo: 'text',
-        colorscale: 'Viridis',
+        locations: yearData.map(d => d.state_abbr),
+        z: values,
+        text: yearData.map(d => `${d.state_name}<br>Cost to Income Ratio: ${d.mhi_ratio.toFixed(2)}`),
+        colorscale: [
+            [0, 'rgba(255, 255, 255, 0.8)'],
+            [0.2, 'rgba(255, 235, 235, 0.8)'],
+            [0.4, 'rgba(255, 205, 205, 0.8)'],
+            [0.6, 'rgba(255, 175, 175, 0.8)'],
+            [0.8, 'rgba(255, 145, 145, 0.8)'],
+            [1, 'rgba(255, 115, 115, 0.8)']
+        ],
         colorbar: {
-            title: 'Annual Cost ($)',
-            thickness: 20,
-            tickformat: '$,.0f'
-        },
-        marker: {
-            line: {
-                color: 'rgb(255,255,255)',
-                width: 2
+            title: {
+                text: 'Cost to Income Ratio',
+                font: {
+                    family: chartFont.family,
+                    size: 16,
+                    color: chartColors.primary
+                }
+            },
+            tickfont: {
+                family: chartFont.family,
+                size: 14,
+                color: chartColors.text
             }
-        }
-    }];
+        },
+        hoverinfo: 'text'
+    };
     
     const layout = {
-        ...baseLayout,
         title: {
-            text: `Average Childcare Costs by State (${year})`,
-            font: { size: 24 }
+            text: `Childcare Cost Burden by State (${year})`,
+            font: chartTitle.font,
+            xref: chartTitle.xref,
+            x: chartTitle.x
         },
         geo: {
             scope: 'usa',
             showlakes: true,
-            lakecolor: 'rgb(255,255,255)',
+            lakecolor: 'rgb(240, 245, 255)',
             projection: {
                 type: 'albers usa'
-            }
+            },
+            bgcolor: 'rgba(255, 255, 255, 0.0)'
         },
         margin: {
-            l: 0,
-            r: 0,
-            t: 50,
-            b: 0
-        }
+            l: 60,
+            r: 60,
+            t: 80,
+            b: 60
+        },
+        paper_bgcolor: chartColors.background,
+        plot_bgcolor: chartColors.background,
+        font: chartFont
     };
     
-    Plotly.newPlot(container.id, data, layout, {responsive: true})
-        .catch(err => {
-            console.error('Error creating heat map:', err);
-            container.innerHTML = '<div class="error">Error creating heat map visualization</div>';
-        });
+    Plotly.newPlot(container, [trace], layout, {responsive: true});
 }
 
 /**
  * Create time series analysis visualization (interactive)
  */
-function createTimeSeries(container, year, baseLayout) {
-    // Define regions and their states
-    const regions = {
-        'Northeast': ['CT', 'ME', 'MA', 'NH', 'RI', 'VT', 'NY', 'NJ', 'PA'],
-        'Southeast': ['DE', 'FL', 'GA', 'MD', 'NC', 'SC', 'VA', 'WV', 'AL', 'KY', 'MS', 'TN', 'AR', 'LA'],
-        'Midwest': ['IL', 'IN', 'MI', 'OH', 'WI', 'IA', 'KS', 'MN', 'MO', 'NE', 'ND', 'SD'],
-        'Southwest': ['AZ', 'NM', 'OK', 'TX'],
-        'West': ['AK', 'CA', 'HI', 'OR', 'WA', 'CO', 'ID', 'MT', 'NV', 'UT', 'WY']
-    };
-
-    // Colors for each region
-    const regionColors = {
-        'Northeast': '#1f77b4',
-        'Southeast': '#ff7f0e',
-        'Midwest': '#2ca02c',
-        'Southwest': '#d62728',
-        'West': '#9467bd'
-    };
-
-    // Years to analyze
-    const years = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
-
-    // Generate sample data for each region
-    const regionData = {};
-    Object.keys(regions).forEach(region => {
-        // Base values for each region
-        let baseValue;
-        switch(region) {
-            case 'Northeast': baseValue = 15000; break;
-            case 'West': baseValue = 14000; break;
-            case 'Midwest': baseValue = 12000; break;
-            case 'Southwest': baseValue = 11000; break;
-            case 'Southeast': baseValue = 10000; break;
-            default: baseValue = 12000;
-        }
+function createTimeSeries(data) {
+    const container = document.getElementById('mainVisualization');
+    if (!container) return;
+    
+    // Group data by region and year
+    const regions = [...new Set(data.map(d => d.region))];
+    const years = [...new Set(data.map(d => d.year))].sort();
+    
+    const traces = regions.map(region => {
+        const regionData = data.filter(d => d.region === region);
+        const yearlyAverages = years.map(year => {
+            const yearData = regionData.filter(d => d.year == year);
+            return yearData.length > 0 ? yearData.reduce((sum, d) => sum + d.mhi_ratio, 0) / yearData.length : null;
+        });
         
-        // Generate yearly data with increasing trend
-        regionData[region] = {
+        return {
             x: years,
-            y: years.map((year, i) => {
-                // Increase by ~3% per year from 2008
-                const yearFactor = 1 + (year - 2008) * 0.03;
-                // Add some random variation
-                const randomFactor = 0.95 + Math.random() * 0.1;
-                return Math.round(baseValue * yearFactor * randomFactor);
-            }),
-            name: region,
+            y: yearlyAverages,
             type: 'scatter',
             mode: 'lines+markers',
+            name: region,
             line: {
-                color: regionColors[region],
                 width: 3
             },
             marker: {
-                size: 8,
-                symbol: 'circle'
-            },
-            hovertemplate: '%{y:$,.0f}<br>%{x}<extra>%{name}</extra>'
+                size: 8
+            }
         };
     });
-
+    
     const layout = {
-        ...baseLayout,
         title: {
             text: 'Regional Childcare Cost Trends (2008-2018)',
-            font: {
-                size: 24
-            }
+            font: chartTitle.font,
+            xref: chartTitle.xref,
+            x: chartTitle.x
         },
         xaxis: {
-            title: 'Year',
-            tickmode: 'array',
-            ticktext: years,
-            tickvals: years,
-            showgrid: true,
-            gridwidth: 1,
-            gridcolor: '#f0f0f0'
+            title: {
+                text: 'Year',
+                font: {
+                    family: chartFont.family,
+                    size: 16,
+                    color: chartColors.primary
+                }
+            },
+            tickfont: {
+                family: chartFont.family,
+                size: 14,
+                color: chartColors.text
+            },
+            gridcolor: chartColors.grid
         },
         yaxis: {
-            title: 'Annual Cost ($)',
-            range: [8000, 20000],
-            showgrid: true,
-            gridwidth: 1,
-            gridcolor: '#f0f0f0',
-            tickformat: '$,.0f'
+            title: {
+                text: 'Average Cost to Income Ratio',
+                font: {
+                    family: chartFont.family,
+                    size: 16,
+                    color: chartColors.primary
+                }
+            },
+            tickfont: {
+                family: chartFont.family,
+                size: 14,
+                color: chartColors.text
+            },
+            gridcolor: chartColors.grid
         },
-        showlegend: true,
         legend: {
-            x: 1,
-            xanchor: 'right',
-            y: 1
+            font: {
+                family: chartFont.family,
+                size: 14,
+                color: chartColors.text
+            },
+            bgcolor: 'rgba(255, 255, 255, 0.7)',
+            bordercolor: 'rgba(200, 200, 200, 0.5)',
+            borderwidth: 1
         },
-        hovermode: 'closest',
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white'
+        margin: {
+            l: 80,
+            r: 50,
+            t: 80,
+            b: 80
+        },
+        paper_bgcolor: chartColors.background,
+        plot_bgcolor: chartColors.background,
+        font: chartFont
     };
-
-    Plotly.newPlot(container.id, Object.values(regionData), layout, {responsive: true})
-        .catch(err => {
-            console.error('Error creating time series:', err);
-            container.innerHTML = '<div class="error">Error creating time series visualization</div>';
-        });
+    
+    Plotly.newPlot(container, traces, layout, {responsive: true});
 }
 
 /**
  * Create labor force map visualization (interactive)
  */
-function createLaborForceMap(container, year, baseLayout) {
-    // Sample data for demonstration
-    const states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"];
+function createLaborForceMap(data, year) {
+    const container = document.getElementById('mainVisualization');
+    if (!container) return;
     
-    // Get labor force participation for the selected year (using sample data)
-    const yearIndex = ['2018', '2017', '2016', '2015', '2014', '2012', '2010', '2008'].indexOf(year);
-    const yearOffset = yearIndex >= 0 ? yearIndex * 0.01 : 0; // Decrease values for older years
+    // Filter data for the selected year
+    const yearData = data.filter(d => d.year == year);
     
-    // Generate sample participation rates with variation by year
-    const participationRates = states.map((state, i) => {
-        const baseValue = 55 + (i % 15) * 1.5 + Math.random() * 5;
-        return Math.round((baseValue * (1 - yearOffset)) * 10) / 10; // Round to 1 decimal place
-    });
-    
-    const text = states.map((state, i) => {
-        return `<b>${state}</b><br>Female Labor Participation: ${participationRates[i]}%`;
-    });
-    
-    const data = [{
+    // Prepare data for the map
+    const trace = {
         type: 'choropleth',
         locationmode: 'USA-states',
-        locations: states,
-        z: participationRates,
-        text: text,
-        hoverinfo: 'text',
-        colorscale: 'Viridis',
+        locations: yearData.map(d => d.state_abbr),
+        z: yearData.map(d => d.lfpr_f),
+        text: yearData.map(d => `${d.state_name}<br>Female Labor Force Participation: ${d.lfpr_f.toFixed(1)}%<br>Childcare Cost: $${d.mccost.toFixed(0)}`),
+        colorscale: [
+            [0, 'rgba(240, 240, 255, 0.8)'],
+            [0.2, 'rgba(220, 220, 255, 0.8)'],
+            [0.4, 'rgba(200, 200, 255, 0.8)'],
+            [0.6, 'rgba(180, 180, 255, 0.8)'],
+            [0.8, 'rgba(160, 160, 255, 0.8)'],
+            [1, 'rgba(140, 140, 255, 0.8)']
+        ],
         colorbar: {
-            title: 'Participation (%)',
-            thickness: 20
-        },
-        marker: {
-            line: {
-                color: 'rgb(255,255,255)',
-                width: 2
+            title: {
+                text: 'Female Labor Force Participation (%)',
+                font: {
+                    family: chartFont.family,
+                    size: 16,
+                    color: chartColors.primary
+                }
+            },
+            tickfont: {
+                family: chartFont.family,
+                size: 14,
+                color: chartColors.text
             }
-        }
-    }];
+        },
+        hoverinfo: 'text'
+    };
     
     const layout = {
-        ...baseLayout,
         title: {
             text: `Female Labor Force Participation by State (${year})`,
-            font: { size: 24 }
+            font: chartTitle.font,
+            xref: chartTitle.xref,
+            x: chartTitle.x
         },
         geo: {
             scope: 'usa',
             showlakes: true,
-            lakecolor: 'rgb(255,255,255)',
+            lakecolor: 'rgb(240, 245, 255)',
             projection: {
                 type: 'albers usa'
-            }
+            },
+            bgcolor: 'rgba(255, 255, 255, 0.0)'
         },
         margin: {
-            l: 0,
-            r: 0,
-            t: 50,
-            b: 0
-        }
+            l: 60,
+            r: 60,
+            t: 80,
+            b: 60
+        },
+        paper_bgcolor: chartColors.background,
+        plot_bgcolor: chartColors.background,
+        font: chartFont
     };
     
-    Plotly.newPlot(container.id, data, layout, {responsive: true})
-        .catch(err => {
-            console.error('Error creating labor force map:', err);
-            container.innerHTML = '<div class="error">Error creating labor force map visualization</div>';
-        });
+    Plotly.newPlot(container, [trace], layout, {responsive: true});
 }
 
 /**
  * Display static image visualization
  */
-function displayStaticVisualization(container, visualType) {
-    // Clear the container
+function displayStaticVisualization(visualizationType) {
+    const container = document.getElementById('mainVisualization');
+    if (!container) return;
+    
     container.innerHTML = '';
     
-    console.log(`Displaying static visualization for ${visualType}`);
-    console.log(`Image path: ${visualizationImages[visualType]}`);
+    // Use the visualizationImages object for consistency
+    const imagePath = visualizationImages[visualizationType];
     
-    // Create image element
-    const img = document.createElement('img');
-    img.src = visualizationImages[visualType];
-    img.alt = `${visualType} Visualization`;
-    img.style.maxWidth = '100%';
-    img.style.height = 'auto';
-    img.style.display = 'block';
-    img.style.margin = '0 auto';
-    
-    // Add image to container
-    container.appendChild(img);
-    
-    // Add error handling for image loading
-    img.onerror = function() {
-        console.error(`Failed to load image: ${img.src}`);
-        container.innerHTML = `<div class="error">Error loading image: ${img.src}</div>`;
-    };
-    
-    img.onload = function() {
-        console.log(`Successfully loaded image: ${img.src}`);
-    };
+    if (imagePath) {
+        console.log(`Loading static image: ${imagePath}`);
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.alt = VISUALIZATION_TYPES[visualizationType];
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
+        img.onerror = function() {
+            console.error(`Failed to load image: ${imagePath}`);
+            container.innerHTML = `<div class="error">Failed to load visualization image: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
+        };
+        container.appendChild(img);
+    } else {
+        console.error(`No image path defined for visualization type: ${visualizationType}`);
+        container.innerHTML = `<div class="error">Visualization not available: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
+    }
 }
 
 /**
  * Update year filter visibility based on visualization type
  */
 function updateYearFilterVisibility() {
-    const visualType = document.getElementById('visualizationType').value;
+    const visualTypeSelect = document.getElementById('visualizationType');
     const yearFilter = document.getElementById('yearFilter');
     
-    if (timeBasedVisualizations.includes(visualType)) {
+    if (!visualTypeSelect || !yearFilter) return;
+    
+    if (YEAR_FILTER_VISUALIZATIONS.includes(visualTypeSelect.value)) {
         yearFilter.classList.add('visible');
     } else {
         yearFilter.classList.remove('visible');
@@ -391,128 +431,110 @@ function updateYearFilterVisibility() {
  * Update visualization based on user selection
  */
 function updateVisualization() {
-    const container = document.getElementById('mainVisualization');
-    const visualType = document.getElementById('visualizationType').value;
+    const visualTypeSelect = document.getElementById('visualizationType');
     const yearFilter = document.getElementById('yearFilter');
-    const selectedYear = yearFilter.value || '2018';
     
-    currentYear = selectedYear;
+    if (!visualTypeSelect || !yearFilter) return;
     
-    if (!container) {
-        console.error('Visualization container not found!');
+    currentVisualization = visualTypeSelect.value;
+    currentYear = yearFilter.value;
+    
+    updateInsights(currentVisualization);
+    
+    if (!df) {
+        showStatus('Loading data...');
         return;
     }
     
-    // Show loading state
-    container.innerHTML = '<div class="loading-spinner"><p>Loading visualization...</p></div>';
-    
-    // Update insights based on visualization type
-    updateInsights(visualType);
-    
-    // Calculate container dimensions
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const headerHeight = 120;
-    const marginBottom = 20;
-    const marginSides = 40;
-    
-    container.style.width = `${viewportWidth - marginSides}px`;
-    container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
-    container.style.maxWidth = '2000px';
-    container.style.margin = '0 auto';
-    
-    const baseLayout = {
-        autosize: true,
-        margin: {
-            l: 60,
-            r: 30,
-            t: 50,
-            b: 60,
-            pad: 4
-        },
-        width: container.clientWidth,
-        height: container.clientHeight,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: {
-            family: 'Arial, sans-serif'
-        }
-    };
+    showStatus('Updating visualization...');
     
     try {
-        // Check if this is a static or interactive visualization
-        if (staticVisualizations.includes(visualType) || visualType === 'socialMedia') {
-            displayStaticVisualization(container, visualType);
+        // Interactive visualizations
+        if (currentVisualization === 'geoChoropleth') {
+            createHeatMap(df, currentYear);
+        } else if (currentVisualization === 'timeSeriesAnalysis') {
+            createTimeSeries(df);
+        } else if (currentVisualization === 'laborForceMap') {
+            createLaborForceMap(df, currentYear);
         } else {
-            // Interactive visualizations
-            switch(visualType) {
-                case 'geoChoropleth':
-                    createHeatMap(container, selectedYear, baseLayout);
-                    break;
-                case 'timeSeriesAnalysis':
-                    createTimeSeries(container, selectedYear, baseLayout);
-                    break;
-                case 'laborForceMap':
-                    createLaborForceMap(container, selectedYear, baseLayout);
-                    break;
-                default:
-                    container.innerHTML = '<div class="error">Invalid visualization type</div>';
-            }
+            // Static visualizations
+            displayStaticVisualization(currentVisualization);
         }
     } catch (error) {
         console.error('Error updating visualization:', error);
-        container.innerHTML = '<div class="error">Error creating visualization</div>';
+        showStatus(`Error updating visualization: ${error.message}`, true);
     }
 }
 
 /**
  * Initialize dashboard
  */
-function initDashboard() {
-    console.log("Initializing dashboard...");
+async function initDashboard() {
+    showStatus('Loading data...');
     
-    // Check if Plotly is available
-    if (typeof Plotly === 'undefined') {
-        console.error("Plotly library not loaded!");
-        showStatus('Error: Plotly library not loaded', 'error');
-        return;
+    try {
+        // Load data from Excel file
+        const response = await fetch('../data/nationaldatabaseofchildcareprices.xlsx');
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Parse Excel file
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        // Convert to JSON
+        let jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Process data
+        df = jsonData.map(d => ({
+            ...d,
+            year: parseInt(d.year),
+            mccost: parseFloat(d.mccost || 0),
+            mhi_ratio: parseFloat(d.mhi_ratio || 0),
+            lfpr_f: parseFloat(d.lfpr_f || 0)
+        }));
+        
+        console.log('Data loaded successfully:', df.length, 'records');
+        
+        // Set up event listeners
+        const visualTypeSelect = document.getElementById('visualizationType');
+        const yearFilter = document.getElementById('yearFilter');
+        
+        if (visualTypeSelect) {
+            visualTypeSelect.addEventListener('change', function() {
+                updateYearFilterVisibility();
+                updateVisualization();
+            });
+        }
+        
+        if (yearFilter) {
+            yearFilter.addEventListener('change', updateVisualization);
+        }
+        
+        // Initial setup
+        updateYearFilterVisibility();
+        updateVisualization();
+        
+        // Add ResizeObserver to handle container resizing
+        const container = document.getElementById('mainVisualization');
+        if (container) {
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    if (entry.target === container && document.querySelector('.js-plotly-plot')) {
+                        Plotly.Plots.resize(container);
+                    }
+                }
+            });
+            resizeObserver.observe(container);
+        }
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+        showStatus(`Error loading data: ${error.message}`, true);
     }
-    
-    console.log("Plotly is available, setting up event listeners...");
-    
-    // Set up event listeners
-    const visualTypeSelect = document.getElementById('visualizationType');
-    const yearFilter = document.getElementById('yearFilter');
-    
-    if (visualTypeSelect) {
-        visualTypeSelect.addEventListener('change', function() {
-            updateYearFilterVisibility();
-            updateVisualization();
-        });
-    }
-    
-    if (yearFilter) {
-        yearFilter.addEventListener('change', updateVisualization);
-    }
-    
-    // Initial visualization
-    console.log("Starting initial visualization...");
-    updateYearFilterVisibility();
-    updateVisualization();
-    
-    console.log("Dashboard initialization complete!");
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM loaded, initializing dashboard...");
-    try {
-        initDashboard();
-    } catch (error) {
-        console.error("Error initializing dashboard:", error);
-        showStatus('Error initializing dashboard: ' + error.message, 'error');
-    }
-});
+document.addEventListener('DOMContentLoaded', initDashboard);
 
 // Update window resize handler
 window.addEventListener('resize', () => {
