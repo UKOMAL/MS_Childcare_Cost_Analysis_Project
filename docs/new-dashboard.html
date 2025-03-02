@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -47,7 +46,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             width: 90%;
             max-width: 1200px;
-            height: 600px;
+            height: 500px;
             position: relative;
             overflow: hidden;
         }
@@ -56,6 +55,7 @@
             border-radius: 5px;
             border: 1px solid #ddd;
             font-size: 14px;
+            width: 250px;
         }
         .key-insights {
             display: grid;
@@ -74,15 +74,7 @@
             margin-top: 10px;
             font-size: 12px;
             color: #666;
-        }
-        .tooltip {
-            position: absolute;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            border-radius: 5px;
-            pointer-events: none;
-            font-size: 12px;
+            text-align: center;
         }
         #mainVisualization {
             position: absolute;
@@ -90,33 +82,40 @@
             left: 0;
             width: 100% !important;
             height: 100% !important;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #mainVisualization img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: scale-down;
+        }
+        .year-filter {
+            display: none;  /* Hidden by default, shown for interactive charts */
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="header">
-            <h1>U.S. Childcare Cost Analysis Dashboard</h1>
-            <p>Exploring the Economic Impact of Childcare Costs Across America</p>
+            <h1>U.S. Childcare Cost Analysis Dashboard (2008-2018)</h1>
+            <p>Exploring the Economic Impact of Childcare Costs Across America Using the National Database of Childcare Prices</p>
         </div>
 
         <div class="control-panel">
             <select id="visualizationType">
                 <option value="geoChoropleth">Geographic Cost Distribution</option>
                 <option value="laborForceMap">Female Labor Force by State</option>
-                <option value="costSpiral">Radial Cost Analysis</option>
-                <option value="timeSeriesAnalysis">Time Series Analysis</option>
-                <option value="urbanRural">Urban vs Rural Comparison</option>
+                <option value="timeSeriesAnalysis">Time Series Analysis (2008-2018)</option>
+                <option value="costSpiral">Cost Evolution (2008-2018)</option>
                 <option value="correlation">Correlation Analysis</option>
-                <option value="costTrends">Cost Trends Analysis</option>
-                <option value="costDistribution">Cost Distribution Analysis</option>
                 <option value="socialMedia">Social Media Impact</option>
             </select>
-            <select id="yearFilter">
-                <option value="all">All Years</option>
-                <option value="2018">2018</option>
+            <select id="yearFilter" class="year-filter">
+                <option value="2018">2018 (Most Recent)</option>
                 <option value="2017">2017</option>
                 <option value="2016">2016</option>
                 <option value="2015">2015</option>
@@ -126,7 +125,7 @@
                 <option value="2011">2011</option>
                 <option value="2010">2010</option>
                 <option value="2009">2009</option>
-                <option value="2008">2008</option>
+                <option value="2008">2008 (Earliest)</option>
             </select>
         </div>
 
@@ -156,39 +155,102 @@
     </div>
 
     <script>
-        // Visualization loading functions
+        // Interactive visualizations that need year filter
+        const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'];
+        
         function createHeatMap(container, year) {
-            container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Geographic Cost Distribution" style="width: 100%;">`;
+            // Show static image first for immediate feedback
+            container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Childcare Costs Map" style="width: 100%; height: 100%; object-fit: contain;">`;
+            
+            // Try to load interactive version
+            fetch(`output/html/childcare_costs_map_${year}.html`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Interactive version not available');
+                    return response.text();
+                })
+                .then(html => {
+                    const plotlyDiv = extractPlotlyDiv(html);
+                    if (plotlyDiv) container.innerHTML = plotlyDiv;
+                })
+                .catch(error => {
+                    console.log('Using static version:', error);
+                });
         }
 
         function createTimeSeries(container, year) {
-            container.innerHTML = `<img src="images/time_series.png" alt="Time Series Analysis" style="width: 100%;">`;
+            // Show static image first
+            container.innerHTML = `<img src="images/cost_trends.png" alt="Time Series Analysis" style="width: 100%; height: 100%; object-fit: contain;">`;
+            
+            // Try to load interactive version
+            fetch(`output/html/time_series_${year}.html`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Interactive version not available');
+                    return response.text();
+                })
+                .then(html => {
+                    const plotlyDiv = extractPlotlyDiv(html);
+                    if (plotlyDiv) container.innerHTML = plotlyDiv;
+                })
+                .catch(error => {
+                    console.log('Using static version:', error);
+                });
         }
 
         function createLaborForceMap(container, year) {
-            container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force Participation" style="width: 100%;">`;
+            // Show static image first
+            container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force Map" style="width: 100%; height: 100%; object-fit: contain;">`;
+            
+            // Try to load interactive version
+            fetch(`output/html/labor_force_${year}.html`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Interactive version not available');
+                    return response.text();
+                })
+                .then(html => {
+                    const plotlyDiv = extractPlotlyDiv(html);
+                    if (plotlyDiv) container.innerHTML = plotlyDiv;
+                })
+                .catch(error => {
+                    console.log('Using static version:', error);
+                });
         }
 
-        function createCostDistribution(container, year) {
-            container.innerHTML = `<img src="images/cost_distribution.png" alt="Cost Distribution" style="width: 100%;">`;
+        function createSpiralPlot(container) {
+            container.innerHTML = `<img src="images/state_costs.png" alt="Cost Spiral" style="width: 100%; height: 100%; object-fit: contain;">`;
         }
 
-        function createSpiralPlot(container, year) {
-            container.innerHTML = `<img src="images/state_costs.png" alt="Cost Spiral" style="width: 100%;">`;
+        function createCorrelationAnalysis(container) {
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; height: 100%;">
+                    <img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%; height: 100%; object-fit: contain;">
+                    <img src="images/correlation_heatmap.png" alt="Correlation Heatmap" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>`;
         }
 
-        function createCorrelationAnalysis(container, year) {
-            container.innerHTML = `<img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%;">`;
+        function createSocialMediaImpact(container) {
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; height: 100%;">
+                    <img src="images/social_media_1.png" alt="Social Media Impact" style="width: 100%; height: 100%; object-fit: contain;">
+                    <img src="images/social_media_2.png" alt="Social Media Heatmap" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>`;
         }
 
-        function createSocialMediaImpact(container, year) {
-            container.innerHTML = `<img src="images/social_media_1.png" alt="Social Media Impact" style="width: 100%;">`;
+        // Helper function to extract Plotly div
+        function extractPlotlyDiv(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const plotlyDiv = doc.querySelector('.js-plotly-plot');
+            return plotlyDiv ? plotlyDiv.outerHTML : '<p>Error loading visualization</p>';
         }
 
         // Main visualization update function
         function updateVisualization(container, type, year) {
             // Show loading state
             container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
+            
+            // Show/hide year filter based on visualization type
+            const yearFilter = document.getElementById('yearFilter');
+            yearFilter.style.display = timeBasedVisualizations.includes(type) ? 'block' : 'none';
             
             try {
                 switch(type) {
@@ -202,22 +264,19 @@
                         createLaborForceMap(container, year);
                         break;
                     case 'costSpiral':
-                        createSpiralPlot(container, year);
-                        break;
-                    case 'costDistribution':
-                        createCostDistribution(container, year);
+                        createSpiralPlot(container);
                         break;
                     case 'correlation':
-                        createCorrelationAnalysis(container, year);
+                        createCorrelationAnalysis(container);
                         break;
                     case 'socialMedia':
-                        createSocialMediaImpact(container, year);
+                        createSocialMediaImpact(container);
                         break;
                     default:
                         container.innerHTML = '<p>Select a visualization type</p>';
                 }
             } catch (error) {
-                console.error('Error updating visualization:', error);
+                console.error('Error loading visualization:', error);
                 container.innerHTML = '<p>Error loading visualization</p>';
             }
         }
@@ -228,6 +287,23 @@
             const visualizationType = document.getElementById('visualizationType');
             const yearFilter = document.getElementById('yearFilter');
             
+            // Get the most recent year from the data
+            const years = Array.from({length: 11}, (_, i) => 2018 - i);
+            
+            // Clear existing options
+            yearFilter.innerHTML = '';
+            
+            // Add options dynamically
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+            
+            // Set default to most recent year
+            yearFilter.value = Math.max(...years);
+            
             // Initial load
             updateVisualization(container, visualizationType.value, yearFilter.value);
             
@@ -235,10 +311,12 @@
             visualizationType.addEventListener('change', function() {
                 updateVisualization(container, this.value, yearFilter.value);
             });
-
+            
             // Update on year change
             yearFilter.addEventListener('change', function() {
-                updateVisualization(container, visualizationType.value, this.value);
+                if (timeBasedVisualizations.includes(visualizationType.value)) {
+                    updateVisualization(container, visualizationType.value, this.value);
+                }
             });
         });
     </script>
