@@ -57,16 +57,17 @@
         }
         .visualization-container {
             margin: 20px auto;
-            padding: 10px;
+            padding: 20px;
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 98%;
-            height: 75vh;
+            width: 95%;
+            height: 70vh;
             min-height: 600px;
-            max-width: none;
+            max-height: 1200px;
+            max-width: 2000px;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
         .key-insights {
             display: grid;
@@ -93,6 +94,7 @@
             height: 100% !important;
             min-height: 500px;
             margin: 0 auto;
+            position: relative;
         }
         .plotly-graph-div {
             width: 100% !important;
@@ -141,13 +143,36 @@
             padding: 20px;
             font-size: 1.2em;
         }
+        @media (orientation: portrait) {
+            .visualization-container {
+                height: 85vh;
+                width: 98%;
+                padding: 15px;
+                margin: 10px auto;
+            }
+            
+            #mainVisualization {
+                min-height: 700px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .year-filter {
+                margin-left: 0;
+                width: 250px;
+            }
+        }
         @media (min-width: 1600px) {
             .dashboard-container {
                 max-width: 99%;
             }
             .visualization-container {
-                width: 99%;
+                width: 90%;
                 height: 80vh;
+                padding: 30px;
             }
             .key-insights {
                 grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -167,8 +192,10 @@
                 width: 250px;
             }
             .visualization-container {
-                height: 60vh;
-                min-height: 400px;
+                width: 98%;
+                height: 80vh;
+                min-height: 500px;
+                padding: 10px;
             }
         }
     </style>
@@ -197,11 +224,16 @@
 
         <div class="control-panel">
             <select id="visualizationType" class="form-control" onchange="updateYearFilterVisibility()">
-                <option value="geoChoropleth">State Cost Distribution</option>
-                <option value="timeSeriesAnalysis">Cost Trends Over Time</option>
-                <option value="workingParentsBurden">Working Parents Burden</option>
-                <option value="costDistribution">Cost Distribution Analysis</option>
+                <option value="timeSeries">Time Series Analysis</option>
+                <option value="geoChoropleth">Geographic Cost Distribution</option>
+                <option value="laborForceMap">Labor Force Participation</option>
+                <option value="violin">Cost Distribution (Violin)</option>
+                <option value="costDistribution">Cost Distribution by State</option>
                 <option value="correlation">Correlation Analysis</option>
+                <option value="workingParentsBurden">Working Parents Analysis</option>
+                <option value="socialMedia">Social Media Impact</option>
+                <option value="spiral">Cost Evolution (Spiral)</option>
+                <option value="costTrends">State Cost Trends</option>
             </select>
             <select id="yearFilter" class="year-filter">
                 <option value="2018">2018 (Most Recent)</option>
