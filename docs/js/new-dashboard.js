@@ -16,11 +16,11 @@ const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiral
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'violinPlot': '../images/urban_rural_comparison.png',
-    'correlation': '../images/correlation.png',
-    'costTrends': '../images/state_costs.png',
-    'spiralPlot': '../images/spiral_plot.png',
-    'socialMedia': '../images/cost_distribution.png'
+    'violinPlot': 'images/urban_rural_comparison.png',
+    'correlation': 'images/correlation.png',
+    'costTrends': 'images/state_costs.png',
+    'spiralPlot': 'images/spiral_plot.png',
+    'socialMedia': 'images/cost_distribution.png'
 };
 
 /**
