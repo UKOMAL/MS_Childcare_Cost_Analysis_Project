@@ -38,13 +38,6 @@
             background: #f8f9fa;
             border-radius: 10px;
         }
-        select {
-            padding: 8px 15px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            width: 250px;
-        }
         .visualization-container {
             margin: 20px auto;
             padding: 20px;
@@ -57,6 +50,13 @@
             max-width: 2000px;
             position: relative;
             overflow: hidden;
+        }
+        select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            width: 250px;
         }
         .key-insights {
             display: grid;
@@ -106,6 +106,16 @@
         .year-filter.visible {
             display: inline-block !important;
         }
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .year-filter {
+                margin-left: 0;
+                width: 250px;
+            }
+        }
         .loading-spinner {
             display: flex;
             justify-content: center;
@@ -120,16 +130,6 @@
             padding: 20px;
             font-size: 1.2em;
         }
-        @media (max-width: 768px) {
-            .control-panel {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .year-filter {
-                margin-left: 0;
-                width: 250px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -139,23 +139,8 @@
             <p>Exploring the Economic Impact of Childcare Costs Across America Using the National Database of Childcare Prices</p>
         </div>
 
-        <div class="key-insights">
-            <div class="insight-card">
-                <h3>Cost Burden</h3>
-                <p>Average families spend between $11,000 to $21,500 annually on childcare</p>
-            </div>
-            <div class="insight-card">
-                <h3>Regional Disparity</h3>
-                <p>Northeast states show highest costs, averaging $18,000+ annually</p>
-            </div>
-            <div class="insight-card">
-                <h3>Growth Trend</h3>
-                <p>Annual costs increasing by 3.5-4.5% across regions</p>
-            </div>
-        </div>
-
         <div class="control-panel">
-            <select id="visualizationType" class="form-control" onchange="updateYearFilterVisibility()">
+            <select id="visualizationType" class="form-select mb-3">
                 <option value="costMap">Cost Distribution Map</option>
                 <option value="laborForceMap">Female Labor Force Map</option>
                 <option value="timeSeries">State Cost Comparison</option>
@@ -178,6 +163,21 @@
                 <option value="2009">2009</option>
                 <option value="2008">2008 (Earliest)</option>
             </select>
+        </div>
+
+        <div class="key-insights">
+            <div class="insight-card">
+                <h3>Cost Burden</h3>
+                <p>Average families spend between $11,000 to $21,500 annually on childcare</p>
+            </div>
+            <div class="insight-card">
+                <h3>Regional Disparity</h3>
+                <p>Northeast states show highest costs, averaging $18,000+ annually</p>
+            </div>
+            <div class="insight-card">
+                <h3>Growth Trend</h3>
+                <p>Annual costs increasing by 3.5-4.5% across regions</p>
+            </div>
         </div>
 
         <div class="visualization-container">
