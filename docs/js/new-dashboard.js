@@ -503,9 +503,62 @@ function initDashboard() {
         console.warn("Export button not found!");
     }
     
-    // Initial visualization
-    console.log("Starting initial visualization...");
+    // Initialize state filter
+    const stateFilter = document.getElementById('stateFilter');
+    if (stateFilter) {
+        // Clear existing options
+        stateFilter.innerHTML = '<option value="all">All States</option>';
+        
+        // Add state options
+        DASHBOARD_DATA.states.forEach(state => {
+            const option = document.createElement('option');
+            option.value = state;
+            option.textContent = STATE_NAMES[state];
+            stateFilter.appendChild(option);
+        });
+        
+        // Add event listener
+        stateFilter.addEventListener('change', function() {
+            updateVisualization();
+            updateTimeSeries(this.value, document.getElementById('dataType').value);
+            updateNetwork(this.value);
+            updateMap(this.value, document.getElementById('dataType').value);
+        });
+    }
+    
+    // Initialize year filter
+    const yearFilter = document.getElementById('yearFilter');
+    if (yearFilter) {
+        yearFilter.addEventListener('change', function() {
+            updateVisualization();
+            updateTimeSeries(document.getElementById('stateFilter').value, document.getElementById('dataType').value);
+        });
+    }
+    
+    // Initialize data type filter
+    const dataType = document.getElementById('dataType');
+    if (dataType) {
+        dataType.addEventListener('change', function() {
+            updateVisualization();
+            updateTimeSeries(document.getElementById('stateFilter').value, this.value);
+            updateMap(document.getElementById('stateFilter').value, this.value);
+        });
+    }
+    
+    // Initial visualizations
+    console.log("Starting initial visualizations...");
+    
+    // Main visualization
     updateVisualization();
+    
+    // Time series visualization
+    initTimeSeries(DASHBOARD_DATA);
+    
+    // Network visualization
+    initNetwork(DASHBOARD_DATA);
+    
+    // Map visualization
+    initMap(DASHBOARD_DATA);
     
     showStatus('Dashboard initialized successfully', 'success');
     console.log("Dashboard initialization complete!");
