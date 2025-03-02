@@ -716,6 +716,27 @@ function calculateCorrelation(array1, array2) {
  * Create social media impact visualization
  */
 function createSocialMediaImpact(container, baseLayout) {
+    const platforms = ['Facebook', 'Twitter', 'Instagram', 'LinkedIn'];
+    const metrics = ['Engagement Rate', 'Reach', 'Shares', 'Comments'];
+    const months = Array.from({length: 12}, (_, i) => i + 1);
+    
+    // Generate social media data
+    const data = [];
+    platforms.forEach(platform => {
+        metrics.forEach(metric => {
+            const baseValue = Math.random() * 4000 + 1000;
+            months.forEach(month => {
+                const value = baseValue * (1 + Math.random() * 0.5 - 0.2);
+                data.push({
+                    Platform: platform,
+                    Metric: metric,
+                    Month: month,
+                    Value: value
+                });
+            });
+        });
+    });
+
     // Create subplot layout
     const layout = {
         ...baseLayout,
@@ -725,78 +746,70 @@ function createSocialMediaImpact(container, baseLayout) {
         showlegend: true
     };
 
-    // First subplot: Bar chart comparing metrics
-    const trace1 = {
-        type: 'bar',
-        x: DASHBOARD_DATA.states,
-        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
-        name: 'Working Parents',
+    // First subplot: Line chart showing engagement trends
+    const traces1 = platforms.map(platform => ({
+        type: 'scatter',
+        x: months,
+        y: data.filter(d => d.Platform === platform && d.Metric === 'Engagement Rate')
+            .map(d => d.Value),
+        name: platform,
+        mode: 'lines+markers',
         xaxis: 'x1',
-        yaxis: 'y1',
-        marker: {
-            color: 'rgb(52, 152, 219)'
-        }
-    };
+        yaxis: 'y1'
+    }));
+
+    // Second subplot: Heatmap showing metrics comparison
+    const pivotData = {};
+    platforms.forEach(platform => {
+        pivotData[platform] = {};
+        metrics.forEach(metric => {
+            pivotData[platform][metric] = data
+                .filter(d => d.Platform === platform && d.Metric === metric)
+                .reduce((sum, d) => sum + d.Value, 0) / 12;
+        });
+    });
 
     const trace2 = {
-        type: 'bar',
-        x: DASHBOARD_DATA.states,
-        y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-        name: 'Cost Burden',
-        xaxis: 'x1',
-        yaxis: 'y1',
-        marker: {
-            color: 'rgb(231, 76, 60)'
-        }
-    };
-
-    // Second subplot: Scatter plot
-    const trace3 = {
-        type: 'scatter',
-        x: DASHBOARD_DATA.costs['2018'].infant,
-        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
-        mode: 'markers',
-        name: 'Cost vs Working Parents',
+        type: 'heatmap',
+        x: metrics,
+        y: platforms,
+        z: platforms.map(platform => 
+            metrics.map(metric => pivotData[platform][metric])
+        ),
         xaxis: 'x2',
         yaxis: 'y2',
-        marker: {
-            size: 12,
-            color: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Cost Burden (%)',
-                y: 0.15,
-                len: 0.3
-            }
-        },
-        text: DASHBOARD_DATA.states.map((state, i) => 
-            `${STATE_NAMES[state]}<br>` +
-            `Monthly Cost: $${DASHBOARD_DATA.costs['2018'].infant[i].toFixed(2)}<br>` +
-            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%`
-        ),
-        hoverinfo: 'text'
+        colorscale: 'Viridis',
+        colorbar: {
+            title: 'Average Value',
+            y: 0.15,
+            len: 0.3
+        }
     };
 
     layout.xaxis1 = {
-        title: 'State',
+        title: 'Month',
         domain: [0, 0.95],
-        tickangle: -45
+        tickmode: 'array',
+        ticktext: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        tickvals: months
     };
     layout.yaxis1 = {
-        title: 'Percentage (%)',
+        title: 'Engagement Rate',
         domain: [0.55, 1]
     };
     layout.xaxis2 = {
-        title: 'Monthly Cost ($)',
+        title: 'Metrics',
         domain: [0, 0.95]
     };
     layout.yaxis2 = {
-        title: 'Working Parents (%)',
+        title: 'Platforms',
         domain: [0, 0.35]
     };
 
-    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
+    const allTraces = [...traces1, trace2];
+    
+    Plotly.newPlot(container.id, allTraces, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating social media impact visualization:', err);
             container.innerHTML = '<div class="error">Error creating social media visualization</div>';
@@ -990,71 +1003,44 @@ function createCostTrends(container, year, baseLayout) {
  * Update visualization based on user selection
  */
 function updateVisualization() {
-    const container = document.getElementById('mainVisualization');
-    const visualType = document.getElementById('visualizationType').value;
-    const yearFilter = document.getElementById('yearFilter');
-    const selectedYear = yearFilter.value || '2018';
+    const container = document.getElementById('visualization');
+    const visualizationType = document.getElementById('visualizationType').value;
+    const selectedYear = document.getElementById('yearFilter').value;
     
-    if (!container) {
-        console.error('Visualization container not found!');
-        return;
-    }
+    // Clear previous visualization
+    container.innerHTML = '';
     
-    // Show loading state
-    container.innerHTML = '<div class="loading-spinner"><p>Loading visualization...</p></div>';
-    
-    // Calculate container dimensions
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const headerHeight = 120;
-    const marginBottom = 20;
-    const marginSides = 40;
-    
-    container.style.width = `${viewportWidth - marginSides}px`;
-    container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
-    container.style.maxWidth = '2000px';
-    container.style.margin = '0 auto';
-    
+    // Base layout configuration
     const baseLayout = {
-        autosize: true,
-        margin: {
-            l: 60,
-            r: 30,
-            t: 50,
-            b: 60,
-            pad: 4
-        },
-        width: container.clientWidth,
-        height: container.clientHeight,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: {
-            family: 'Arial, sans-serif'
-        }
+        margin: { t: 50, r: 50, b: 50, l: 50 },
+        font: { family: 'Arial, sans-serif' }
     };
     
     try {
-        switch(visualType) {
-            case 'geoChoropleth':
-                createHeatMap(container, selectedYear, baseLayout);
+        switch(visualizationType) {
+            case 'costMap':
+                createCostMap(container, baseLayout);
                 break;
-            case 'timeSeriesAnalysis':
-                createTimeSeries(container, selectedYear, baseLayout);
+            case 'laborForceMap':
+                createLaborForceMap(container, baseLayout);
+                break;
+            case 'timeSeries':
+                createTimeSeries(container, baseLayout);
+                break;
+            case 'costTrends':
+                createCostTrends(container, baseLayout);
                 break;
             case 'violinPlot':
                 createViolinPlot(container, baseLayout);
                 break;
-            case 'costTrends':
-                createCostTrends(container, selectedYear, baseLayout);
-                break;
-            case 'laborForceMap':
-                createLaborForceMap(container, selectedYear, baseLayout);
-                break;
             case 'correlation':
                 createCorrelationAnalysis(container, baseLayout);
                 break;
-            case 'workingParentsBurden':
+            case 'workingParents':
                 createWorkingParentsBurden(container, baseLayout);
+                break;
+            case 'socialMedia':
+                createSocialMediaImpact(container, baseLayout);
                 break;
             default:
                 container.innerHTML = '<div class="error">Invalid visualization type</div>';
@@ -1063,6 +1049,97 @@ function updateVisualization() {
         console.error('Error updating visualization:', error);
         container.innerHTML = '<div class="error">Error creating visualization</div>';
     }
+}
+
+/**
+ * Create working parents burden visualization
+ */
+function createWorkingParentsBurden(container, baseLayout) {
+    // Create subplot layout
+    const layout = {
+        ...baseLayout,
+        grid: {rows: 2, columns: 1, pattern: 'independent'},
+        height: container.clientHeight * 1.8,
+        title: 'Working Parents and Cost Burden Analysis',
+        showlegend: true
+    };
+
+    // First subplot: Bar chart comparing metrics
+    const trace1 = {
+        type: 'bar',
+        x: DASHBOARD_DATA.states,
+        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
+        name: 'Working Parents',
+        xaxis: 'x1',
+        yaxis: 'y1',
+        marker: {
+            color: 'rgb(52, 152, 219)'
+        }
+    };
+
+    const trace2 = {
+        type: 'bar',
+        x: DASHBOARD_DATA.states,
+        y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
+        name: 'Cost Burden',
+        xaxis: 'x1',
+        yaxis: 'y1',
+        marker: {
+            color: 'rgb(231, 76, 60)'
+        }
+    };
+
+    // Second subplot: Scatter plot
+    const trace3 = {
+        type: 'scatter',
+        x: DASHBOARD_DATA.costs['2018'].infant,
+        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
+        mode: 'markers',
+        name: 'Cost vs Working Parents',
+        xaxis: 'x2',
+        yaxis: 'y2',
+        marker: {
+            size: 12,
+            color: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
+            colorscale: 'Viridis',
+            showscale: true,
+            colorbar: {
+                title: 'Cost Burden (%)',
+                y: 0.15,
+                len: 0.3
+            }
+        },
+        text: DASHBOARD_DATA.states.map((state, i) => 
+            `${STATE_NAMES[state]}<br>` +
+            `Monthly Cost: $${DASHBOARD_DATA.costs['2018'].infant[i].toFixed(2)}<br>` +
+            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%`
+        ),
+        hoverinfo: 'text'
+    };
+
+    layout.xaxis1 = {
+        title: 'State',
+        domain: [0, 0.95],
+        tickangle: -45
+    };
+    layout.yaxis1 = {
+        title: 'Percentage (%)',
+        domain: [0.55, 1]
+    };
+    layout.xaxis2 = {
+        title: 'Monthly Cost ($)',
+        domain: [0, 0.95]
+    };
+    layout.yaxis2 = {
+        title: 'Working Parents (%)',
+        domain: [0, 0.35]
+    };
+
+    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating working parents burden visualization:', err);
+            container.innerHTML = '<div class="error">Error creating visualization</div>';
+        });
 }
 
 /**
@@ -1170,46 +1247,39 @@ function createWorkingParentsBurden(container, baseLayout) {
         ...baseLayout,
         grid: {rows: 2, columns: 1, pattern: 'independent'},
         height: container.clientHeight * 1.8,
-        title: {
-            text: 'Working Parents and Cost Burden Analysis',
-            font: { size: 24 }
-        },
+        title: 'Working Parents and Cost Burden Analysis',
         showlegend: true
     };
 
     // First subplot: Bar chart comparing metrics
     const trace1 = {
         type: 'bar',
-        x: DASHBOARD_DATA.states.map(state => STATE_NAMES[state]),
+        x: DASHBOARD_DATA.states,
         y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
         name: 'Working Parents',
         xaxis: 'x1',
         yaxis: 'y1',
         marker: {
             color: 'rgb(52, 152, 219)'
-        },
-        hovertemplate: '<b>%{x}</b><br>' +
-                      'Working Parents: %{y:.1f}%<extra></extra>'
+        }
     };
 
     const trace2 = {
         type: 'bar',
-        x: DASHBOARD_DATA.states.map(state => STATE_NAMES[state]),
+        x: DASHBOARD_DATA.states,
         y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
         name: 'Cost Burden',
         xaxis: 'x1',
         yaxis: 'y1',
         marker: {
             color: 'rgb(231, 76, 60)'
-        },
-        hovertemplate: '<b>%{x}</b><br>' +
-                      'Cost Burden: %{y:.1f}%<extra></extra>'
+        }
     };
 
     // Second subplot: Scatter plot
     const trace3 = {
         type: 'scatter',
-        x: DASHBOARD_DATA.metrics['2018'].annual_cost,
+        x: DASHBOARD_DATA.costs['2018'].infant,
         y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
         mode: 'markers',
         name: 'Cost vs Working Parents',
@@ -1223,15 +1293,13 @@ function createWorkingParentsBurden(container, baseLayout) {
             colorbar: {
                 title: 'Cost Burden (%)',
                 y: 0.15,
-                len: 0.3,
-                tickformat: '.1f'
+                len: 0.3
             }
         },
         text: DASHBOARD_DATA.states.map((state, i) => 
-            `<b>${STATE_NAMES[state]}</b><br>` +
-            `Annual Cost: $${DASHBOARD_DATA.metrics['2018'].annual_cost[i].toLocaleString()}<br>` +
-            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%<br>` +
-            `Cost Burden: ${(DASHBOARD_DATA.metrics['2018'].cost_burden[i] * 100).toFixed(1)}%`
+            `${STATE_NAMES[state]}<br>` +
+            `Monthly Cost: $${DASHBOARD_DATA.costs['2018'].infant[i].toFixed(2)}<br>` +
+            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%`
         ),
         hoverinfo: 'text'
     };
@@ -1239,28 +1307,24 @@ function createWorkingParentsBurden(container, baseLayout) {
     layout.xaxis1 = {
         title: 'State',
         domain: [0, 0.95],
-        tickangle: -45,
-        tickfont: { size: 10 }
+        tickangle: -45
     };
     layout.yaxis1 = {
         title: 'Percentage (%)',
-        domain: [0.55, 1],
-        range: [0, 100]
+        domain: [0.55, 1]
     };
     layout.xaxis2 = {
-        title: 'Annual Cost ($)',
-        domain: [0, 0.95],
-        tickformat: '$,.0f'
+        title: 'Monthly Cost ($)',
+        domain: [0, 0.95]
     };
     layout.yaxis2 = {
         title: 'Working Parents (%)',
-        domain: [0, 0.35],
-        range: [0, 100]
+        domain: [0, 0.35]
     };
 
     Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
         .catch(err => {
             console.error('Error creating working parents burden visualization:', err);
-            container.innerHTML = '<div class="error">Error creating working parents burden visualization</div>';
+            container.innerHTML = '<div class="error">Error creating visualization</div>';
         });
 } 
