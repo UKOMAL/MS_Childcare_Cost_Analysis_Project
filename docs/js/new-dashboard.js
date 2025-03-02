@@ -11,28 +11,30 @@ let currentYear = '2018';
 
 // Constants
 const VISUALIZATION_TYPES = {
-    'geoChoropleth': 'Cost Distribution Map',
-    'laborForceMap': 'Female Labor Force Map',
-    'timeSeriesAnalysis': 'Regional Cost Trends',
-    'costTrends': 'State Cost Comparison',
-    'violinPlot': 'Urban/Rural Cost Comparison',
-    'correlation': 'Cost Correlation Analysis',
-    'socialMedia': 'Cost Distribution',
-    'spiralPlot': 'Cost Trends (Spiral View)'
+    'geoChoropleth': 'Geographic Cost Distribution',
+    'stateCosts': 'State Cost Comparison',
+    'timeSeriesAnalysis': 'Cost Trends Over Time',
+    'laborForceMap': 'Female Labor Force Participation',
+    'violinPlot': 'Cost Distribution by Urban/Rural',
+    'correlation': 'Correlation Analysis',
+    'costTrends': 'Cost Trends by Region',
+    'spiralPlot': 'Cost Trends (Spiral View)',
+    'costDistribution': 'Cost Distribution'
 };
 
 const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static images
-const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'socialMedia'];
+const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'costDistribution', 'stateCosts'];
 
 // Map visualization types to their image files
 const visualizationImages = {
     'violinPlot': 'images/urban_rural_comparison.png',
     'correlation': 'images/correlation.png',
-    'costTrends': 'images/state_costs.png',
+    'costTrends': 'images/time_series.png',
     'spiralPlot': 'images/spiral_plot.png',
-    'socialMedia': 'images/cost_distribution.png'
+    'costDistribution': 'images/cost_distribution.png',
+    'stateCosts': 'images/state_costs.png'
 };
 
 // Define chart colors and styling
@@ -42,7 +44,23 @@ const chartColors = {
     accent: '#FF6B6B',
     background: 'rgba(255, 255, 255, 0.9)',
     text: '#333',
-    grid: 'rgba(200, 200, 200, 0.3)'
+    grid: 'rgba(200, 200, 200, 0.3)',
+    colorscale: [
+        [0, 'rgba(240, 240, 255, 0.8)'],
+        [0.2, 'rgba(220, 220, 255, 0.8)'],
+        [0.4, 'rgba(200, 200, 255, 0.8)'],
+        [0.6, 'rgba(180, 180, 255, 0.8)'],
+        [0.8, 'rgba(160, 160, 255, 0.8)'],
+        [1, 'rgba(140, 140, 255, 0.8)']
+    ],
+    costColorscale: [
+        [0, 'rgba(255, 255, 255, 0.8)'],
+        [0.2, 'rgba(255, 235, 235, 0.8)'],
+        [0.4, 'rgba(255, 205, 205, 0.8)'],
+        [0.6, 'rgba(255, 175, 175, 0.8)'],
+        [0.8, 'rgba(255, 145, 145, 0.8)'],
+        [1, 'rgba(255, 115, 115, 0.8)']
+    ]
 };
 
 // Define common chart font settings
@@ -125,25 +143,91 @@ function updateInsights(dataType) {
     }
 }
 
-// Interactive Visualization Functions
+// Add this function to handle data for interactive charts
+/**
+ * Load processed data with mean-imputed values for missing data in IN and NM
+ * Note: This implementation simulates the data that would be processed from our Python analysis
+ */
+function loadProcessedData() {
+    // This is where we would normally load the processed data from a JSON file
+    // For now, we'll create a placeholder that indicates which values have been imputed
+    const states = DASHBOARD_DATA.states;
+    
+    // Process data for each year, marking IN and NM as having imputed values
+    for (const year in DASHBOARD_DATA.metrics) {
+        // Get the current year data
+        const yearData = DASHBOARD_DATA.metrics[year];
+        
+        // Add imputation flag
+        states.forEach((state, i) => {
+            if (state === 'IN' || state === 'NM') {
+                // Mark IN and NM data as imputed
+                yearData.imputed = yearData.imputed || [];
+                yearData.imputed.push(state);
+                
+                // For IN and NM, ensure we have values (they were previously zeros)
+                if (yearData.annual_cost[i] === 0) {
+                    // Use averages from neighboring states
+                    const neighbors = state === 'IN' 
+                        ? ['IL', 'KY', 'MI', 'OH'] 
+                        : ['AZ', 'CO', 'OK', 'TX'];
+                    
+                    // Calculate average from neighbors (simplified logic)
+                    let neighborSum = 0;
+                    let neighborCount = 0;
+                    
+                    neighbors.forEach(neighbor => {
+                        const neighborIndex = states.indexOf(neighbor);
+                        if (neighborIndex !== -1 && yearData.annual_cost[neighborIndex] > 0) {
+                            neighborSum += yearData.annual_cost[neighborIndex];
+                            neighborCount++;
+                        }
+                    });
+                    
+                    // Set imputed value
+                    if (neighborCount > 0) {
+                        yearData.annual_cost[i] = Math.round(neighborSum / neighborCount);
+                    } else {
+                        // Fallback to average of all states
+                        const allStatesCost = yearData.annual_cost.filter(cost => cost > 0);
+                        yearData.annual_cost[i] = Math.round(allStatesCost.reduce((a, b) => a + b, 0) / allStatesCost.length);
+                    }
+                    
+                    // Also impute the working parent ratio if needed
+                    if (yearData.working_parent_ratio[i] === 0) {
+                        const allRatios = yearData.working_parent_ratio.filter(ratio => ratio > 0);
+                        yearData.working_parent_ratio[i] = allRatios.reduce((a, b) => a + b, 0) / allRatios.length;
+                    }
+                    
+                    // Recalculate cost burden
+                    if (yearData.median_income && yearData.median_income[i] > 0) {
+                        yearData.cost_burden[i] = yearData.annual_cost[i] / yearData.median_income[i];
+                    }
+                }
+            }
+        });
+    }
+    
+    return DASHBOARD_DATA;
+}
+
+/**
+ * Create a US map visualization without imputation flags
+ */
 function createHeatMap(year) {
     const container = document.getElementById('mainVisualization');
-    if (!container) return;
     
-    // Sample data for demonstration
-    const states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
+    // Load processed data with imputations
+    const data = loadProcessedData();
+    const metrics = data.metrics[year];
+    const states = data.states;
+    const costs = metrics.annual_cost;
     
-    // Generate sample costs with variation by year
-    const yearIndex = ['2018', '2017', '2016', '2015', '2014', '2012', '2010', '2008'].indexOf(year);
-    const yearOffset = yearIndex >= 0 ? yearIndex * 0.05 : 0; // Decrease values for older years
-    
-    const costs = states.map((state, i) => {
-        const baseValue = 0.15 + (i % 10) * 0.02 + Math.random() * 0.05;
-        return baseValue * (1 - yearOffset);
-    });
-    
+    // Create tooltip text without imputation notes
     const text = states.map((state, i) => {
-        return `${state}<br>Cost to Income Ratio: ${costs[i].toFixed(2)}`;
+        const cost = costs[i];
+        return `<b>${STATE_NAMES[state]}</b><br>` +
+               `Annual Cost: $${cost.toLocaleString()}`;
     });
     
     // Create the heatmap
@@ -153,17 +237,10 @@ function createHeatMap(year) {
         locations: states,
         z: costs,
         text: text,
-        colorscale: [
-            [0, 'rgba(255, 255, 255, 0.8)'],
-            [0.2, 'rgba(255, 235, 235, 0.8)'],
-            [0.4, 'rgba(255, 205, 205, 0.8)'],
-            [0.6, 'rgba(255, 175, 175, 0.8)'],
-            [0.8, 'rgba(255, 145, 145, 0.8)'],
-            [1, 'rgba(255, 115, 115, 0.8)']
-        ],
+        colorscale: chartColors.costColorscale,
         colorbar: {
             title: {
-                text: 'Cost to Income Ratio',
+                text: 'Annual Cost ($)',
                 font: {
                     family: chartFont.family,
                     size: 20,
@@ -181,7 +258,7 @@ function createHeatMap(year) {
     
     const layout = {
         title: {
-            text: `Childcare Cost Burden by State (${year})`,
+            text: `Childcare Cost by State (${year})`,
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
@@ -209,62 +286,82 @@ function createHeatMap(year) {
     Plotly.newPlot(container, [trace], layout, {responsive: true});
 }
 
-function createTimeSeries(year) {
+/**
+ * Create a time series chart showing cost trends over time without imputation notes
+ */
+function createTimeSeriesChart() {
     const container = document.getElementById('mainVisualization');
-    if (!container) return;
-    
-    // Sample data for demonstration
-    const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
-    const allYears = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
-    
-    // Filter years up to the selected year
-    const selectedYearIndex = allYears.indexOf(parseInt(year));
-    const yearsToShow = selectedYearIndex >= 0 ? allYears.slice(0, selectedYearIndex + 1) : allYears;
-    
-    const traces = regions.map((region, i) => {
-        // Base values for each region
-        let baseValue;
-        switch(region) {
-            case 'Northeast': baseValue = 0.25; break;
-            case 'West': baseValue = 0.23; break;
-            case 'Midwest': baseValue = 0.20; break;
-            case 'Southwest': baseValue = 0.18; break;
-            case 'Southeast': baseValue = 0.17; break;
-            default: baseValue = 0.20;
-        }
-        
-        // Generate yearly data with increasing trend
-        const yearlyValues = yearsToShow.map((year, j) => {
-            // Increase by ~3% per year from 2008
-            const yearFactor = 1 + (year - 2008) * 0.03;
-            // Add some random variation
-            const randomFactor = 0.95 + Math.random() * 0.1;
-            return baseValue * yearFactor * randomFactor;
-        });
-        
-        // Use different colors for each region
-        const colors = ['#4E54C8', '#764BA2', '#FF6B6B', '#FFA06B', '#6BFF9E'];
-        
-        return {
-            x: yearsToShow,
-            y: yearlyValues,
-            type: 'scatter',
-            mode: 'lines+markers',
-            name: region,
+
+    // Initialize the figure
+    const traces = [];
+    const colors = chartColors.colorscale.map(item => item[1]);
+
+    // Add trace for infant costs
+    traces.push({
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Infant Care',
+        x: years,
+        y: calculateAverageCostByYear('infant'),
+        line: {
+            color: colors[5],
+            width: 3
+        },
+        marker: {
+            size: 8,
+            color: colors[5],
             line: {
-                width: 3,
-                color: colors[i % colors.length]
-            },
-            marker: {
-                size: 10,
-                color: colors[i % colors.length]
+                width: 1,
+                color: '#fff'
             }
-        };
+        }
     });
-    
+
+    // Add trace for toddler costs
+    traces.push({
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Toddler Care',
+        x: years,
+        y: calculateAverageCostByYear('toddler'),
+        line: {
+            color: colors[3],
+            width: 3
+        },
+        marker: {
+            size: 8,
+            color: colors[3],
+            line: {
+                width: 1,
+                color: '#fff'
+            }
+        }
+    });
+
+    // Add trace for preschool costs
+    traces.push({
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Preschool Care',
+        x: years,
+        y: calculateAverageCostByYear('preschool'),
+        line: {
+            color: colors[1],
+            width: 3
+        },
+        marker: {
+            size: 8,
+            color: colors[1],
+            line: {
+                width: 1,
+                color: '#fff'
+            }
+        }
+    });
+
     const layout = {
         title: {
-            text: `Regional Childcare Cost Trends (2008-${year})`,
+            text: 'Childcare Cost Trends (2008-2018)',
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
@@ -272,101 +369,59 @@ function createTimeSeries(year) {
         xaxis: {
             title: {
                 text: 'Year',
-                font: {
-                    family: chartFont.family,
-                    size: 20,
-                    color: chartColors.primary
-                }
+                font: chartFont
             },
-            tickfont: {
-                family: chartFont.family,
-                size: 18,
-                color: chartColors.text
-            },
-            gridcolor: chartColors.grid,
-            tickmode: 'array',
-            tickvals: yearsToShow
+            tickfont: chartFont,
+            gridcolor: chartColors.grid
         },
         yaxis: {
             title: {
-                text: 'Average Cost to Income Ratio',
-                font: {
-                    family: chartFont.family,
-                    size: 20,
-                    color: chartColors.primary
-                }
+                text: 'Average Annual Cost ($)',
+                font: chartFont
             },
-            tickfont: {
-                family: chartFont.family,
-                size: 18,
-                color: chartColors.text
-            },
-            gridcolor: chartColors.grid,
-            tickformat: '.0%'
+            tickfont: chartFont,
+            tickformat: '$,.0f',
+            gridcolor: chartColors.grid
         },
         legend: {
-            font: {
-                family: chartFont.family,
-                size: 18,
-                color: chartColors.text
-            },
-            bgcolor: 'rgba(255, 255, 255, 0.7)',
-            bordercolor: 'rgba(200, 200, 200, 0.5)',
-            borderwidth: 1
-        },
-        margin: {
-            l: 80,
-            r: 50,
-            t: 80,
-            b: 80
+            font: chartFont
         },
         paper_bgcolor: chartColors.background,
         plot_bgcolor: chartColors.background,
-        font: chartFont,
-        annotations: yearsToShow.map((yr, i) => {
-            const lastValues = regions.map(region => {
-                const regionIndex = regions.indexOf(region);
-                return traces[regionIndex].y[i];
-            });
-            
-            return regions.map((region, j) => {
-                return {
-                    x: yr,
-                    y: traces[j].y[i],
-                    text: `${(traces[j].y[i] * 100).toFixed(1)}%`,
-                    showarrow: false,
-                    font: {
-                        family: chartFont.family,
-                        size: 12,
-                        color: chartColors.text
-                    },
-                    yshift: 15
-                };
-            });
-        }).flat()
+        hovermode: 'closest',
+        margin: {
+            l: 80,
+            r: 40,
+            b: 60,
+            t: 80
+        }
     };
-    
+
     Plotly.newPlot(container, traces, layout, {responsive: true});
 }
 
+/**
+ * Create labor force map visualization without imputation flags
+ */
 function createLaborForceMap(year) {
     const container = document.getElementById('mainVisualization');
-    if (!container) return;
     
-    // Sample data for demonstration
-    const states = ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"];
+    // Load processed data with imputations
+    const data = loadProcessedData();
+    const metrics = data.metrics[year];
+    const states = data.states;
+    const participationRates = metrics.working_parent_ratio.map(ratio => ratio * 100);
     
-    // Generate sample participation rates with variation by year
-    const yearIndex = ['2018', '2017', '2016', '2015', '2014', '2012', '2010', '2008'].indexOf(year);
-    const yearOffset = yearIndex >= 0 ? yearIndex * 0.01 : 0; // Decrease values for older years
-    
-    const participationRates = states.map((state, i) => {
-        const baseValue = 55 + (i % 15) * 1.5 + Math.random() * 5;
-        return Math.round((baseValue * (1 - yearOffset)) * 10) / 10; // Round to 1 decimal place
-    });
-    
+    // Create tooltip text without imputation notes
     const text = states.map((state, i) => {
-        return `${state}<br>Female Labor Participation: ${participationRates[i]}%`;
+        const ratio = participationRates[i];
+        const burden = metrics.cost_burden[i];
+        const annualCost = metrics.annual_cost[i];
+        
+        return `<b>${STATE_NAMES[state]}</b><br>` +
+               `Working Parents: ${ratio.toFixed(1)}%<br>` +
+               `Cost Burden: ${(burden * 100).toFixed(1)}%<br>` +
+               `Annual Cost: $${annualCost.toLocaleString()}`;
     });
     
     // Prepare data for the map
@@ -376,14 +431,7 @@ function createLaborForceMap(year) {
         locations: states,
         z: participationRates,
         text: text,
-        colorscale: [
-            [0, 'rgba(240, 240, 255, 0.8)'],
-            [0.2, 'rgba(220, 220, 255, 0.8)'],
-            [0.4, 'rgba(200, 200, 255, 0.8)'],
-            [0.6, 'rgba(180, 180, 255, 0.8)'],
-            [0.8, 'rgba(160, 160, 255, 0.8)'],
-            [1, 'rgba(140, 140, 255, 0.8)']
-        ],
+        colorscale: chartColors.colorscale,
         colorbar: {
             title: {
                 text: 'Female Labor Force Participation (%)',
@@ -490,36 +538,48 @@ function updateYearFilterVisibility() {
     }
 }
 
-// Main update function
+/**
+ * Update the visualization based on the current selection and year
+ */
 function updateVisualization() {
-    const visualTypeSelect = document.getElementById('visualizationType');
-    const yearFilter = document.getElementById('yearFilter');
+    const container = document.getElementById('mainVisualization');
     
-    if (!visualTypeSelect || !yearFilter) return;
+    // Clear previous visualization
+    container.innerHTML = '';
     
-    currentVisualization = visualTypeSelect.value;
-    currentYear = yearFilter.value;
+    // Update the title
+    document.getElementById('visualizationTitle').textContent = VISUALIZATION_TYPES[currentVisualization];
     
-    updateInsights(currentVisualization);
+    // Hide year filter for visualizations that don't need it
+    const yearFilter = document.getElementById('yearFilterContainer');
+    if (YEAR_FILTER_VISUALIZATIONS.includes(currentVisualization)) {
+        yearFilter.style.display = 'flex';
+    } else {
+        yearFilter.style.display = 'none';
+    }
     
-    showStatus('Updating visualization...');
-    
-    try {
-        // Interactive visualizations
+    // For static visualizations, display the image
+    if (staticVisualizations.includes(currentVisualization)) {
+        displayStaticVisualization(currentVisualization);
+    } else {
+        // For interactive visualizations, call the appropriate function
         if (currentVisualization === 'geoChoropleth') {
             createHeatMap(currentYear);
         } else if (currentVisualization === 'timeSeriesAnalysis') {
-            createTimeSeries(currentYear);
+            createTimeSeriesChart();
         } else if (currentVisualization === 'laborForceMap') {
             createLaborForceMap(currentYear);
-        } else {
-            // Static visualizations
-            displayStaticVisualization(currentVisualization);
         }
-    } catch (error) {
-        console.error('Error updating visualization:', error);
-        showStatus(`Error updating visualization: ${error.message}`, true);
     }
+    
+    // Update active visualization button
+    document.querySelectorAll('.viz-button').forEach(button => {
+        if (button.dataset.viz === currentVisualization) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    });
 }
 
 // Initialize dashboard
