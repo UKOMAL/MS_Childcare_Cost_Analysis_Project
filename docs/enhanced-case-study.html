@@ -56,6 +56,50 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border: 1px solid #e9ecef;
             position: relative;
+            text-align: center;
+        }
+
+        .visualization img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            object-fit: contain;
+        }
+
+        /* Special handling for map visualizations */
+        #costMap img, #laborForce img {
+            max-height: 600px;
+            width: auto;
+            margin: 0 auto;
+        }
+
+        /* Ensure proper aspect ratio for time series and trend charts */
+        #timeSeries img, #costSpiral img {
+            max-height: 450px;
+            width: auto;
+        }
+
+        /* Handle social media visualization group */
+        .visualization-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2em;
+        }
+
+        .visualization-group .visualization {
+            flex: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .visualization img {
+                max-height: none;
+            }
+            
+            .visualization-group {
+                flex-direction: column;
+            }
         }
 
         .visualization::before {
@@ -305,7 +349,7 @@
             </div>
             
             <div class="visualization" id="costMap">
-                <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs" class="fallback-image">
+                <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs" style="max-height: 600px; width: auto;">
             </div>
 
             <div class="data-correlation">
@@ -335,7 +379,7 @@
             </div>
 
             <div class="visualization" id="timeSeries">
-                <img src="images/time_series.png" alt="Childcare Cost Trends Over Time" class="fallback-image">
+                <img src="images/time_series.png" alt="Childcare Cost Trends Over Time" style="max-height: 450px; width: auto;">
             </div>
 
             <div class="methodology-note">
@@ -388,7 +432,7 @@
             </div>
 
             <div class="visualization" id="laborForce">
-                <img src="images/female_labor_force.png" alt="Female Labor Force Participation" class="fallback-image">
+                <img src="images/female_labor_force.png" alt="Female Labor Force Participation" style="max-height: 600px; width: auto;">
             </div>
 
             <h3>4. Urban-Rural Comparison</h3>
