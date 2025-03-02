@@ -347,6 +347,9 @@ function displayStaticVisualization(container, visualType) {
     // Clear the container
     container.innerHTML = '';
     
+    console.log(`Displaying static visualization for ${visualType}`);
+    console.log(`Image path: ${visualizationImages[visualType]}`);
+    
     // Create image element
     const img = document.createElement('img');
     img.src = visualizationImages[visualType];
@@ -358,6 +361,16 @@ function displayStaticVisualization(container, visualType) {
     
     // Add image to container
     container.appendChild(img);
+    
+    // Add error handling for image loading
+    img.onerror = function() {
+        console.error(`Failed to load image: ${img.src}`);
+        container.innerHTML = `<div class="error">Error loading image: ${img.src}</div>`;
+    };
+    
+    img.onload = function() {
+        console.log(`Successfully loaded image: ${img.src}`);
+    };
 }
 
 /**
