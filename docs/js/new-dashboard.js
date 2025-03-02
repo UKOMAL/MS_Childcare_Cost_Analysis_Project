@@ -21,7 +21,7 @@ const VISUALIZATION_TYPES = {
     'spiralPlot': 'Cost Trends (Spiral View)'
 };
 
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static images
 const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'socialMedia'];
@@ -209,13 +209,17 @@ function createHeatMap(year) {
     Plotly.newPlot(container, [trace], layout, {responsive: true});
 }
 
-function createTimeSeries() {
+function createTimeSeries(year) {
     const container = document.getElementById('mainVisualization');
     if (!container) return;
     
     // Sample data for demonstration
     const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
-    const years = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
+    const allYears = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
+    
+    // Filter years up to the selected year
+    const selectedYearIndex = allYears.indexOf(parseInt(year));
+    const yearsToShow = selectedYearIndex >= 0 ? allYears.slice(0, selectedYearIndex + 1) : allYears;
     
     const traces = regions.map((region, i) => {
         // Base values for each region
@@ -230,7 +234,7 @@ function createTimeSeries() {
         }
         
         // Generate yearly data with increasing trend
-        const yearlyValues = years.map((year, j) => {
+        const yearlyValues = yearsToShow.map((year, j) => {
             // Increase by ~3% per year from 2008
             const yearFactor = 1 + (year - 2008) * 0.03;
             // Add some random variation
@@ -238,24 +242,29 @@ function createTimeSeries() {
             return baseValue * yearFactor * randomFactor;
         });
         
+        // Use different colors for each region
+        const colors = ['#4E54C8', '#764BA2', '#FF6B6B', '#FFA06B', '#6BFF9E'];
+        
         return {
-            x: years,
+            x: yearsToShow,
             y: yearlyValues,
             type: 'scatter',
             mode: 'lines+markers',
             name: region,
             line: {
-                width: 3
+                width: 3,
+                color: colors[i % colors.length]
             },
             marker: {
-                size: 10
+                size: 10,
+                color: colors[i % colors.length]
             }
         };
     });
     
     const layout = {
         title: {
-            text: 'Regional Childcare Cost Trends (2008-2018)',
+            text: `Regional Childcare Cost Trends (2008-${year})`,
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
@@ -274,7 +283,9 @@ function createTimeSeries() {
                 size: 18,
                 color: chartColors.text
             },
-            gridcolor: chartColors.grid
+            gridcolor: chartColors.grid,
+            tickmode: 'array',
+            tickvals: yearsToShow
         },
         yaxis: {
             title: {
@@ -290,7 +301,8 @@ function createTimeSeries() {
                 size: 18,
                 color: chartColors.text
             },
-            gridcolor: chartColors.grid
+            gridcolor: chartColors.grid,
+            tickformat: '.0%'
         },
         legend: {
             font: {
@@ -310,7 +322,28 @@ function createTimeSeries() {
         },
         paper_bgcolor: chartColors.background,
         plot_bgcolor: chartColors.background,
-        font: chartFont
+        font: chartFont,
+        annotations: yearsToShow.map((yr, i) => {
+            const lastValues = regions.map(region => {
+                const regionIndex = regions.indexOf(region);
+                return traces[regionIndex].y[i];
+            });
+            
+            return regions.map((region, j) => {
+                return {
+                    x: yr,
+                    y: traces[j].y[i],
+                    text: `${(traces[j].y[i] * 100).toFixed(1)}%`,
+                    showarrow: false,
+                    font: {
+                        family: chartFont.family,
+                        size: 12,
+                        color: chartColors.text
+                    },
+                    yshift: 15
+                };
+            });
+        }).flat()
     };
     
     Plotly.newPlot(container, traces, layout, {responsive: true});
@@ -476,7 +509,7 @@ function updateVisualization() {
         if (currentVisualization === 'geoChoropleth') {
             createHeatMap(currentYear);
         } else if (currentVisualization === 'timeSeriesAnalysis') {
-            createTimeSeries();
+            createTimeSeries(currentYear);
         } else if (currentVisualization === 'laborForceMap') {
             createLaborForceMap(currentYear);
         } else {
