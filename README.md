@@ -1,7 +1,7 @@
 # U.S. Childcare Cost Analysis Project
 
 ## Project Overview
-A comprehensive analysis of childcare costs across the United States, examining regional variations, trends, and socioeconomic impacts.
+A comprehensive analysis of childcare costs across the United States, examining regional variations, trends, and socioeconomic impacts from 2008-2018.
 
 ## Key Features
 
@@ -26,28 +26,21 @@ View our in-depth case study [here](https://ukomal.github.io/MS_Childcare_Cost_A
 - Family Cost Burden Analysis
 
 #### Trend Analysis
-- Historical Cost Trends (2010-2023)
+- Historical Cost Trends (2008-2018)
 - Cost vs. Income Comparison
 
 #### Statistical Analysis
 - Factor Correlation Matrix
-- Cost Distribution Violin Plot
-
-#### Urban vs Rural Analysis
-- Urban-Rural Cost Comparison
-- Childcare Accessibility Map
-
-#### Impact Analysis
-- Workforce Participation Impact
-- Economic Impact Assessment
+- Cost Distribution Analysis
 
 ## Data Sources
+- National Database of Childcare Prices (2008-2018)
 - U.S. Census Bureau
 - Bureau of Labor Statistics
 - Child Care Aware of America
-- State-level childcare licensing databases
 
 ## Technologies Used
+- Python (Data Processing & Analysis)
 - HTML5/CSS3
 - JavaScript
 - Plotly.js
@@ -64,7 +57,14 @@ docs/
 ├── new-dashboard.html      # Interactive dashboard with real-time visualizations
 ├── enhanced-case-study.html # Comprehensive analysis with all visualizations
 ├── images/                 # Visualization images and assets
-└── styles/                # CSS stylesheets
+├── js/                     # JavaScript files for dashboard functionality
+└── data/                   # Processed data files for visualizations
+
+milestones/
+├── milestone1/             # Project proposal and initial data exploration
+├── milestone2/             # Data preparation and visualization planning
+├── milestone3/             # Interactive dashboard development
+└── milestone5/             # Final visualizations and analysis
 ```
 
 ## Contributing

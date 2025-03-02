@@ -35,6 +35,7 @@ draft/
 # Sensitive files
 docs/enhanced-case-study.html
 docs/new-dashboard.html
+enhanced-case-study.html
 
 # Keep only necessary data
 data/*
@@ -44,6 +45,10 @@ data/*
 *.pdf
 *.docx
 ~$*.docx
+
+# Exclude personal information
+**/shahid_*
+**/uploadAssignment*
 
 # Keep AI checker script locally
 check_ai_content.py 
