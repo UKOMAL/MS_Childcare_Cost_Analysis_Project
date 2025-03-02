@@ -109,8 +109,8 @@ const STATE_NAMES = {
     "DC": "District of Columbia"
 };
 
-// Define which visualizations should show the year filter
-const timeBasedVisualizations = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
+// Constants for visualization types that need year filter
+const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap', 'costTrends'];
 
 /**
  * Status message functions
@@ -230,68 +230,55 @@ function createHeatMap(container, year, baseLayout) {
  * Create time series visualization
  */
 function createTimeSeries(container, year, baseLayout) {
+    // Define regions and their states
     const regions = {
-        'Northeast': ['CT', 'ME', 'MA', 'NH', 'RI', 'VT', 'NJ', 'NY', 'PA'],
-        'Southeast': ['AL', 'AR', 'FL', 'GA', 'KY', 'LA', 'MS', 'NC', 'SC', 'TN', 'VA', 'WV'],
-        'Midwest': ['IL', 'IN', 'IA', 'KS', 'MI', 'MN', 'MO', 'NE', 'ND', 'OH', 'SD', 'WI'],
-        'Southwest': ['AZ', 'NM', 'OK', 'TX'],
-        'West': ['AK', 'CA', 'CO', 'HI', 'ID', 'MT', 'NV', 'OR', 'UT', 'WA', 'WY']
+        'Northeast': ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont', 'New York', 'New Jersey', 'Pennsylvania'],
+        'Southeast': ['Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'West Virginia', 'Alabama', 'Kentucky', 'Mississippi', 'Tennessee', 'Arkansas', 'Louisiana'],
+        'Midwest': ['Illinois', 'Indiana', 'Michigan', 'Ohio', 'Wisconsin', 'Iowa', 'Kansas', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'South Dakota'],
+        'Southwest': ['Arizona', 'New Mexico', 'Oklahoma', 'Texas'],
+        'West': ['Alaska', 'California', 'Hawaii', 'Oregon', 'Washington', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'Utah', 'Wyoming']
     };
 
+    // Colors for each region
     const regionColors = {
-        'Northeast': '#FF9999',
-        'Southeast': '#66B2FF',
-        'Midwest': '#99FF99',
-        'Southwest': '#FFCC99',
-        'West': '#FF99CC'
+        'Northeast': '#1f77b4',
+        'Southeast': '#ff7f0e',
+        'Midwest': '#2ca02c',
+        'Southwest': '#d62728',
+        'West': '#9467bd'
     };
 
-    const years = Array.from({length: 11}, (_, i) => 2008 + i);
-    const data = [];
+    // Years to analyze
+    const years = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
 
-    // Calculate average costs for each region over the years
-    Object.entries(regions).forEach(([region, states]) => {
-        const costs = years.map(year => {
-            const stateCosts = states.map(state => {
-                const stateIndex = DASHBOARD_DATA.states.indexOf(state);
-                const yearData = DASHBOARD_DATA.costs[year.toString()];
-                if (!yearData) return null;
-                // Calculate average of infant, toddler, and preschool costs
-                const costs = [yearData.infant[stateIndex], yearData.toddler[stateIndex], yearData.preschool[stateIndex]];
-                return costs.reduce((a, b) => a + b, 0) / costs.length;
-            }).filter(cost => cost !== null);
-            
-            return stateCosts.length > 0 ? 
-                Math.round(stateCosts.reduce((a, b) => a + b, 0) / stateCosts.length * 100) : null;
-        });
-
-        const regionData = {
+    // Calculate average costs for each region and year
+    const regionData = {};
+    Object.keys(regions).forEach(region => {
+        regionData[region] = {
             x: years,
-            y: costs,
+            y: years.map(year => {
+                const stateCosts = regions[region].map(state => {
+                    const stateIndex = DASHBOARD_DATA.states.indexOf(state);
+                    return DASHBOARD_DATA.metrics[year].annual_cost[stateIndex];
+                });
+                return Math.round(stateCosts.reduce((a, b) => a + b, 0) / stateCosts.length);
+            }),
             name: region,
             type: 'scatter',
-            mode: 'lines+markers+text',
+            mode: 'lines+markers',
             line: {
                 color: regionColors[region],
-                width: 2,
-                shape: 'linear'
+                width: 3
             },
             marker: {
                 size: 8,
-                color: regionColors[region]
+                symbol: 'circle'
             },
-            text: costs.map(cost => cost ? `$${cost.toLocaleString()}` : ''),
-            textposition: 'top center',
-            textfont: {
-                size: 10
-            },
-            hovertemplate: '%{text}<extra></extra>'
+            hovertemplate: '%{y:$,.0f}<br>%{x}<extra>%{name}</extra>'
         };
-        data.push(regionData);
     });
 
     const layout = {
-        ...baseLayout,
         title: {
             text: 'Regional Childcare Cost Trends (2008-2018)',
             font: {
@@ -304,35 +291,35 @@ function createTimeSeries(container, year, baseLayout) {
             ticktext: years,
             tickvals: years,
             showgrid: true,
-            gridcolor: '#E5E5E5'
+            gridwidth: 1,
+            gridcolor: '#f0f0f0'
         },
         yaxis: {
             title: 'Annual Cost ($)',
             range: [10000, 30000],
             showgrid: true,
-            gridcolor: '#E5E5E5',
+            gridwidth: 1,
+            gridcolor: '#f0f0f0',
             tickformat: '$,.0f'
         },
         showlegend: true,
         legend: {
-            title: {
-                text: 'Region'
-            },
-            x: 1.02,
-            y: 1,
-            xanchor: 'left'
+            x: 1,
+            xanchor: 'right',
+            y: 1
         },
+        hovermode: 'closest',
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
         margin: {
             l: 80,
-            r: 150,
+            r: 50,
             t: 50,
-            b: 60
-        },
-        plot_bgcolor: 'white',
-        paper_bgcolor: 'white'
+            b: 50
+        }
     };
 
-    Plotly.newPlot(container, data, layout, {responsive: true});
+    Plotly.newPlot(container.id, Object.values(regionData), layout);
 }
 
 /**
@@ -494,253 +481,211 @@ function createLaborForceMap(container, year, baseLayout) {
  * Create spiral plot visualization
  */
 function createSpiralPlot(container, baseLayout) {
-    const years = Array.from({length: 11}, (_, i) => 2008 + i);
+    const states = DASHBOARD_DATA.states;
+    const costs = DASHBOARD_DATA.costs['2018'].infant;
     
-    // Calculate average cost for each year
-    const yearlyData = years.map(year => {
-        const yearCosts = DASHBOARD_DATA.states.map((_, stateIndex) => {
-            const yearData = DASHBOARD_DATA.costs[year.toString()];
-            if (!yearData) return null;
-            const costs = [yearData.infant[stateIndex], yearData.toddler[stateIndex], yearData.preschool[stateIndex]];
-            return costs.reduce((a, b) => a + b, 0) / costs.length;
-        }).filter(cost => cost !== null);
-        
-        const avgCost = yearCosts.length > 0 ? 
-            Math.round(yearCosts.reduce((a, b) => a + b, 0) / yearCosts.length * 100) : null;
-        
-        return {
-            year: year,
-            cost: avgCost
-        };
-    });
-
-    // Create spiral coordinates
-    const theta = Array.from({length: 360}, (_, i) => i * Math.PI / 180);
-    const r = theta.map(t => t * 0.5);
-    const x = r.map((r, i) => r * Math.cos(theta[i]));
-    const y = r.map((r, i) => r * Math.sin(theta[i]));
-
-    const trace = {
-        x: x,
-        y: y,
-        mode: 'lines+markers+text',
+    // Sort states by cost
+    const statesCosts = states.map((state, i) => ({ state, cost: costs[i] }));
+    statesCosts.sort((a, b) => b.cost - a.cost);
+    
+    const data = [{
+        type: 'scatterpolar',
+        r: statesCosts.map(item => item.cost),
+        theta: statesCosts.map(item => STATE_NAMES[item.state]),
+        mode: 'lines+markers',
         line: {
-            color: '#FF69B4',
-            width: 3
+            color: 'rgb(52, 152, 219)',
+            width: 2
         },
         marker: {
+            color: statesCosts.map(item => item.cost),
+            colorscale: 'Viridis',
             size: 10,
-            color: '#FF69B4'
-        },
-        text: years.map(year => year.toString()),
-        textposition: 'top center',
-        hovertemplate: 'Year: %{text}<br>Cost: $%{customdata:,.0f}<extra></extra>',
-        customdata: yearlyData.map(d => d.cost)
-    };
-
+            showscale: true,
+            colorbar: {
+                title: 'Monthly Cost ($)'
+            }
+        }
+    }];
+    
     const layout = {
         ...baseLayout,
-        title: {
-            text: 'Childcare Cost Trends (Spiral View)',
-            font: {
-                size: 28,
-                weight: 'bold'
-            }
-        },
+        title: 'State Childcare Costs (Radial View)',
         showlegend: false,
-        xaxis: {
-            showgrid: true,
-            zeroline: false,
-            showticklabels: false
-        },
-        yaxis: {
-            showgrid: true,
-            zeroline: false,
-            showticklabels: false
-        },
-        annotations: years.map((year, i) => ({
-            x: x[i * 30],
-            y: y[i * 30],
-            text: year.toString(),
-            showarrow: false,
-            font: {
-                size: 14,
-                weight: 'bold'
+        polar: {
+            radialaxis: {
+                visible: true,
+                title: 'Monthly Cost ($)'
+            },
+            angularaxis: {
+                visible: true,
+                direction: 'clockwise'
             }
-        }))
+        }
     };
-
-    Plotly.newPlot(container, [trace], layout, {responsive: true});
+    
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating spiral plot:', err);
+            container.innerHTML = '<div class="error">Error creating spiral plot visualization</div>';
+        });
 }
 
 /**
  * Create correlation analysis visualization
  */
 function createCorrelationAnalysis(container, baseLayout) {
-    // Calculate correlation matrix
-    const metrics = [
-        'Annual_Cost', 'Urban_Cost', 'Rural_Cost', 'Suburban_Cost', 'Center_Cost',
-        'Median_Income', 'Population', 'Labor_Force_Rate'
-    ];
-    
+    const metrics = ['Annual_Cost', 'Urban_Cost', 'Rural_Cost', 'Suburban_Cost', 'Center_Cost', 'Median_Income', 'Population', 'Labor_Force_Rate'];
     const correlationMatrix = [];
-    const values = {};
     
-    // Prepare data
-    metrics.forEach(metric => {
-        values[metric] = DASHBOARD_DATA.metrics['2018'][metric.toLowerCase()];
-    });
-    
-    // Calculate correlations
-    metrics.forEach(metric1 => {
-        const row = [];
-        metrics.forEach(metric2 => {
-            const correlation = calculateCorrelation(values[metric1], values[metric2]);
-            row.push(correlation);
+    metrics.forEach((metric1, i) => {
+        correlationMatrix[i] = [];
+        metrics.forEach((metric2, j) => {
+            let data1, data2;
+            
+            // Get data based on metric type
+            switch(metric1) {
+                case 'Annual_Cost':
+                    data1 = DASHBOARD_DATA.metrics['2018'].annual_cost;
+                    break;
+                case 'Urban_Cost':
+                    data1 = DASHBOARD_DATA.metrics['2018'].urban_cost;
+                    break;
+                case 'Rural_Cost':
+                    data1 = DASHBOARD_DATA.metrics['2018'].rural_cost;
+                    break;
+                case 'Suburban_Cost':
+                    data1 = DASHBOARD_DATA.metrics['2018'].suburban_cost;
+                    break;
+                case 'Center_Cost':
+                    data1 = DASHBOARD_DATA.metrics['2018'].center_cost;
+                    break;
+                case 'Median_Income':
+                    data1 = DASHBOARD_DATA.metrics['2018'].median_income;
+                    break;
+                case 'Population':
+                    data1 = DASHBOARD_DATA.metrics['2018'].population;
+                    break;
+                case 'Labor_Force_Rate':
+                    data1 = DASHBOARD_DATA.metrics['2018'].working_parent_ratio;
+                    break;
+            }
+            
+            switch(metric2) {
+                case 'Annual_Cost':
+                    data2 = DASHBOARD_DATA.metrics['2018'].annual_cost;
+                    break;
+                case 'Urban_Cost':
+                    data2 = DASHBOARD_DATA.metrics['2018'].urban_cost;
+                    break;
+                case 'Rural_Cost':
+                    data2 = DASHBOARD_DATA.metrics['2018'].rural_cost;
+                    break;
+                case 'Suburban_Cost':
+                    data2 = DASHBOARD_DATA.metrics['2018'].suburban_cost;
+                    break;
+                case 'Center_Cost':
+                    data2 = DASHBOARD_DATA.metrics['2018'].center_cost;
+                    break;
+                case 'Median_Income':
+                    data2 = DASHBOARD_DATA.metrics['2018'].median_income;
+                    break;
+                case 'Population':
+                    data2 = DASHBOARD_DATA.metrics['2018'].population;
+                    break;
+                case 'Labor_Force_Rate':
+                    data2 = DASHBOARD_DATA.metrics['2018'].working_parent_ratio;
+                    break;
+            }
+            
+            const correlation = calculateCorrelation(data1, data2);
+            correlationMatrix[i][j] = correlation;
         });
-        correlationMatrix.push(row);
     });
     
-    // Create heatmap trace
-    const heatmapTrace = {
+    const data = [{
         type: 'heatmap',
         z: correlationMatrix,
         x: metrics.map(m => m.replace('_', ' ')),
         y: metrics.map(m => m.replace('_', ' ')),
         colorscale: [
-            [0, 'rgb(255,255,224)'],    // Light yellow for low values
-            [0.5, 'rgb(255,140,0)'],    // Orange for mid values
-            [1, 'rgb(139,0,0)']         // Dark red for high values
+            [0, '#f7fbff'],
+            [0.5, '#6baed6'],
+            [1, '#08519c']
         ],
-        showscale: true,
-        colorbar: {
-            title: 'Correlation Coefficient'
-        },
+        zmin: -1,
+        zmax: 1,
         text: correlationMatrix.map(row => 
             row.map(val => val.toFixed(2))
         ),
-        hoverongaps: false,
-        hovertemplate: '%{x}<br>%{y}<br>Correlation: %{z:.2f}<extra></extra>'
-    };
-
+        texttemplate: '%{text}',
+        textfont: {
+            size: 12,
+            color: 'black'
+        },
+        hoverongaps: false
+    }];
+    
     const layout = {
         ...baseLayout,
-        title: 'Correlation Analysis of Childcare Metrics',
-        subtitle: 'Relationship Strength Between Different Cost Factors and Demographics',
-        height: container.clientHeight,
+        title: {
+            text: 'Comprehensive Correlation Analysis of Childcare Metrics',
+            font: { size: 24 }
+        },
+        subtitle: {
+            text: 'Relationship Strength Between Different Cost Factors and Demographics',
+            font: { size: 16 }
+        },
+        margin: {
+            l: 150,
+            r: 100,
+            t: 100,
+            b: 150,
+            pad: 4
+        },
+        xaxis: {
+            tickangle: -45,
+            side: 'bottom'
+        },
+        yaxis: {
+            automargin: true
+        },
         annotations: correlationMatrix.map((row, i) => 
             row.map((val, j) => ({
-                text: val.toFixed(2),
-                x: metrics[j].replace('_', ' '),
-                y: metrics[i].replace('_', ' '),
                 xref: 'x',
                 yref: 'y',
+                x: j,
+                y: i,
+                text: val.toFixed(2),
                 showarrow: false,
                 font: {
                     color: Math.abs(val) > 0.5 ? 'white' : 'black'
                 }
             }))
-        ).flat(),
-        xaxis: {
-            tickangle: 45
-        },
-        margin: {
-            l: 150,
-            r: 50,
-            t: 100,
-            b: 150
-        }
+        ).flat()
     };
-
-    Plotly.newPlot(container, [heatmapTrace], layout, {responsive: true});
-}
-
-// Helper function to calculate correlation
-function calculateCorrelation(x, y) {
-    const n = x.length;
-    const mean_x = x.reduce((a, b) => a + b, 0) / n;
-    const mean_y = y.reduce((a, b) => a + b, 0) / n;
     
-    const cov = x.map((xi, i) => (xi - mean_x) * (y[i] - mean_y))
-        .reduce((a, b) => a + b, 0) / (n - 1);
-    
-    const std_x = Math.sqrt(x.map(xi => Math.pow(xi - mean_x, 2))
-        .reduce((a, b) => a + b, 0) / (n - 1));
-    const std_y = Math.sqrt(y.map(yi => Math.pow(yi - mean_y, 2))
-        .reduce((a, b) => a + b, 0) / (n - 1));
-    
-    return cov / (std_x * std_y);
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating correlation analysis:', err);
+            container.innerHTML = '<div class="error">Error creating correlation analysis visualization</div>';
+        });
 }
 
 /**
- * Create social media impact visualization
+ * Helper function to calculate correlation coefficient
  */
-    // First correlation: Cost vs Income
-    const trace1 = {
-        x: DASHBOARD_DATA.metrics['2018'].annual_cost,
-        y: DASHBOARD_DATA.metrics['2018'].median_income,
-        mode: 'markers',
-        type: 'scatter',
-        name: 'Cost vs Income',
-        marker: {
-            size: 12,
-            color: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Cost Burden (%)'
-            }
-        },
-        text: DASHBOARD_DATA.states.map((state, i) => 
-            `${STATE_NAMES[state]}<br>` +
-            `Annual Cost: $${DASHBOARD_DATA.metrics['2018'].annual_cost[i].toLocaleString()}<br>` +
-            `Median Income: $${DASHBOARD_DATA.metrics['2018'].median_income[i].toLocaleString()}`
-        ),
-        xaxis: 'x1',
-        yaxis: 'y1'
-    };
-
-    // Second correlation: Working Parents vs Cost Burden
-    const trace2 = {
-        x: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
-        y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-        mode: 'markers',
-        type: 'scatter',
-        name: 'Working Parents vs Cost',
-        marker: {
-            size: 12,
-            color: DASHBOARD_DATA.metrics['2018'].annual_cost,
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Annual Cost ($)'
-            }
-        },
-        text: DASHBOARD_DATA.states.map((state, i) => 
-            `${STATE_NAMES[state]}<br>` +
-            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%<br>` +
-            `Cost Burden: ${(DASHBOARD_DATA.metrics['2018'].cost_burden[i] * 100).toFixed(1)}%`
-        ),
-        xaxis: 'x2',
-        yaxis: 'y2'
-    };
-
-    layout.xaxis1 = {
-        title: 'Annual Cost ($)',
-        domain: [0, 0.45]
-    };
-    layout.yaxis1 = {
-        title: 'Median Income ($)'
-    };
-    layout.xaxis2 = {
-        title: 'Working Parents (%)',
-        domain: [0.55, 1]
-    };
-    layout.yaxis2 = {
-        title: 'Cost Burden (%)'
-    };
-
-    Plotly.newPlot(container, [trace1, trace2], layout, {responsive: true});
+function calculateCorrelation(array1, array2) {
+    const n = array1.length;
+    const mean1 = array1.reduce((a, b) => a + b) / n;
+    const mean2 = array2.reduce((a, b) => a + b) / n;
+    
+    const variance1 = array1.reduce((a, b) => a + Math.pow(b - mean1, 2), 0) / n;
+    const variance2 = array2.reduce((a, b) => a + Math.pow(b - mean2, 2), 0) / n;
+    
+    const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
+    
+    return covariance / Math.sqrt(variance1 * variance2);
 }
 
 /**
@@ -944,95 +889,90 @@ function createCostDistribution(container, baseLayout) {
  * Create regional cost trends visualization
  */
 function createCostTrends(container, year, baseLayout) {
-    // Get state costs for the selected year
-    const stateCosts = DASHBOARD_DATA.states.map((state, index) => {
-        const yearData = DASHBOARD_DATA.costs[year];
-        const costs = [yearData.infant[index], yearData.toddler[index], yearData.preschool[index]];
+    // Define regions and their states
+    const regions = {
+        'Northeast': ['Connecticut', 'Maine', 'Massachusetts', 'New Hampshire', 'Rhode Island', 'Vermont', 'New York', 'New Jersey', 'Pennsylvania'],
+        'Southeast': ['Delaware', 'Florida', 'Georgia', 'Maryland', 'North Carolina', 'South Carolina', 'Virginia', 'West Virginia', 'Alabama', 'Kentucky', 'Mississippi', 'Tennessee', 'Arkansas', 'Louisiana'],
+        'Midwest': ['Illinois', 'Indiana', 'Michigan', 'Ohio', 'Wisconsin', 'Iowa', 'Kansas', 'Minnesota', 'Missouri', 'Nebraska', 'North Dakota', 'South Dakota'],
+        'Southwest': ['Arizona', 'New Mexico', 'Oklahoma', 'Texas'],
+        'West': ['Alaska', 'California', 'Hawaii', 'Oregon', 'Washington', 'Colorado', 'Idaho', 'Montana', 'Nevada', 'Utah', 'Wyoming']
+    };
+
+    // Calculate average costs and standard deviation for each state
+    const years = [2008, 2010, 2012, 2014, 2015, 2016, 2017, 2018];
+    const stateData = DASHBOARD_DATA.states.map(state => {
+        const stateIndex = DASHBOARD_DATA.states.indexOf(state);
+        const costs = years.map(year => DASHBOARD_DATA.metrics[year].annual_cost[stateIndex]);
+        const avgCost = costs.reduce((a, b) => a + b, 0) / costs.length;
+        const stdDev = Math.sqrt(costs.reduce((a, b) => a + Math.pow(b - avgCost, 2), 0) / costs.length);
         return {
-            state: state,
-            cost: Math.round(costs.reduce((a, b) => a + b, 0) / costs.length * 100),
-            stdDev: Math.round(Math.sqrt(
-                costs.reduce((acc, val) => acc + Math.pow(val - costs.reduce((a, b) => a + b, 0) / costs.length, 2), 0) / costs.length
-            ) * 100)
+            state,
+            avgCost,
+            stdDev,
+            currentCost: DASHBOARD_DATA.metrics[year].annual_cost[stateIndex]
         };
     });
 
-    // Sort by cost descending
-    stateCosts.sort((a, b) => b.cost - a.cost);
+    // Sort by average cost
+    stateData.sort((a, b) => b.avgCost - a.avgCost);
 
     const trace = {
-        y: stateCosts.map(d => d.state),
-        x: stateCosts.map(d => d.cost),
+        type: 'bar',
+        x: stateData.map(d => d.currentCost),
+        y: stateData.map(d => STATE_NAMES[d.state]),
+        orientation: 'h',
         error_x: {
             type: 'data',
-            array: stateCosts.map(d => d.stdDev),
-            color: '#444',
-            thickness: 1.5,
-            width: 3
+            array: stateData.map(d => d.stdDev),
+            visible: true,
+            color: '#888'
         },
-        type: 'bar',
-        orientation: 'h',
         marker: {
-            color: stateCosts.map(d => d.cost),
+            color: stateData.map(d => d.currentCost),
             colorscale: 'Viridis',
             showscale: true,
             colorbar: {
-                title: {
-                    text: 'Annual Cost ($)',
-                    font: {
-                        size: 14,
-                        weight: 'bold'
-                    }
-                }
+                title: 'Annual Cost ($)',
+                tickformat: '$,.0f'
             }
         },
-        text: stateCosts.map(d => `$${d.cost.toLocaleString()}`),
-        textposition: 'outside',
-        hovertemplate: '%{y}: $%{x:,.0f}<br>Std Dev: $%{error_x.array:,.0f}<extra></extra>'
+        hovertemplate: '<b>%{y}</b><br>' +
+                      'Current Cost: $%{x:,.0f}<br>' +
+                      'Std Dev: $%{error_x.array:,.0f}<extra></extra>'
     };
-
+    
     const layout = {
         ...baseLayout,
         title: {
-            text: 'Average Childcare Costs by State (2008-2018)\nwith Standard Deviation',
-            font: {
-                size: 28,
-                weight: 'bold'
-            }
+            text: `State Childcare Costs (${year})`,
+            font: { size: 24 }
         },
         xaxis: {
-            title: {
-                text: 'Average Annual Cost ($)',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                }
-            },
+            title: 'Annual Cost ($)',
             tickformat: '$,.0f',
             showgrid: true,
-            gridcolor: '#E5E5E5'
+            gridwidth: 1,
+            gridcolor: '#f0f0f0'
         },
         yaxis: {
-            title: {
-                text: 'State',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                }
-            },
+            title: '',
             automargin: true
         },
         margin: {
-            l: 80,
-            r: 150,
-            t: 100,
-            b: 80
+            l: 200,
+            r: 50,
+            t: 50,
+            b: 50
         },
-        showlegend: false,
-        height: 1200  // Increased height to accommodate all states
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot(container, [trace], layout, {responsive: true});
+    Plotly.newPlot(container.id, [trace], layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating cost trends:', err);
+            container.innerHTML = '<div class="error">Error creating cost trends visualization</div>';
+        });
 }
 
 /**
@@ -1049,8 +989,20 @@ function updateVisualization() {
         return;
     }
     
-    // Clear previous content
-    container.innerHTML = '';
+    // Show loading state
+    container.innerHTML = '<div class="loading-spinner"><p>Loading visualization...</p></div>';
+    
+    // Calculate container dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 120;
+    const marginBottom = 20;
+    const marginSides = 40;
+    
+    container.style.width = `${viewportWidth - marginSides}px`;
+    container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
+    container.style.maxWidth = '2000px';
+    container.style.margin = '0 auto';
     
     const baseLayout = {
         autosize: true,
@@ -1061,27 +1013,28 @@ function updateVisualization() {
             b: 60,
             pad: 4
         },
-        paper_bgcolor: 'rgba(255,255,255,0.95)',
-        plot_bgcolor: 'rgba(255,255,255,0.95)',
+        width: container.clientWidth,
+        height: container.clientHeight,
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
         font: {
-            family: 'Arial, sans-serif',
-            size: 12
+            family: 'Arial, sans-serif'
         }
     };
     
     try {
         switch(visualType) {
-            case 'geoChoropleth':
+            case 'costMap':
                 createHeatMap(container, selectedYear, baseLayout);
-                break;
+                    break;
             case 'laborForceMap':
                 createLaborForceMap(container, selectedYear, baseLayout);
-                break;
-            case 'timeSeriesAnalysis':
+                    break;
+            case 'timeSeries':
                 createTimeSeries(container, selectedYear, baseLayout);
-                break;
-            case 'costDistribution':
-                createCostDistribution(container, baseLayout);
+                    break;
+            case 'costTrends':
+                createCostTrends(container, selectedYear, baseLayout);
                 break;
             case 'violinPlot':
                 createViolinPlot(container, baseLayout);
@@ -1089,20 +1042,17 @@ function updateVisualization() {
             case 'correlation':
                 createCorrelationAnalysis(container, baseLayout);
                 break;
-            case 'spiralPlot':
-                createSpiralPlot(container, baseLayout);
-                break;
-            case 'costTrends':
-                createCostTrends(container, selectedYear, baseLayout);
+            case 'workingParents':
+                createWorkingParentsBurden(container, baseLayout);
                 break;
             case 'socialMedia':
                 createSocialMediaImpact(container, baseLayout);
-                break;
-            default:
+                    break;
+                default:
                 container.innerHTML = '<div class="error">Invalid visualization type</div>';
-        }
-    } catch (error) {
-        console.error('Error updating visualization:', error);
+            }
+        } catch (error) {
+            console.error('Error updating visualization:', error);
         container.innerHTML = '<div class="error">Error creating visualization</div>';
     }
 }
