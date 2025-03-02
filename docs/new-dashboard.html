@@ -44,9 +44,9 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            width: 90%;
-            max-width: 1200px;
-            height: 500px;
+            width: 95%;
+            height: 70vh;
+            min-height: 500px;
             position: relative;
             overflow: hidden;
         }
@@ -77,16 +77,13 @@
             text-align: center;
         }
         #mainVisualization {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100% !important;
             height: 100% !important;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 500px;
+        }
+        .plotly-graph-div {
+            width: 100% !important;
+            height: 100% !important;
         }
         #mainVisualization img {
             max-width: 100%;
@@ -94,7 +91,26 @@
             object-fit: scale-down;
         }
         .year-filter {
-            display: none;  /* Hidden by default, shown for interactive charts */
+            display: none;
+            margin-left: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            width: 200px;
+        }
+        .year-filter.visible {
+            display: inline-block;
+        }
+        @media (max-width: 768px) {
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .year-filter {
+                margin-left: 0;
+                width: 250px;
+            }
         }
     </style>
 </head>
@@ -301,6 +317,18 @@
                     updateVisualization(container, visualizationType.value, this.value);
                 }
             });
+
+            // Add ResizeObserver to handle container resizing
+            if (container) {
+                const resizeObserver = new ResizeObserver(entries => {
+                    for (let entry of entries) {
+                        if (entry.target === container) {
+                            Plotly.Plots.resize(container);
+                        }
+                    }
+                });
+                resizeObserver.observe(container);
+            }
         });
     </script>
 </body>

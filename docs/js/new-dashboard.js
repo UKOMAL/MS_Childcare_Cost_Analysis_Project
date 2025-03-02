@@ -11,7 +11,7 @@ const DASHBOARD_DATA = {
     costs: {
         2018: {
             infant: [151.23, 78.62, 196.15, 141.92, 303.58, 242.31, 303.58, 196.15, 175.38, 168.46, 196.15, 151.23, 242.31, 196.15, 175.38, 175.38, 141.92, 141.92, 196.15, 303.58, 303.58, 196.15, 303.58, 114.08, 168.46, 168.46, 175.38, 196.15, 242.31, 242.31, 168.46, 303.58, 196.15, 175.38, 168.46, 141.92, 242.31, 196.15, 242.31, 141.92, 141.92, 141.92, 175.38, 168.46, 242.31, 242.31, 303.58, 141.92, 242.31, 168.46, 303.58],
-            toddler: [134.42, 69.88, 174.31, 126.15, 269.85, 215.38, 269.85, 174.31, 155.88, 149.73, 174.31, 134.42, 215.38, 174.31, 155.88, 155.88, 126.15, 126.15, 174.31, 269.85, 269.85, 174.31, 269.85, 101.40, 149.73, 149.73, 155.88, 174.31, 215.38, 215.38, 149.73, 269.85, 174.31, 155.88, 149.73, 126.15, 215.38, 174.31, 215.38, 126.15, 126.15, 126.15, 155.88, 149.73, 215.38, 215.38, 269.85, 126.15, 215.38, 149.73, 269.85],
+            toddler: [134.42, 69.88, 174.31, 126.15, 269.85, 215.38, 269.85, 174.31, 155.88, 149.73, 174.31, 134.42, 215.38, 174.31, 155.88, 155.88, 126.15, 126.15, 174.31, 269.85, 269.85, 174.31, 269.85, 101.40, 149.73, 149.73, 155.88, 174.31, 215.38, 215.38, 149.73, 269.85, 174.31, 155.88, 149.73, 126.15, 215.38, 174.31, 215.38, 126.15, 126.15, 126.15, 155.88, 149.73, 215.38, 215.38, 269.85, 122.37, 215.38, 149.73, 269.85],
             preschool: [117.62, 61.15, 152.52, 110.38, 236.12, 188.46, 236.12, 152.52, 136.40, 131.02, 152.52, 117.62, 188.46, 152.52, 136.40, 136.40, 110.38, 110.38, 152.52, 236.12, 236.12, 152.52, 236.12, 88.73, 131.02, 131.02, 136.40, 152.52, 188.46, 188.46, 131.02, 236.12, 152.52, 136.40, 131.02, 110.38, 188.46, 152.52, 188.46, 110.38, 110.38, 110.38, 136.40, 131.02, 188.46, 188.46, 236.12, 110.38, 188.46, 131.02, 236.12]
         },
         2017: {
@@ -137,270 +137,6 @@ function getDataTypeLabel(dataType) {
 
 /**
  * Create US map visualization
- * @param {string} dataType - The type of data to display (infant, toddler, preschool)
- */
-function createMapVisualization(dataType) {
-    const locations = DASHBOARD_DATA.states;
-    const z = DASHBOARD_DATA.costs[dataType].map(cost => cost || 0);
-    
-    const text = locations.map((state, i) => {
-        const cost = z[i];
-        const burden = DASHBOARD_DATA.metrics.cost_burden[i];
-        const workingParents = DASHBOARD_DATA.metrics.working_parent_ratio[i];
-        return `<b>${STATE_NAMES[state]}</b><br>` +
-               `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
-               `Cost Burden: ${burden ? (burden * 100).toFixed(1) : 'No data'}%<br>` +
-               `Working Parents: ${workingParents ? (workingParents * 100).toFixed(1) : 'No data'}%`;
-    });
-    
-    const mapData = [{
-        type: 'choropleth',
-        locationmode: 'USA-states',
-        locations: locations,
-        z: z,
-        text: text,
-        hoverinfo: 'text',
-        colorscale: 'Blues',
-        colorbar: {
-            title: 'Monthly Cost ($)',
-            thickness: 20
-        },
-        marker: {
-            line: {
-                color: 'rgb(255,255,255)',
-                width: 2
-            }
-        }
-    }];
-    
-    const layout = {
-        title: `U.S. ${getDataTypeLabel(dataType)} Costs by State`,
-        geo: {
-            scope: 'usa',
-            showlakes: true,
-            lakecolor: 'rgb(255,255,255)',
-            projection: {
-                type: 'albers usa'
-            }
-        },
-        margin: {
-            l: 0,
-            r: 0,
-            b: 0,
-            t: 50,
-            pad: 4
-        }
-    };
-    
-    Plotly.newPlot('mainViz', mapData, layout)
-        .then(() => {
-            showStatus('Map visualization created successfully', 'success');
-        })
-        .catch(err => {
-            console.error('Error creating map:', err);
-            showStatus('Error creating map visualization', 'error');
-        });
-}
-
-/**
- * Create bar chart visualization
- * @param {string} dataType - The type of data to display (infant, toddler, preschool)
- */
-function createBarVisualization(dataType) {
-    const states = DASHBOARD_DATA.states;
-    const costs = DASHBOARD_DATA.costs[dataType];
-    
-    // Sort states by cost
-    const statesCosts = states.map((state, i) => ({ state, cost: costs[i] }));
-    statesCosts.sort((a, b) => b.cost - a.cost);
-    
-    const top15States = statesCosts.slice(0, 15);
-    
-    const barData = [{
-        x: top15States.map(item => item.state),
-        y: top15States.map(item => item.cost),
-        type: 'bar',
-        marker: {
-            color: 'rgba(52, 152, 219, 0.8)'
-        },
-        text: top15States.map(item => `$${item.cost.toFixed(2)}`),
-        textposition: 'auto',
-        hoverinfo: 'text',
-        hovertext: top15States.map(item => `${STATE_NAMES[item.state]}: $${item.cost.toFixed(2)}`)
-    }];
-    
-    const layout = {
-        title: `Top 15 States by ${getDataTypeLabel(dataType)} Costs`,
-        xaxis: {
-            title: 'State',
-            tickangle: -45
-        },
-        yaxis: {
-            title: 'Monthly Cost ($)'
-        },
-        margin: {
-            l: 50,
-            r: 20,
-            b: 80,
-            t: 50,
-            pad: 4
-        }
-    };
-    
-    Plotly.newPlot('mainViz', barData, layout)
-        .then(() => {
-            showStatus('Bar chart created successfully', 'success');
-        })
-        .catch(err => {
-            console.error('Error creating bar chart:', err);
-            showStatus('Error creating bar chart', 'error');
-        });
-}
-
-/**
- * Create a line chart comparing costs across different care types
- */
-function createComparisonVisualization() {
-    const states = DASHBOARD_DATA.states;
-    const infantCosts = DASHBOARD_DATA.costs.infant;
-    const toddlerCosts = DASHBOARD_DATA.costs.toddler;
-    const preschoolCosts = DASHBOARD_DATA.costs.preschool;
-    
-    // Sort states by infant cost
-    const stateData = states.map((state, i) => ({
-        state,
-        infant: infantCosts[i],
-        toddler: toddlerCosts[i],
-        preschool: preschoolCosts[i]
-    }));
-    
-    stateData.sort((a, b) => b.infant - a.infant);
-    
-    // Take top 10 states
-    const top10States = stateData.slice(0, 10);
-    
-    const trace1 = {
-        x: top10States.map(item => item.state),
-        y: top10States.map(item => item.infant),
-        name: 'Infant Care',
-        type: 'bar',
-        marker: {color: 'rgba(52, 152, 219, 0.8)'}
-    };
-    
-    const trace2 = {
-        x: top10States.map(item => item.state),
-        y: top10States.map(item => item.toddler),
-        name: 'Toddler Care',
-        type: 'bar',
-        marker: {color: 'rgba(46, 204, 113, 0.8)'}
-    };
-    
-    const trace3 = {
-        x: top10States.map(item => item.state),
-        y: top10States.map(item => item.preschool),
-        name: 'Preschool Care',
-        type: 'bar',
-        marker: {color: 'rgba(155, 89, 182, 0.8)'}
-    };
-    
-    const data = [trace1, trace2, trace3];
-    
-    const layout = {
-        title: 'Cost Comparison: Top 10 Most Expensive States',
-        barmode: 'group',
-        xaxis: {
-            title: 'State',
-            tickangle: -45
-        },
-        yaxis: {
-            title: 'Monthly Cost ($)'
-        },
-        legend: {
-            x: 0,
-            y: 1.2,
-            orientation: 'h'
-        },
-        margin: {
-            l: 50,
-            r: 20,
-            b: 80,
-            t: 50,
-            pad: 4
-        }
-    };
-    
-    Plotly.newPlot('mainViz', data, layout)
-        .then(() => {
-            showStatus('Comparison chart created successfully', 'success');
-        })
-        .catch(err => {
-            console.error('Error creating comparison chart:', err);
-            showStatus('Error creating comparison chart', 'error');
-        });
-}
-
-/**
- * Create a scatter plot of cost vs. burden
- * @param {string} dataType - The type of data to display (infant, toddler, preschool)
- */
-function createScatterVisualization(dataType) {
-    const states = DASHBOARD_DATA.states;
-    const costs = DASHBOARD_DATA.costs[dataType];
-    const burdens = DASHBOARD_DATA.metrics.cost_burden;
-    
-    const text = states.map((state, i) => {
-        return `${STATE_NAMES[state]}<br>` +
-               `Monthly Cost: $${costs[i].toFixed(2)}<br>` +
-               `Cost Burden: ${(burdens[i] * 100).toFixed(1)}%`;
-    });
-    
-    const data = [{
-        x: costs,
-        y: burdens.map(b => b * 100), // Convert to percentage
-        mode: 'markers',
-        type: 'scatter',
-        text: text,
-        hoverinfo: 'text',
-        marker: {
-            size: 12,
-            color: costs,
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Monthly Cost ($)'
-            }
-        }
-    }];
-    
-    const layout = {
-        title: `${getDataTypeLabel(dataType)} Cost vs. Family Budget Burden`,
-        xaxis: {
-            title: 'Monthly Cost ($)'
-        },
-        yaxis: {
-            title: 'Percentage of Family Budget (%)'
-        },
-        margin: {
-            l: 60,
-            r: 30,
-            b: 60,
-            t: 50,
-            pad: 4
-        }
-    };
-    
-    Plotly.newPlot('mainViz', data, layout)
-        .then(() => {
-            showStatus('Scatter plot created successfully', 'success');
-        })
-        .catch(err => {
-            console.error('Error creating scatter plot:', err);
-            showStatus('Error creating scatter plot', 'error');
-        });
-}
-
-/**
- * Create US map visualization
  */
 function createHeatMap(container, year, baseLayout) {
     const yearData = DASHBOARD_DATA.costs[year] || DASHBOARD_DATA.costs['2018'];
@@ -484,6 +220,7 @@ function createTimeSeries(container, year, baseLayout) {
     });
     
     const layout = {
+        ...baseLayout,
         title: `Childcare Cost Trends by State (2008-${year})`,
         xaxis: {
             title: 'Year',
@@ -496,11 +233,10 @@ function createTimeSeries(container, year, baseLayout) {
         legend: {
             x: 1,
             y: 0.5
-        },
-        ...baseLayout
+        }
     };
     
-    Plotly.newPlot('mainVisualization', traces, layout)
+    Plotly.newPlot(container.id, traces, layout, {responsive: true})
         .then(() => {
             showStatus('Time series visualization created successfully', 'success');
         })
@@ -550,6 +286,7 @@ function createLaborForceMap(container, year, baseLayout) {
     }];
     
     const layout = {
+        ...baseLayout,
         title: `Female Labor Force Participation by State (${year})`,
         geo: {
             scope: 'usa',
@@ -558,11 +295,10 @@ function createLaborForceMap(container, year, baseLayout) {
             projection: {
                 type: 'albers usa'
             }
-        },
-        ...baseLayout
+        }
     };
     
-    Plotly.newPlot('mainVisualization', mapData, layout)
+    Plotly.newPlot(container.id, mapData, layout, {responsive: true})
         .then(() => {
             showStatus('Labor force map created successfully', 'success');
         })
@@ -759,7 +495,7 @@ function updateVisualization() {
     // Show/hide year filter based on visualization type
     const yearFilter = document.getElementById('yearFilter');
     if (yearFilter) {
-        yearFilter.style.display = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'].includes(type) ? 'block' : 'none';
+        yearFilter.style.display = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'].includes(type) ? 'inline-block' : 'none';
     }
     
     try {
