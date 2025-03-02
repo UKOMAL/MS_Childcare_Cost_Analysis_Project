@@ -8,14 +8,9 @@ Student: Komal Shahid
 Date: March 2, 2024
 
 This script generates visualizations for the childcare cost analysis:
-1. Time series analysis
+1. Time series analysis of childcare costs
 2. Geographic distribution (choropleth map)
-3. Urban vs rural comparison
-4. Cost distribution (violin plot)
-5. Correlation analysis
-6. Cost trends
-7. State costs spiral view
-8. Social media visualizations
+3. Female labor force participation
 """
 
 import pandas as pd
@@ -24,7 +19,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
 import geopandas as gpd
-from matplotlib.colors import LinearSegmentedColormap
 
 # Set style for all plots
 plt.style.use('seaborn-v0_8')
@@ -83,8 +77,7 @@ def generate_state_data():
         base_cost = np.random.uniform(8000, 20000)
         data.append({
             'State': state,
-            'Annual_Cost': base_cost,
-            'Weekly_Cost': base_cost / 52
+            'Annual_Cost': base_cost
         })
     
     return pd.DataFrame(data)
@@ -164,118 +157,6 @@ def save_visualizations():
     plt.savefig(img_dir / 'female_labor_force.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: female_labor_force.png")
-    
-    # 4. Cost Distribution (Violin Plot)
-    plt.figure(figsize=(12, 8))
-    sns.violinplot(data=data, x='Region', y='Cost', inner='box')
-    plt.title('Distribution of Childcare Costs by Region', pad=20, fontsize=14)
-    plt.xlabel('Region', fontsize=12)
-    plt.ylabel('Annual Cost ($)', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'cost_distribution.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: cost_distribution.png")
-    
-    # 5. Correlation Analysis
-    corr_data = pd.DataFrame({
-        'Cost': data['Cost'],
-        'Year': data['Year'],
-        'Region_Code': pd.Categorical(data['Region']).codes,
-        'Growth_Rate': data.groupby('Region')['Cost'].pct_change(),
-        'Regional_Avg': data.groupby('Region')['Cost'].transform('mean')
-    })
-    plt.figure(figsize=(10, 8))
-    mask = np.triu(np.ones_like(corr_data.corr(), dtype=bool))
-    sns.heatmap(corr_data.corr(), 
-                mask=mask,
-                annot=True,
-                fmt='.2f',
-                cmap='RdBu_r',
-                center=0,
-                square=True,
-                cbar_kws={'label': 'Correlation Coefficient'})
-    plt.title('Correlation Analysis of Childcare Metrics', pad=20, fontsize=14)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'correlation.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: correlation.png")
-    
-    # 6. Cost Trends
-    plt.figure(figsize=(12, 8))
-    yearly_avg = data.groupby('Year')['Cost'].mean()
-    yearly_std = data.groupby('Year')['Cost'].std()
-    plt.fill_between(yearly_avg.index, 
-                    yearly_avg - yearly_std,
-                    yearly_avg + yearly_std,
-                    alpha=0.2)
-    plt.plot(yearly_avg.index, yearly_avg, 
-            linewidth=2.5,
-            marker='o',
-            markersize=8)
-    pct_change = ((yearly_avg.iloc[-1] - yearly_avg.iloc[0]) / yearly_avg.iloc[0] * 100)
-    plt.text(0.02, 0.98, f'Total increase: {pct_change:.1f}%',
-            transform=plt.gca().transAxes,
-            bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'))
-    plt.title('The Rising Cost of Childcare (2008-2018)', pad=20, fontsize=14)
-    plt.xlabel('Year', fontsize=12)
-    plt.ylabel('Average Annual Cost ($)', fontsize=12)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'cost_trends.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: cost_trends.png")
-    
-    # 7. State Costs Spiral View
-    theta = np.linspace(0, 4*np.pi, len(state_data))
-    r = state_data['Annual_Cost'] / 1000
-    
-    fig = plt.figure(figsize=(12, 12))
-    ax = fig.add_subplot(111, projection='polar')
-    ax.plot(theta, r)
-    ax.scatter(theta, r, c=r, cmap='viridis', s=100)
-    
-    # Add state labels
-    for i, state in enumerate(state_data['State']):
-        ax.text(theta[i], r[i], state, 
-                horizontalalignment='center',
-                verticalalignment='center')
-    
-    plt.title('State Childcare Costs - Spiral View', pad=20, fontsize=14)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'state_costs.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: state_costs.png")
-    
-    # 8. Social Media Visualization 1
-    plt.figure(figsize=(10, 6))
-    plt.bar(state_data['State'], state_data['Weekly_Cost'], color='#FF6B6B')
-    plt.title('Weekly Salary Hours Needed for Childcare\nby State', pad=20, fontsize=14)
-    plt.xlabel('State', fontsize=12)
-    plt.ylabel('Hours of Work Needed (at median wage)', fontsize=12)
-    plt.xticks(rotation=45)
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'social_media_1.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: social_media_1.png")
-    
-    # 9. Social Media Visualization 2
-    plt.figure(figsize=(10, 6))
-    for region in data['Region'].unique():
-        region_data = data[data['Region'] == region]
-        plt.plot(region_data['Year'], region_data['Cost'], 
-                label=region, marker='o')
-    plt.title('The Rising Cost of Childcare\n(2008-2018)', pad=20, fontsize=14)
-    plt.xlabel('Year', fontsize=12)
-    plt.ylabel('Annual Cost ($)', fontsize=12)
-    plt.legend(title='Region')
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'social_media_2.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: social_media_2.png")
     
     print(f"\nAll image files saved in: {img_dir}")
 
