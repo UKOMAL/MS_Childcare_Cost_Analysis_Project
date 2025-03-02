@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/timeseries.js"></script>
     <script src="js/new-dashboard.js"></script>
     <style>
         body {
@@ -57,15 +61,40 @@
             border-left: 4px solid #3498db;
         }
 
-        .visualization-container {
-            width: 100%;
-            height: 600px;
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
             margin: 30px 0;
         }
 
-        #mainViz {
-            width: 100%;
-            height: 100%;
+        .viz-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            height: 500px;
+        }
+
+        .viz-card h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .time-filter input[type="range"] {
+            flex: 1;
+        }
+
+        .time-filter span {
+            min-width: 60px;
+            text-align: center;
         }
 
         .control-panel {
@@ -109,8 +138,8 @@
                 padding: 15px;
             }
 
-            .visualization-container {
-                height: 400px;
+            .visualization-grid {
+                grid-template-columns: 1fr;
             }
 
             .control-panel {
@@ -151,30 +180,74 @@
                 </select>
             </div>
             <div class="control-group">
-                <label for="vizType">Visualization Type:</label>
-                <select id="vizType">
-                    <option value="map">Geographic Distribution</option>
-                    <option value="bar">Top States Comparison</option>
-                    <option value="comparison">Age Group Comparison</option>
-                    <option value="scatter">Cost vs. Burden Analysis</option>
+                <label for="stateFilter">State:</label>
+                <select id="stateFilter">
+                    <option value="all">All States</option>
+                    // States will be populated by JavaScript
                 </select>
+            </div>
+            <div class="control-group">
+                <label for="yearSlider">Year:</label>
+                <div class="time-filter">
+                    <span id="yearValue">2008</span>
+                    <input type="range" id="yearSlider" min="2008" max="2018" value="2008" step="1">
+                </div>
             </div>
         </div>
 
-        <div class="visualization-container">
-            <div id="mainViz"></div>
+        <div class="visualization-grid">
+            <div class="viz-card">
+                <h3>Geographic Cost Distribution</h3>
+                <div id="mapViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Cost Trends Over Time</h3>
+                <div id="timeSeriesViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Cost Network Analysis</h3>
+                <div id="networkViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>State Rankings</h3>
+                <div id="rankingsViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Cost vs. Income Analysis</h3>
+                <div id="scatterViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Regional Comparisons</h3>
+                <div id="regionViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Age Group Cost Distribution</h3>
+                <div id="ageGroupViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Working Parent Impact</h3>
+                <div id="workingParentViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Cost Burden Analysis</h3>
+                <div id="costBurdenViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Annual Growth Rates</h3>
+                <div id="growthViz" class="viz-container"></div>
+            </div>
+            <div class="viz-card">
+                <h3>Affordability Index</h3>
+                <div id="affordabilityViz" class="viz-container"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Set up event listeners
-            document.getElementById('dataType').addEventListener('change', updateVisualization);
-            document.getElementById('vizType').addEventListener('change', updateVisualization);
-            
-            // Initial visualization
-            updateVisualization();
+            initDashboard();
+            populateStateFilter();
+            setupEventListeners();
         });
     </script>
 </body>
