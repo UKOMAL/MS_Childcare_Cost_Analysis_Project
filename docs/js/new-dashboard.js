@@ -374,71 +374,152 @@ function createScatterVisualization(dataType) {
 }
 
 /**
+ * Create US map visualization
+ */
+function createHeatMap(container, year) {
+    // Show static image first for immediate feedback
+    container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Childcare Costs Map" style="width: 100%; height: 100%; object-fit: contain;">`;
+    
+    // Try to load interactive version
+    fetch(`output/html/childcare_costs_map_${year}.html`)
+        .then(response => {
+            if (!response.ok) throw new Error('Interactive version not available');
+            return response.text();
+        })
+        .then(html => {
+            const plotlyDiv = extractPlotlyDiv(html);
+            if (plotlyDiv) container.innerHTML = plotlyDiv;
+        })
+        .catch(error => {
+            console.log('Using static version:', error);
+        });
+}
+
+/**
+ * Create time series visualization
+ */
+function createTimeSeries(container, year) {
+    // Show static image first
+    container.innerHTML = `<img src="images/cost_trends.png" alt="Time Series Analysis" style="width: 100%; height: 100%; object-fit: contain;">`;
+    
+    // Try to load interactive version
+    fetch(`output/html/time_series_${year}.html`)
+        .then(response => {
+            if (!response.ok) throw new Error('Interactive version not available');
+            return response.text();
+        })
+        .then(html => {
+            const plotlyDiv = extractPlotlyDiv(html);
+            if (plotlyDiv) container.innerHTML = plotlyDiv;
+        })
+        .catch(error => {
+            console.log('Using static version:', error);
+        });
+}
+
+/**
+ * Create labor force map visualization
+ */
+function createLaborForceMap(container, year) {
+    // Show static image first
+    container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force Map" style="width: 100%; height: 100%; object-fit: contain;">`;
+    
+    // Try to load interactive version
+    fetch(`output/html/labor_force_${year}.html`)
+        .then(response => {
+            if (!response.ok) throw new Error('Interactive version not available');
+            return response.text();
+        })
+        .then(html => {
+            const plotlyDiv = extractPlotlyDiv(html);
+            if (plotlyDiv) container.innerHTML = plotlyDiv;
+        })
+        .catch(error => {
+            console.log('Using static version:', error);
+        });
+}
+
+/**
+ * Create spiral plot visualization
+ */
+function createSpiralPlot(container) {
+    container.innerHTML = `<img src="images/state_costs.png" alt="Cost Spiral" style="width: 100%; height: 100%; object-fit: contain;">`;
+}
+
+/**
+ * Create correlation analysis visualization
+ */
+function createCorrelationAnalysis(container) {
+    container.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; height: 100%;">
+            <img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%; height: 100%; object-fit: contain;">
+            <img src="images/correlation_heatmap.png" alt="Correlation Heatmap" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>`;
+}
+
+/**
+ * Create social media impact visualization
+ */
+function createSocialMediaImpact(container) {
+    container.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 10px; height: 100%;">
+            <img src="images/social_media_1.png" alt="Social Media Impact" style="width: 100%; height: 100%; object-fit: contain;">
+            <img src="images/social_media_2.png" alt="Social Media Heatmap" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>`;
+}
+
+/**
+ * Helper function to extract Plotly div
+ */
+function extractPlotlyDiv(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const plotlyDiv = doc.querySelector('.js-plotly-plot');
+    return plotlyDiv ? plotlyDiv.outerHTML : '<p>Error loading visualization</p>';
+}
+
+/**
  * Update visualization based on user selection
  */
 function updateVisualization() {
-    const dataType = document.getElementById('dataType').value;
-    const vizType = document.getElementById('vizType').value;
+    const type = document.getElementById('visualizationType').value;
+    const year = document.getElementById('yearFilter').value;
+    const container = document.getElementById('mainVisualization');
     
-    // Show loading spinner
-    document.getElementById('mainViz').innerHTML = `
-        <div class="loading-spinner">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-    `;
+    // Show loading state
+    container.innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
     
-    // Update title
-    const dataTypeLabel = getDataTypeLabel(dataType);
-    let titleText = '';
+    // Show/hide year filter based on visualization type
+    const yearFilter = document.getElementById('yearFilter');
+    yearFilter.style.display = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'].includes(type) ? 'block' : 'none';
     
-    switch(vizType) {
-        case 'map':
-            titleText = `U.S. ${dataTypeLabel} Costs by State`;
-            break;
-        case 'bar':
-            titleText = `Top 15 States by ${dataTypeLabel} Costs`;
-            break;
-        case 'comparison':
-            titleText = 'Cost Comparison Across Care Types';
-            break;
-        case 'scatter':
-            titleText = `${dataTypeLabel} Cost vs. Family Budget Burden`;
-            break;
-        default:
-            titleText = `U.S. ${dataTypeLabel} Costs Analysis`;
-    }
-    
-    document.getElementById('vizTitle').textContent = titleText;
-    
-    // Update insights
-    updateInsights(dataType);
-    
-    // Create visualization
-    setTimeout(() => {
-        try {
-            switch(vizType) {
-                case 'map':
-                    createMapVisualization(dataType);
-                    break;
-                case 'bar':
-                    createBarVisualization(dataType);
-                    break;
-                case 'comparison':
-                    createComparisonVisualization();
-                    break;
-                case 'scatter':
-                    createScatterVisualization(dataType);
-                    break;
-                default:
-                    createMapVisualization(dataType);
-            }
-        } catch (error) {
-            console.error('Error updating visualization:', error);
-            showStatus('Error updating visualization: ' + error.message, 'error');
+    try {
+        switch(type) {
+            case 'geoChoropleth':
+                createHeatMap(container, year);
+                break;
+            case 'timeSeriesAnalysis':
+                createTimeSeries(container, year);
+                break;
+            case 'laborForceMap':
+                createLaborForceMap(container, year);
+                break;
+            case 'costSpiral':
+                createSpiralPlot(container);
+                break;
+            case 'correlation':
+                createCorrelationAnalysis(container);
+                break;
+            case 'socialMedia':
+                createSocialMediaImpact(container);
+                break;
+            default:
+                container.innerHTML = '<p>Select a visualization type</p>';
         }
-    }, 500); // Small delay for better UX
+    } catch (error) {
+        console.error('Error updating visualization:', error);
+        showStatus('Error updating visualization: ' + error.message, 'error');
+    }
 }
 
 /**

@@ -287,23 +287,6 @@
             const visualizationType = document.getElementById('visualizationType');
             const yearFilter = document.getElementById('yearFilter');
             
-            // Get the most recent year from the data
-            const years = Array.from({length: 11}, (_, i) => 2018 - i);
-            
-            // Clear existing options
-            yearFilter.innerHTML = '';
-            
-            // Add options dynamically
-            years.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearFilter.appendChild(option);
-            });
-            
-            // Set default to most recent year
-            yearFilter.value = Math.max(...years);
-            
             // Initial load
             updateVisualization(container, visualizationType.value, yearFilter.value);
             
