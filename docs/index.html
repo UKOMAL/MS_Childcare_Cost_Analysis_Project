@@ -4,123 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U.S. Childcare Cost Analysis Project</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
-            padding: 20px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #4E54C8 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
-            background: rgba(255, 255, 255, 0.97);
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.15);
-            padding: 40px;
+            width: 95%;
+            max-width: 1400px;
             margin: 20px auto;
-        }
-        .card {
-            border: none;
-            transition: transform 0.3s ease;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-        .btn-primary {
-            background: #2193b0;
-            border: none;
-            padding: 10px 20px;
-        }
-        .btn-primary:hover {
-            background: #1a7a8c;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
-        }
-        .github-link {
-            color: #2c3e50;
-            text-decoration: none;
-            padding: 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .github-link:hover {
-            background-color: rgba(0,0,0,0.1);
-        }
-        .project-card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-        .project-card:hover {
-            transform: translateY(-10px);
-        }
-        .preview-img {
-            height: 300px;
-            object-fit: cover;
-            border-bottom: 5px solid #FF6B6B;
-        }
-        .btn-light:hover {
-            background: #FF6B6B;
-            color: white;
-        }
-        .project-title {
-            color: #2c3e50;
             text-align: center;
+            color: #333;
+            margin-bottom: 40px;
             font-size: 2.5em;
-            margin: 1em 0;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .content-wrapper {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .card {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        .card p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: 500;
+            text-decoration: none;
+            color: white;
+            background: #4E54C8;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(78, 84, 200, 0.2);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .footer a {
+            color: #4E54C8;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .github-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            .content-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
+            .card {
+                min-width: 100%;
+            }
+            h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="project-title">U.S. Childcare Cost Analysis Project</h1>
-        
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 project-card">
-                    <img src="images/childcare_costs_map.png" class="card-img-top preview-img" alt="Dashboard Preview">
-                    <div class="card-body" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);">
-                        <h5 class="card-title text-white">Interactive Dashboard</h5>
-                        <p class="card-text text-white">Explore dynamic visualizations of childcare costs across the United States.</p>
-                        <a href="new-dashboard.html" class="btn btn-light btn-lg w-100">Go to Dashboard</a>
-                    </div>
-                </div>
+        <h1>U.S. Childcare Cost Analysis Project</h1>
+        <div class="content-wrapper">
+            <div class="card">
+                <img src="images/dashboard-preview.png" alt="Interactive Dashboard Preview">
+                <h2>Interactive Dashboard</h2>
+                <p>Explore dynamic visualizations of childcare costs across the United States.</p>
+                <a href="new-dashboard.html" class="btn">Go to Dashboard</a>
             </div>
-            
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 project-card">
-                    <img src="images/state_costs.png" class="card-img-top preview-img" alt="Case Study Preview">
-                    <div class="card-body" style="background: linear-gradient(135deg, #4E54C8 0%, #8F94FB 100%);">
-                        <h5 class="card-title text-white">Detailed Case Study</h5>
-                        <p class="card-text text-white">Read our comprehensive analysis of childcare cost trends and impacts.</p>
-                        <a href="enhanced-case-study.html" class="btn btn-light btn-lg w-100">View Case Study</a>
-                    </div>
-                </div>
+            <div class="card">
+                <img src="images/case-study-preview.png" alt="Detailed Case Study Preview">
+                <h2>Detailed Case Study</h2>
+                <p>Read our comprehensive analysis of childcare cost trends and impacts.</p>
+                <a href="case-study.html" class="btn">View Case Study</a>
             </div>
         </div>
-        
-        <div class="text-center mt-4">
-            <p class="mb-2">View project documentation and source code:</p>
-            <a href="https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project" class="github-link" target="_blank">
-                <svg height="32" viewBox="0 0 16 16" width="32" style="fill: #2c3e50;">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-                </svg>
+        <div class="footer">
+            <p>View project documentation and source code:</p>
+            <a href="https://github.com/UKOMAL/MS_Childcare_Cost_Analysis_Project" target="_blank">
+                <img src="images/github-icon.png" alt="GitHub" class="github-icon">
                 GitHub Repository
             </a>
         </div>
