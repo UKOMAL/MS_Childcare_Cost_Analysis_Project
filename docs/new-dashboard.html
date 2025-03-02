@@ -158,102 +158,31 @@
     <script>
         // Visualization loading functions
         function createHeatMap(container, year) {
-            fetch('../output/html/childcare_costs_map.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading heatmap:', error);
-                    container.innerHTML = `<img src="../output/images/childcare_costs_map.png" alt="Geographic Cost Distribution" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/childcare_costs_map.png" alt="Geographic Cost Distribution" style="width: 100%;">`;
         }
 
         function createTimeSeries(container, year) {
-            fetch('../output/html/time_series.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading time series:', error);
-                    container.innerHTML = `<img src="../output/images/time_series.png" alt="Time Series Analysis" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/time_series.png" alt="Time Series Analysis" style="width: 100%;">`;
         }
 
         function createLaborForceMap(container, year) {
-            fetch('../output/html/labor_force_map.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading labor force map:', error);
-                    container.innerHTML = `<img src="../output/images/labor_force_map.png" alt="Labor Force Map" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/female_labor_force.png" alt="Female Labor Force Participation" style="width: 100%;">`;
         }
 
         function createCostDistribution(container, year) {
-            fetch('../output/html/cost_distribution.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading cost distribution:', error);
-                    container.innerHTML = `<img src="../output/images/cost_distribution.png" alt="Cost Distribution" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/cost_distribution.png" alt="Cost Distribution" style="width: 100%;">`;
         }
 
         function createSpiralPlot(container, year) {
-            fetch('../output/html/cost_spiral.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading spiral plot:', error);
-                    container.innerHTML = `<img src="../output/images/cost_spiral.png" alt="Cost Spiral" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/state_costs.png" alt="Cost Spiral" style="width: 100%;">`;
         }
 
         function createCorrelationAnalysis(container, year) {
-            fetch('../output/html/correlation_heatmap.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading correlation analysis:', error);
-                    container.innerHTML = `<img src="../output/images/correlation_heatmap.png" alt="Correlation Analysis" style="width: 100%;">`;
-                });
+            container.innerHTML = `<img src="images/correlation.png" alt="Correlation Analysis" style="width: 100%;">`;
         }
 
         function createSocialMediaImpact(container, year) {
-            fetch('../output/html/social_media_impact.html')
-                .then(response => response.text())
-                .then(html => {
-                    const plotlyDiv = extractPlotlyDiv(html);
-                    container.innerHTML = plotlyDiv;
-                })
-                .catch(error => {
-                    console.error('Error loading social media impact:', error);
-                    container.innerHTML = `<img src="../output/images/social_media_impact.png" alt="Social Media Impact" style="width: 100%;">`;
-                });
-        }
-
-        // Helper function to extract Plotly div from HTML
-        function extractPlotlyDiv(html) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const plotlyDiv = doc.querySelector('.js-plotly-plot');
-            return plotlyDiv ? plotlyDiv.outerHTML : '<p>Error loading visualization</p>';
+            container.innerHTML = `<img src="images/social_media_1.png" alt="Social Media Impact" style="width: 100%;">`;
         }
 
         // Main visualization update function
