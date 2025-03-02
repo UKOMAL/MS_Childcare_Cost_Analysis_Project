@@ -110,7 +110,7 @@ const STATE_NAMES = {
 };
 
 // Constants for visualization types that need year filter
-const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap', 'costTrends'];
+const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'];
 
 /**
  * Status message functions
@@ -251,7 +251,7 @@ function createHeatMap(container, year, baseLayout) {
 }
 
 /**
- * Create time series visualization
+ * Create time series analysis visualization
  */
 function createTimeSeries(container, year, baseLayout) {
     // Define regions and their states
@@ -303,6 +303,7 @@ function createTimeSeries(container, year, baseLayout) {
     });
 
     const layout = {
+        ...baseLayout,
         title: {
             text: 'Regional Childcare Cost Trends (2008-2018)',
             font: {
@@ -334,16 +335,14 @@ function createTimeSeries(container, year, baseLayout) {
         },
         hovermode: 'closest',
         plot_bgcolor: 'white',
-        paper_bgcolor: 'white',
-        margin: {
-            l: 80,
-            r: 50,
-            t: 50,
-            b: 50
-        }
+        paper_bgcolor: 'white'
     };
 
-    Plotly.newPlot(container.id, Object.values(regionData), layout);
+    Plotly.newPlot(container.id, Object.values(regionData), layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating time series:', err);
+            container.innerHTML = '<div class="error">Error creating time series visualization</div>';
+        });
 }
 
 /**
@@ -601,7 +600,7 @@ function createCorrelationAnalysis(container, baseLayout) {
         },
         hoverongaps: false
     }];
-    
+
     const layout = {
         ...baseLayout,
         title: 'Correlation Analysis of Childcare Metrics',
@@ -616,7 +615,7 @@ function createCorrelationAnalysis(container, baseLayout) {
             tickangle: -45
         }
     };
-    
+
     Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating correlation analysis:', err);
@@ -644,6 +643,22 @@ function calculateCorrelation(array1, array2) {
  * Create social media impact visualization
  */
 function createSocialMediaImpact(container, baseLayout) {
+    // Generate sample social media data
+    const platforms = ['Instagram', 'Twitter', 'Facebook', 'LinkedIn'];
+    const metrics = ['Engagement Rate', 'Reach', 'Shares', 'Comments'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    
+    // Generate random data for each platform
+    const platformData = {};
+    platforms.forEach(platform => {
+        platformData[platform] = {
+            engagement: months.map(() => Math.random() * 5 + 2),
+            reach: months.map(() => Math.random() * 10000 + 5000),
+            shares: months.map(() => Math.random() * 500 + 100),
+            comments: months.map(() => Math.random() * 200 + 50)
+        };
+    });
+
     // Create subplot layout
     const layout = {
         ...baseLayout,
@@ -653,78 +668,64 @@ function createSocialMediaImpact(container, baseLayout) {
         showlegend: true
     };
 
-    // First subplot: Bar chart comparing metrics
-    const trace1 = {
-        type: 'bar',
-        x: DASHBOARD_DATA.states,
-        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
-        name: 'Working Parents',
-        xaxis: 'x1',
-        yaxis: 'y1',
-        marker: {
-            color: 'rgb(52, 152, 219)'
-        }
-    };
-
-    const trace2 = {
-        type: 'bar',
-        x: DASHBOARD_DATA.states,
-        y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-        name: 'Cost Burden',
-        xaxis: 'x1',
-        yaxis: 'y1',
-        marker: {
-            color: 'rgb(231, 76, 60)'
-        }
-    };
-
-    // Second subplot: Scatter plot
-    const trace3 = {
+    // First subplot: Line chart for engagement trends
+    const engagementTraces = platforms.map(platform => ({
         type: 'scatter',
-        x: DASHBOARD_DATA.costs['2018'].infant,
-        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
-        mode: 'markers',
-        name: 'Cost vs Working Parents',
+        x: months,
+        y: platformData[platform].engagement,
+        name: platform,
+        xaxis: 'x1',
+        yaxis: 'y1',
+        mode: 'lines+markers'
+    }));
+
+    // Second subplot: Heatmap for metrics comparison
+    const heatmapData = platforms.map(platform => ({
+        reach: Math.max(...platformData[platform].reach),
+        shares: Math.max(...platformData[platform].shares),
+        comments: Math.max(...platformData[platform].comments),
+        engagement: Math.max(...platformData[platform].engagement)
+    }));
+
+    const heatmapTrace = {
+        type: 'heatmap',
+        x: metrics,
+        y: platforms,
+        z: platforms.map(platform => [
+            heatmapData[platforms.indexOf(platform)].engagement,
+            heatmapData[platforms.indexOf(platform)].reach / 10000,
+            heatmapData[platforms.indexOf(platform)].shares / 100,
+            heatmapData[platforms.indexOf(platform)].comments / 50
+        ]),
         xaxis: 'x2',
         yaxis: 'y2',
-        marker: {
-            size: 12,
-            color: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Cost Burden (%)',
-                y: 0.15,
-                len: 0.3
-            }
-        },
-        text: DASHBOARD_DATA.states.map((state, i) => 
-            `${STATE_NAMES[state]}<br>` +
-            `Monthly Cost: $${DASHBOARD_DATA.costs['2018'].infant[i].toFixed(2)}<br>` +
-            `Working Parents: ${(DASHBOARD_DATA.metrics['2018'].working_parent_ratio[i] * 100).toFixed(1)}%`
-        ),
-        hoverinfo: 'text'
+        colorscale: 'Viridis',
+        showscale: true,
+        colorbar: {
+            title: 'Normalized Score',
+            y: 0.15,
+            len: 0.3
+        }
     };
 
     layout.xaxis1 = {
-        title: 'State',
-        domain: [0, 0.95],
-        tickangle: -45
+        title: 'Month',
+        domain: [0, 0.95]
     };
     layout.yaxis1 = {
-        title: 'Percentage (%)',
+        title: 'Engagement Rate (%)',
         domain: [0.55, 1]
     };
     layout.xaxis2 = {
-        title: 'Monthly Cost ($)',
+        title: 'Metrics',
         domain: [0, 0.95]
     };
     layout.yaxis2 = {
-        title: 'Working Parents (%)',
+        title: 'Platform',
         domain: [0, 0.35]
     };
 
-    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
+    Plotly.newPlot(container.id, [...engagementTraces, heatmapTrace], layout, {responsive: true})
         .catch(err => {
             console.error('Error creating social media impact visualization:', err);
             container.innerHTML = '<div class="error">Error creating social media visualization</div>';
@@ -983,6 +984,9 @@ function updateVisualization() {
                 break;
             case 'socialMedia':
                 createSocialMediaImpact(container, baseLayout);
+                break;
+            case 'spiralPlot':
+                createSpiralPlot(container, baseLayout);
                 break;
             default:
                 container.innerHTML = '<div class="error">Invalid visualization type</div>';

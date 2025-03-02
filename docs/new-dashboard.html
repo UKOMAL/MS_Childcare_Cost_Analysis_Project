@@ -148,6 +148,7 @@
                 <option value="violinPlot">Cost Distribution (Violin Plot)</option>
                 <option value="correlation">Correlation Analysis</option>
                 <option value="socialMedia">Social Media Impact</option>
+                <option value="spiralPlot">Cost Trends (Spiral View)</option>
             </select>
             <select id="yearFilter" class="year-filter">
                 <option value="2018">2018 (Most Recent)</option>
@@ -197,6 +198,7 @@
             const container = document.getElementById('mainVisualization');
             
             function updateYearFilterVisibility() {
+                const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap', 'costTrends'];
                 if (timeBasedVisualizations.includes(visualTypeSelect.value)) {
                     yearFilter.classList.add('visible');
                 } else {
@@ -204,18 +206,19 @@
                 }
             }
             
+            // Event listeners
             visualTypeSelect.addEventListener('change', function() {
                 updateYearFilterVisibility();
                 updateVisualization();
             });
             
-            yearFilter.addEventListener('change', function() {
-                updateVisualization();
-            });
+            yearFilter.addEventListener('change', updateVisualization);
             
             // Initial setup
             updateYearFilterVisibility();
-            updateVisualization();
+            
+            // Delay initial visualization to ensure DOM is ready
+            setTimeout(updateVisualization, 100);
 
             // Add ResizeObserver to handle container resizing
             if (container) {
