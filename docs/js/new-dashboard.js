@@ -190,19 +190,14 @@ function getDataTypeLabel(dataType) {
  * Create US map visualization
  */
 function createHeatMap(container, year, baseLayout) {
-    const yearData = DASHBOARD_DATA.costs[year] || DASHBOARD_DATA.costs['2018'];
+    const metrics = DASHBOARD_DATA.metrics[year];
     const locations = DASHBOARD_DATA.states;
-    const z = yearData.infant.map(cost => cost || 0);
+    const z = metrics.annual_cost;
     
     const text = locations.map((state, i) => {
         const cost = z[i];
-        const metrics = DASHBOARD_DATA.metrics[year] || DASHBOARD_DATA.metrics['2018'];
-        const burden = metrics.cost_burden[i];
-        const workingParents = metrics.working_parent_ratio[i];
         return `<b>${STATE_NAMES[state]}</b><br>` +
-               `Monthly Cost: $${cost ? cost.toFixed(2) : 'No data'}<br>` +
-               `Cost Burden: ${burden ? (burden * 100).toFixed(1) : 'No data'}%<br>` +
-               `Working Parents: ${workingParents ? (workingParents * 100).toFixed(1) : 'No data'}%`;
+               `Annual Cost: $${cost.toLocaleString()}`;
     });
     
     const data = [{
@@ -212,10 +207,11 @@ function createHeatMap(container, year, baseLayout) {
         z: z,
         text: text,
         hoverinfo: 'text',
-        colorscale: 'Blues',
+        colorscale: 'Viridis',
         colorbar: {
-            title: 'Monthly Cost ($)',
-            thickness: 20
+            title: 'Annual Cost ($)',
+            thickness: 20,
+            tickformat: '$,.0f'
         },
         marker: {
             line: {
@@ -227,7 +223,10 @@ function createHeatMap(container, year, baseLayout) {
     
     const layout = {
         ...baseLayout,
-        title: `U.S. Childcare Costs by State (${year})`,
+        title: {
+            text: `Average Childcare Costs by State (${year})`,
+            font: { size: 24 }
+        },
         geo: {
             scope: 'usa',
             showlakes: true,
@@ -235,13 +234,19 @@ function createHeatMap(container, year, baseLayout) {
             projection: {
                 type: 'albers usa'
             }
+        },
+        margin: {
+            l: 0,
+            r: 0,
+            t: 50,
+            b: 0
         }
     };
     
     Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
-            console.error('Error creating map:', err);
-            container.innerHTML = '<div class="error">Error creating map visualization</div>';
+            console.error('Error creating heat map:', err);
+            container.innerHTML = '<div class="error">Error creating heat map visualization</div>';
         });
 }
 
@@ -432,7 +437,6 @@ function createViolinPlot(container, baseLayout) {
  * Create labor force map visualization
  */
 function createLaborForceMap(container, year, baseLayout) {
-    // Use the selected year's data, ensuring it exists
     const metrics = DASHBOARD_DATA.metrics[year];
     const locations = DASHBOARD_DATA.states;
     const z = metrics.working_parent_ratio.map(ratio => ratio * 100);
