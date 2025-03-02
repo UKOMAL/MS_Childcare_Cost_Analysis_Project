@@ -208,77 +208,70 @@ function createTimeSeries(container, year, baseLayout) {
     const yearIndex = years.indexOf(year);
     const selectedYears = years.slice(0, yearIndex + 1);
     
-    // Calculate average costs for each year
-    const avgCosts = selectedYears.map(y => {
-        const yearCosts = DASHBOARD_DATA.costs[y].infant;
+    // Calculate costs for each state
+    const stateData = states.map((state, stateIndex) => {
+        const costs = selectedYears.map(y => DASHBOARD_DATA.costs[y].infant[stateIndex]);
         return {
-            year: y,
-            avg: yearCosts.reduce((sum, cost) => sum + cost, 0) / yearCosts.length
+            state: state,
+            costs: costs,
+            maxCost: Math.max(...costs)
         };
     });
 
-    // Create bar chart for average costs
-    const trace1 = {
-        x: avgCosts.map(d => d.year),
-        y: avgCosts.map(d => d.avg),
-        type: 'bar',
-        name: 'Average Cost',
-        marker: {
-            color: 'rgb(52, 152, 219)'
-        }
-    };
+    // Sort states by maximum cost for better visualization
+    stateData.sort((a, b) => b.maxCost - a.maxCost);
 
-    // Add range bars for min/max
-    const rangeData = selectedYears.map(y => {
-        const costs = DASHBOARD_DATA.costs[y].infant;
-        return {
-            year: y,
-            min: Math.min(...costs),
-            max: Math.max(...costs)
-        };
-    });
-
-    const trace2 = {
-        x: rangeData.map(d => d.year),
-        y: rangeData.map(d => d.max),
+    // Create traces for each year
+    const traces = selectedYears.map((year, yearIndex) => ({
         type: 'bar',
-        name: 'Maximum Cost',
+        name: year,
+        x: stateData.map(d => d.costs[yearIndex]),
+        y: stateData.map(d => STATE_NAMES[d.state]),
+        orientation: 'h',
         marker: {
-            color: 'rgb(231, 76, 60)'
-        }
-    };
-
-    const trace3 = {
-        x: rangeData.map(d => d.year),
-        y: rangeData.map(d => d.min),
-        type: 'bar',
-        name: 'Minimum Cost',
-        marker: {
-            color: 'rgb(46, 204, 113)'
-        }
-    };
+            color: `rgba(78, 84, 200, ${0.4 + (yearIndex * 0.6 / selectedYears.length)})`,
+            line: {
+                color: 'rgb(78, 84, 200)',
+                width: 1
+            }
+        },
+        hovertemplate: `%{y}<br>Year ${year}: $%{x:.2f}<br>`,
+    }));
     
     const layout = {
         ...baseLayout,
-        title: `Childcare Cost Trends (2008-${year})`,
+        title: `Childcare Cost Evolution by State (2008-${year})`,
         barmode: 'group',
         xaxis: {
-            title: 'Year',
-            tickangle: -45
+            title: 'Monthly Cost ($)',
+            showgrid: true,
+            gridcolor: 'rgba(0,0,0,0.1)'
         },
         yaxis: {
-            title: 'Monthly Cost ($)'
+            title: '',
+            automargin: true,
+            showgrid: true,
+            gridcolor: 'rgba(0,0,0,0.1)'
         },
         showlegend: true,
         legend: {
+            title: { text: 'Year' },
             orientation: 'h',
             y: -0.2,
             x: 0.5,
             xanchor: 'center'
-        }
+        },
+        margin: {
+            l: 200,
+            r: 50,
+            t: 50,
+            b: 100
+        },
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        paper_bgcolor: 'rgba(0,0,0,0)'
     };
     
-    Plotly.newPlot(container.id, [trace1, trace2, trace3], layout, {responsive: true})
+    Plotly.newPlot(container.id, traces, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating time series:', err);
             container.innerHTML = '<div class="error">Error creating time series visualization</div>';
