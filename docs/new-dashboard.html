@@ -140,14 +140,13 @@
         </div>
 
         <div class="control-panel">
-            <select id="visualizationType">
-                <option value="geoChoropleth">Geographic Cost Distribution</option>
-                <option value="laborForceMap">Female Labor Force by State</option>
-                <option value="timeSeriesAnalysis">Time Series Analysis (2008-2018)</option>
-                <option value="costSpiral">Cost Evolution (Spiral Plot)</option>
-                <option value="violinPlot">Cost Distribution (Violin Plot)</option>
+            <select id="visualizationType" class="form-control" onchange="updateYearFilterVisibility()">
+                <option value="geoChoropleth">Cost Distribution Map</option>
+                <option value="timeSeriesAnalysis">State Cost Comparison</option>
+                <option value="costDistribution">Cost Distribution</option>
+                <option value="costTrends">Regional Cost Trends</option>
+                <option value="laborForceMap">Labor Force Map</option>
                 <option value="correlation">Correlation Analysis</option>
-                <option value="socialMedia">Social Media Impact</option>
             </select>
             <select id="yearFilter" class="year-filter">
                 <option value="2018">2018 (Most Recent)</option>
