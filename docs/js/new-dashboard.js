@@ -62,7 +62,7 @@ const STATE_NAMES = {
 };
 
 // Constants for visualization types that need year filter
-const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'];
+const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap', 'costTrends'];
 
 /**
  * Status message functions
@@ -723,7 +723,8 @@ function createCostDistribution(container, baseLayout) {
 /**
  * Create regional cost trends visualization
  */
-function createCostTrends(container, baseLayout) {
+function createCostTrends(container, year, baseLayout) {
+    const years = ['2008', '2010', '2012', '2014', '2016', '2018'];
     const regions = {
         'Northeast': ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA'],
         'Southeast': ['MD', 'DE', 'VA', 'WV', 'KY', 'NC', 'SC', 'TN', 'GA', 'FL', 'AL', 'MS', 'AR', 'LA'],
@@ -732,10 +733,10 @@ function createCostTrends(container, baseLayout) {
         'West': ['CO', 'WY', 'MT', 'ID', 'UT', 'NV', 'CA', 'OR', 'WA', 'AK', 'HI']
     };
 
-    const years = ['2008', '2010', '2012', '2014', '2016', '2018'];
     const traces = [];
+    const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'];
 
-    Object.entries(regions).forEach(([region, states]) => {
+    Object.entries(regions).forEach(([region, states], index) => {
         const costs = years.map(year => {
             const yearData = DASHBOARD_DATA.costs[year].infant;
             const regionCosts = states.map(state => {
@@ -751,30 +752,37 @@ function createCostTrends(container, baseLayout) {
             y: costs,
             name: region,
             mode: 'lines+markers',
-            line: { width: 3 },
-            marker: { size: 8 },
-            hovertemplate: `${region}<br>Year: %{x}<br>Cost: $%{y:.0f}<extra></extra>`
+            line: {
+                width: 3,
+                color: colors[index]
+            },
+            marker: {
+                size: 8,
+                color: colors[index]
+            },
+            hovertemplate: `${region}<br>Year: %{x}<br>Average Cost: $%{y:.0f}<extra></extra>`
         });
     });
 
     const layout = {
         ...baseLayout,
-        title: 'Regional Childcare Cost Trends (2008-2018)',
+        title: 'Regional Cost Trends (2008-2018)',
         xaxis: {
             title: 'Year',
             showgrid: true,
-            gridcolor: 'rgba(0,0,0,0.1)'
+            gridcolor: 'rgba(0,0,0,0.1)',
+            dtick: 2
         },
         yaxis: {
-            title: 'Annual Cost ($)',
+            title: 'Average Monthly Cost ($)',
             showgrid: true,
             gridcolor: 'rgba(0,0,0,0.1)'
         },
         showlegend: true,
         legend: {
             title: { text: 'Region' },
-            x: 1,
             y: 1,
+            x: 1,
             xanchor: 'right'
         }
     };
@@ -843,6 +851,9 @@ function updateVisualization() {
                 break;
             case 'violinPlot':
                 createViolinPlot(container, baseLayout);
+                break;
+            case 'costTrends':
+                createCostTrends(container, selectedYear, baseLayout);
                 break;
             case 'laborForceMap':
                 createLaborForceMap(container, selectedYear, baseLayout);
