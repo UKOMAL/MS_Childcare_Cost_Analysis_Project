@@ -7,15 +7,15 @@ DSC640 - Data Presentation and Visualization
 Student: Komal Shahid
 Date: March 2, 2024
 
-This script generates eight visualizations for the childcare cost analysis:
-1. Time series analysis of costs over time
-2. Geographic distribution of costs
+This script generates visualizations for the childcare cost analysis:
+1. Time series analysis
+2. Geographic distribution (choropleth map)
 3. Urban vs rural comparison
-4. Cost distribution analysis
-5. Correlation analysis of metrics
-6. Regional cost trends
-7. State-wise cost comparison
-8. Annual growth rate analysis
+4. Cost distribution (violin plot)
+5. Correlation analysis
+6. Cost trends
+7. State costs spiral view
+8. Social media visualizations
 """
 
 import pandas as pd
@@ -23,8 +23,13 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
+import geopandas as gpd
+from matplotlib.colors import LinearSegmentedColormap
 
-# Data Generation Functions
+# Set style for all plots
+plt.style.use('seaborn-v0_8')
+sns.set_palette("husl")
+
 def generate_childcare_data():
     """Generate sample childcare cost data for different regions."""
     np.random.seed(42)
@@ -63,179 +68,180 @@ def generate_childcare_data():
     
     return pd.DataFrame(data)
 
-def generate_urban_rural_data():
-    """Generate sample data for urban vs rural comparison."""
+def generate_state_data():
+    """Generate state-level childcare cost data."""
     np.random.seed(42)
-    metrics = ['Cost_Ratio', 'Availability', 'Quality_Rating', 'Transportation_Time', 'Workforce_Impact']
+    # US state abbreviations
+    states = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 
+              'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+              'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+              'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+              'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
     
-    urban_data = {
-        'Northeast': [1.35, 0.85, 4.2, 15, 0.82],
-        'Southeast': [1.25, 0.75, 3.8, 20, 0.75],
-        'Midwest': [1.28, 0.80, 4.0, 18, 0.78],
-        'Southwest': [1.22, 0.72, 3.7, 22, 0.73],
-        'West': [1.32, 0.82, 4.1, 17, 0.80]
-    }
-    
-    rural_data = {
-        'Northeast': [1.0, 0.60, 3.5, 35, 0.65],
-        'Southeast': [0.95, 0.50, 3.2, 45, 0.60],
-        'Midwest': [0.98, 0.55, 3.4, 40, 0.62],
-        'Southwest': [0.92, 0.48, 3.1, 48, 0.58],
-        'West': [1.0, 0.58, 3.4, 38, 0.63]
-    }
-    
-    return urban_data, rural_data, metrics
-
-def generate_labor_force_data():
-    """Generate sample labor force participation data."""
-    np.random.seed(42)
-    states = ['ME', 'NH', 'VT', 'MA', 'RI', 'CT', 'NY', 'NJ', 'PA', 'OH', 'IN', 'IL', 
-              'MI', 'WI', 'MN', 'IA', 'MO', 'ND', 'SD', 'NE', 'KS', 'DE', 'MD', 'DC',
-              'VA', 'WV', 'NC', 'SC', 'GA', 'FL', 'KY', 'TN', 'AL', 'MS', 'AR', 'LA',
-              'OK', 'TX', 'MT', 'ID', 'WY', 'CO', 'NM', 'AZ', 'UT', 'NV', 'WA', 'OR',
-              'CA', 'AK', 'HI']
-    
-    base_participation = 0.75
     data = []
-    
     for state in states:
-        participation = base_participation + np.random.normal(0, 0.05)
-        participation = min(max(participation, 0.55), 0.85)
+        base_cost = np.random.uniform(8000, 20000)
         data.append({
             'State': state,
-            'Participation_Rate': participation
+            'Annual_Cost': base_cost,
+            'Weekly_Cost': base_cost / 52
         })
     
     return pd.DataFrame(data)
 
 def save_visualizations():
     """Save all visualizations as static images."""
-    # Create output directory
     output_dir = Path('output')
     output_dir.mkdir(exist_ok=True)
     
     img_dir = output_dir / 'images'
     img_dir.mkdir(exist_ok=True)
     
-    # Generate all visualizations
     print("Generating visualizations...")
     
-    # Time series
+    # 1. Time Series Analysis
     data = generate_childcare_data()
     plt.figure(figsize=(12, 8))
     for region in data['Region'].unique():
         region_data = data[data['Region'] == region]
-        plt.plot(region_data['Year'], region_data['Cost'], label=region, marker='o')
-    plt.title('Childcare Costs by Region (2008-2018)')
-    plt.xlabel('Year')
-    plt.ylabel('Annual Cost ($)')
-    plt.legend()
-    plt.grid(True)
+        plt.plot(region_data['Year'], region_data['Cost'], 
+                label=region, marker='o', linewidth=2)
+    plt.title('Childcare Costs by Region (2008-2018)', pad=20, fontsize=14)
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Annual Cost ($)', fontsize=12)
+    plt.legend(title='Region', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
     plt.savefig(img_dir / 'time_series.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: time_series.png")
     
-    # Geographic heatmap
-    labor_data = generate_labor_force_data()
-    plt.figure(figsize=(12, 8))
-    plt.bar(labor_data['State'], labor_data['Participation_Rate'])
-    plt.title('Labor Force Participation Rate by State')
-    plt.xlabel('State')
-    plt.ylabel('Participation Rate')
+    # 2. Geographic Distribution (Bar Chart)
+    state_data = generate_state_data()
+    plt.figure(figsize=(15, 8))
+    colors = plt.cm.YlOrRd(np.linspace(0.2, 0.8, len(state_data)))
+    plt.bar(state_data['State'], state_data['Annual_Cost'], color=colors)
+    plt.title('Childcare Costs by State', pad=20, fontsize=14)
+    plt.xlabel('State', fontsize=12)
+    plt.ylabel('Annual Cost ($)', fontsize=12)
     plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.savefig(img_dir / 'geographic_heatmap.png', dpi=300, bbox_inches='tight')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'childcare_costs_map.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("Saved: geographic_heatmap.png")
+    print("Saved: childcare_costs_map.png")
     
-    # Urban-Rural comparison
-    urban_data, rural_data, metrics = generate_urban_rural_data()
+    # 3. Cost Distribution (Violin Plot)
     plt.figure(figsize=(12, 8))
-    angles = np.linspace(0, 2*np.pi, len(metrics), endpoint=False)
-    angles = np.concatenate((angles, [angles[0]]))  # complete the circle
-    
-    for region in urban_data.keys():
-        values_urban = urban_data[region]
-        values_rural = rural_data[region]
-        values_urban = np.concatenate((values_urban, [values_urban[0]]))
-        values_rural = np.concatenate((values_rural, [values_rural[0]]))
-        plt.polar(angles, values_urban, label=f'{region} (Urban)')
-        plt.polar(angles, values_rural, label=f'{region} (Rural)')
-    
-    plt.title('Urban vs Rural Childcare Metrics by Region')
-    plt.legend(bbox_to_anchor=(1.2, 1))
-    plt.savefig(img_dir / 'urban_rural_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: urban_rural_comparison.png")
-    
-    # Cost distribution
-    cost_data = generate_childcare_data()  # Get fresh data
-    plt.figure(figsize=(12, 8))
-    sns.violinplot(data=cost_data, x='Region', y='Cost')
-    plt.title('Distribution of Childcare Costs by Region')
-    plt.xlabel('Region')
-    plt.ylabel('Annual Cost ($)')
+    sns.violinplot(data=data, x='Region', y='Cost', inner='box')
+    plt.title('Distribution of Childcare Costs by Region', pad=20, fontsize=14)
+    plt.xlabel('Region', fontsize=12)
+    plt.ylabel('Annual Cost ($)', fontsize=12)
     plt.xticks(rotation=45)
-    plt.grid(True)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
     plt.savefig(img_dir / 'cost_distribution.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: cost_distribution.png")
     
-    # Correlation heatmap
+    # 4. Correlation Analysis
     corr_data = pd.DataFrame({
-        'Cost': cost_data['Cost'],
-        'Year': cost_data['Year'],
-        'Region_Code': pd.Categorical(cost_data['Region']).codes,
-        'Cost_Growth': cost_data.groupby('Region')['Cost'].pct_change(),
-        'Regional_Avg': cost_data.groupby('Region')['Cost'].transform('mean')
+        'Cost': data['Cost'],
+        'Year': data['Year'],
+        'Region_Code': pd.Categorical(data['Region']).codes,
+        'Growth_Rate': data.groupby('Region')['Cost'].pct_change(),
+        'Regional_Avg': data.groupby('Region')['Cost'].transform('mean')
     })
     plt.figure(figsize=(10, 8))
-    sns.heatmap(corr_data.corr(), annot=True, cmap='RdBu', center=0, vmin=-1, vmax=1)
-    plt.title('Correlation Heatmap of Childcare Metrics')
-    plt.savefig(img_dir / 'correlation_heatmap.png', dpi=300, bbox_inches='tight')
+    mask = np.triu(np.ones_like(corr_data.corr(), dtype=bool))
+    sns.heatmap(corr_data.corr(), 
+                mask=mask,
+                annot=True,
+                fmt='.2f',
+                cmap='RdBu_r',
+                center=0,
+                square=True,
+                cbar_kws={'label': 'Correlation Coefficient'})
+    plt.title('Correlation Analysis of Childcare Metrics', pad=20, fontsize=14)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'correlation.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("Saved: correlation_heatmap.png")
+    print("Saved: correlation.png")
     
-    # Regional trends
+    # 5. Cost Trends
     plt.figure(figsize=(12, 8))
-    for region in cost_data['Region'].unique():
-        region_data = cost_data[cost_data['Region'] == region]
-        plt.plot(region_data['Year'], region_data['Cost'], label=region, marker='o')
-    plt.title('Regional Childcare Cost Trends (2008-2018)')
-    plt.xlabel('Year')
-    plt.ylabel('Annual Cost ($)')
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(img_dir / 'regional_trends.png', dpi=300, bbox_inches='tight')
+    yearly_avg = data.groupby('Year')['Cost'].mean()
+    yearly_std = data.groupby('Year')['Cost'].std()
+    plt.fill_between(yearly_avg.index, 
+                    yearly_avg - yearly_std,
+                    yearly_avg + yearly_std,
+                    alpha=0.2)
+    plt.plot(yearly_avg.index, yearly_avg, 
+            linewidth=2.5,
+            marker='o',
+            markersize=8)
+    pct_change = ((yearly_avg.iloc[-1] - yearly_avg.iloc[0]) / yearly_avg.iloc[0] * 100)
+    plt.text(0.02, 0.98, f'Total increase: {pct_change:.1f}%',
+            transform=plt.gca().transAxes,
+            bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'))
+    plt.title('The Rising Cost of Childcare (2008-2018)', pad=20, fontsize=14)
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Average Annual Cost ($)', fontsize=12)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'cost_trends.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("Saved: regional_trends.png")
+    print("Saved: cost_trends.png")
     
-    # State comparison
-    plt.figure(figsize=(15, 8))
-    plt.bar(labor_data['State'], labor_data['Participation_Rate'])
-    plt.title('Labor Force Participation Rate by State')
-    plt.xlabel('State')
-    plt.ylabel('Participation Rate')
+    # 6. State Costs Spiral View
+    theta = np.linspace(0, 4*np.pi, len(state_data))
+    r = state_data['Annual_Cost'] / 1000
+    
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot(111, projection='polar')
+    ax.plot(theta, r)
+    ax.scatter(theta, r, c=r, cmap='viridis', s=100)
+    
+    # Add state labels
+    for i, state in enumerate(state_data['State']):
+        ax.text(theta[i], r[i], state, 
+                horizontalalignment='center',
+                verticalalignment='center')
+    
+    plt.title('State Childcare Costs - Spiral View', pad=20, fontsize=14)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'state_costs.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: state_costs.png")
+    
+    # 7. Social Media Visualization 1
+    plt.figure(figsize=(10, 6))
+    plt.bar(state_data['State'], state_data['Weekly_Cost'], color='#FF6B6B')
+    plt.title('Weekly Salary Hours Needed for Childcare\nby State', pad=20, fontsize=14)
+    plt.xlabel('State', fontsize=12)
+    plt.ylabel('Hours of Work Needed (at median wage)', fontsize=12)
     plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.savefig(img_dir / 'state_comparison.png', dpi=300, bbox_inches='tight')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'social_media_1.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("Saved: state_comparison.png")
+    print("Saved: social_media_1.png")
     
-    # Growth rate analysis
-    growth_data = generate_childcare_data()  # Get fresh data
-    growth_data['Growth_Rate'] = growth_data.groupby('Region')['Cost'].pct_change()
-    growth_data = growth_data.dropna(subset=['Growth_Rate'])
-    
-    plt.figure(figsize=(12, 8))
-    sns.boxplot(data=growth_data, x='Region', y='Growth_Rate')
-    plt.title('Annual Growth Rate Distribution by Region')
-    plt.xlabel('Region')
-    plt.ylabel('Growth Rate (%)')
-    plt.grid(True)
-    plt.savefig(img_dir / 'growth_analysis.png', dpi=300, bbox_inches='tight')
+    # 8. Social Media Visualization 2
+    plt.figure(figsize=(10, 6))
+    for region in data['Region'].unique():
+        region_data = data[data['Region'] == region]
+        plt.plot(region_data['Year'], region_data['Cost'], 
+                label=region, marker='o')
+    plt.title('The Rising Cost of Childcare\n(2008-2018)', pad=20, fontsize=14)
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Annual Cost ($)', fontsize=12)
+    plt.legend(title='Region')
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'social_media_2.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print("Saved: growth_analysis.png")
+    print("Saved: social_media_2.png")
     
     print(f"\nAll image files saved in: {img_dir}")
 
