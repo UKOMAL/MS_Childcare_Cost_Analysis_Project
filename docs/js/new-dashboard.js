@@ -61,6 +61,9 @@ const STATE_NAMES = {
     "DC": "District of Columbia"
 };
 
+// Constants for visualization types that need year filter
+const timeBasedVisualizations = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'];
+
 /**
  * Status message functions
  * @param {string} message - The message to display
@@ -300,29 +303,18 @@ function createLaborForceMap(container, year, baseLayout) {
  * Create spiral plot visualization
  */
 function createSpiralPlot(container, baseLayout) {
-    // Calculate container dimensions
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-    
-    // Create data for spiral plot
     const states = DASHBOARD_DATA.states;
-    const costs = DASHBOARD_DATA.costs['2018'].infant; // Using 2018 infant costs as base
+    const costs = DASHBOARD_DATA.costs['2018'].infant;
     
     // Sort states by cost
     const statesCosts = states.map((state, i) => ({ state, cost: costs[i] }));
     statesCosts.sort((a, b) => b.cost - a.cost);
     
-    // Create spiral coordinates
-    const theta = statesCosts.map((_, i) => i * Math.PI / 12);
-    const r = statesCosts.map((item, i) => item.cost / 10 + i);
-    
-    const trace = {
+    const data = [{
         type: 'scatterpolar',
-        r: r,
-        theta: theta,
-        mode: 'lines+markers+text',
-        text: statesCosts.map(item => STATE_NAMES[item.state]),
-        textposition: 'top center',
+        r: statesCosts.map(item => item.cost),
+        theta: statesCosts.map(item => STATE_NAMES[item.state]),
+        mode: 'lines+markers',
         line: {
             color: 'rgb(52, 152, 219)',
             width: 2
@@ -336,33 +328,28 @@ function createSpiralPlot(container, baseLayout) {
                 title: 'Monthly Cost ($)'
             }
         }
-    };
+    }];
     
     const layout = {
-        title: 'State Childcare Costs (Spiral View)',
+        ...baseLayout,
+        title: 'State Childcare Costs (Radial View)',
         showlegend: false,
         polar: {
             radialaxis: {
                 visible: true,
-                range: [0, Math.max(...r) * 1.2]
+                title: 'Monthly Cost ($)'
             },
             angularaxis: {
                 visible: true,
                 direction: 'clockwise'
             }
-        },
-        width: containerWidth,
-        height: containerHeight,
-        ...baseLayout
+        }
     };
     
-    Plotly.newPlot(container.id, [trace], layout)
-        .then(() => {
-            showStatus('Spiral plot created successfully', 'success');
-        })
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating spiral plot:', err);
-            showStatus('Error creating spiral plot', 'error');
+            container.innerHTML = '<div class="error">Error creating spiral plot visualization</div>';
         });
 }
 
@@ -370,15 +357,9 @@ function createSpiralPlot(container, baseLayout) {
  * Create correlation analysis visualization
  */
 function createCorrelationAnalysis(container, baseLayout) {
-    // Calculate container dimensions
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-    
-    // Prepare correlation data
     const metrics = ['infant', 'toddler', 'preschool', 'cost_burden', 'working_parent_ratio'];
     const correlationMatrix = [];
     
-    // Calculate correlations
     metrics.forEach((metric1, i) => {
         correlationMatrix[i] = [];
         metrics.forEach((metric2, j) => {
@@ -396,13 +377,12 @@ function createCorrelationAnalysis(container, baseLayout) {
                 data2 = DASHBOARD_DATA.metrics['2018'][metric2];
             }
             
-            // Calculate correlation coefficient
             const correlation = calculateCorrelation(data1, data2);
             correlationMatrix[i][j] = correlation;
         });
     });
     
-    const trace = {
+    const data = [{
         type: 'heatmap',
         z: correlationMatrix,
         x: metrics.map(m => m.replace('_', ' ').toUpperCase()),
@@ -418,12 +398,11 @@ function createCorrelationAnalysis(container, baseLayout) {
             size: 12
         },
         hoverongaps: false
-    };
+    }];
     
     const layout = {
+        ...baseLayout,
         title: 'Correlation Analysis of Childcare Metrics',
-        width: containerWidth,
-        height: containerHeight,
         margin: {
             l: 120,
             r: 50,
@@ -433,17 +412,13 @@ function createCorrelationAnalysis(container, baseLayout) {
         },
         xaxis: {
             tickangle: -45
-        },
-        ...baseLayout
+        }
     };
     
-    Plotly.newPlot(container.id, [trace], layout)
-        .then(() => {
-            showStatus('Correlation analysis created successfully', 'success');
-        })
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating correlation analysis:', err);
-            showStatus('Error creating correlation analysis', 'error');
+            container.innerHTML = '<div class="error">Error creating correlation analysis visualization</div>';
         });
 }
 
@@ -461,6 +436,53 @@ function calculateCorrelation(array1, array2) {
     const covariance = array1.reduce((a, b, i) => a + (b - mean1) * (array2[i] - mean2), 0) / n;
     
     return covariance / Math.sqrt(variance1 * variance2);
+}
+
+/**
+ * Create social media impact visualization
+ */
+function createSocialMediaImpact(container, baseLayout) {
+    const data = [{
+        type: 'bar',
+        x: DASHBOARD_DATA.states,
+        y: DASHBOARD_DATA.metrics['2018'].working_parent_ratio.map(v => v * 100),
+        name: 'Working Parents',
+        marker: {
+            color: 'rgb(52, 152, 219)'
+        }
+    }, {
+        type: 'bar',
+        x: DASHBOARD_DATA.states,
+        y: DASHBOARD_DATA.metrics['2018'].cost_burden.map(v => v * 100),
+        name: 'Cost Burden',
+        marker: {
+            color: 'rgb(231, 76, 60)'
+        }
+    }];
+    
+    const layout = {
+        ...baseLayout,
+        title: 'Working Parents vs Cost Burden by State',
+        barmode: 'group',
+        xaxis: {
+            title: 'State',
+            tickangle: -45
+        },
+        yaxis: {
+            title: 'Percentage (%)'
+        },
+        showlegend: true,
+        legend: {
+            x: 1,
+            y: 1
+        }
+    };
+    
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
+        .catch(err => {
+            console.error('Error creating social media impact visualization:', err);
+            container.innerHTML = '<div class="error">Error creating social media visualization</div>';
+        });
 }
 
 /**
@@ -514,7 +536,7 @@ function updateVisualization() {
                 createCorrelationAnalysis(container, baseLayout);
                 break;
             case 'socialMedia':
-                createSocialMediaImpact(container);
+                createSocialMediaImpact(container, baseLayout);
                 break;
             default:
                 container.innerHTML = '<div class="error">Invalid visualization type</div>';
