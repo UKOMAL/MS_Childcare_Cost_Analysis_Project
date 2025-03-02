@@ -122,16 +122,28 @@ def save_visualizations():
     states = gpd.read_file('data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp')
     states = states.merge(state_data, left_on='STUSPS', right_on='State')
     
-    fig, ax = plt.subplots(figsize=(15, 10))
+    fig, ax = plt.subplots(figsize=(20, 12))
     states.plot(column='Annual_Cost', 
                ax=ax,
                legend=True,
                legend_kwds={'label': 'Annual Cost ($)',
-                           'orientation': 'horizontal'},
+                           'orientation': 'horizontal',
+                           'fraction': 0.046,
+                           'pad': 0.04},
                missing_kwds={'color': 'lightgrey'},
                cmap='YlOrRd')
+    
+    # Add state labels
+    for idx, row in states.iterrows():
+        # Get the centroid of each state
+        centroid = row.geometry.centroid
+        # Add state abbreviation
+        ax.annotate(row['State'], xy=(centroid.x, centroid.y),
+                   horizontalalignment='center', verticalalignment='center',
+                   fontsize=8, color='black')
+    
     ax.axis('off')
-    plt.title('Childcare Costs by State', pad=20, fontsize=14)
+    plt.title('Childcare Costs by State (2018)', pad=20, fontsize=16)
     plt.savefig(img_dir / 'childcare_costs_map.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: childcare_costs_map.png")
