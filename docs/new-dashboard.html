@@ -98,9 +98,10 @@
             border: 1px solid #ddd;
             font-size: 14px;
             width: 200px;
+            background-color: white;
         }
         .year-filter.visible {
-            display: inline-block;
+            display: inline-block !important;
         }
         @media (max-width: 768px) {
             .control-panel {
@@ -303,20 +304,26 @@
             const visualizationType = document.getElementById('visualizationType');
             const yearFilter = document.getElementById('yearFilter');
             
-            // Initial load
-            updateVisualization(container, visualizationType.value, yearFilter.value);
-            
-            // Update on selection change
-            visualizationType.addEventListener('change', function() {
-                updateVisualization(container, this.value, yearFilter.value);
-            });
-            
-            // Update on year change
-            yearFilter.addEventListener('change', function() {
+            function updateYearFilterVisibility() {
                 if (timeBasedVisualizations.includes(visualizationType.value)) {
-                    updateVisualization(container, visualizationType.value, this.value);
+                    yearFilter.classList.add('visible');
+                } else {
+                    yearFilter.classList.remove('visible');
                 }
+            }
+            
+            visualTypeSelect.addEventListener('change', function() {
+                updateYearFilterVisibility();
+                updateVisualization();
             });
+            
+            yearFilter.addEventListener('change', function() {
+                updateVisualization();
+            });
+            
+            // Initial setup
+            updateYearFilterVisibility();
+            updateVisualization();
 
             // Add ResizeObserver to handle container resizing
             if (container) {

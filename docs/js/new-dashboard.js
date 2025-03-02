@@ -154,7 +154,7 @@ function createHeatMap(container, year, baseLayout) {
                `Working Parents: ${workingParents ? (workingParents * 100).toFixed(1) : 'No data'}%`;
     });
     
-    const mapData = [{
+    const data = [{
         type: 'choropleth',
         locationmode: 'USA-states',
         locations: locations,
@@ -187,13 +187,10 @@ function createHeatMap(container, year, baseLayout) {
         }
     };
     
-    Plotly.newPlot(container.id, mapData, layout, {responsive: true})
-        .then(() => {
-            showStatus('Map visualization created successfully', 'success');
-        })
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating map:', err);
-            showStatus('Error creating map visualization', 'error');
+            container.innerHTML = '<div class="error">Error creating map visualization</div>';
         });
 }
 
@@ -237,12 +234,9 @@ function createTimeSeries(container, year, baseLayout) {
     };
     
     Plotly.newPlot(container.id, traces, layout, {responsive: true})
-        .then(() => {
-            showStatus('Time series visualization created successfully', 'success');
-        })
         .catch(err => {
             console.error('Error creating time series:', err);
-            showStatus('Error creating time series visualization', 'error');
+            container.innerHTML = '<div class="error">Error creating time series visualization</div>';
         });
 }
 
@@ -250,22 +244,19 @@ function createTimeSeries(container, year, baseLayout) {
  * Create labor force map visualization
  */
 function createLaborForceMap(container, year, baseLayout) {
-    const yearData = DASHBOARD_DATA.metrics[year] || DASHBOARD_DATA.metrics['2018'];
+    const metrics = DASHBOARD_DATA.metrics[year] || DASHBOARD_DATA.metrics['2018'];
     const locations = DASHBOARD_DATA.states;
-    const z = yearData.working_parent_ratio.map(ratio => ratio * 100);
+    const z = metrics.working_parent_ratio.map(ratio => ratio * 100);
     
     const text = locations.map((state, i) => {
         const ratio = z[i];
-        const metrics = DASHBOARD_DATA.metrics[year] || DASHBOARD_DATA.metrics['2018'];
-        const burden = metrics.cost_burden[i];
-        const annualCost = metrics.annual_cost[i];
+        const cost = DASHBOARD_DATA.costs[year].infant[i];
         return `<b>${STATE_NAMES[state]}</b><br>` +
                `Working Parents: ${ratio.toFixed(1)}%<br>` +
-               `Cost Burden: ${(burden * 100).toFixed(1)}%<br>` +
-               `Annual Cost: $${annualCost.toFixed(2)}`;
+               `Monthly Cost: $${cost.toFixed(2)}`;
     });
     
-    const mapData = [{
+    const data = [{
         type: 'choropleth',
         locationmode: 'USA-states',
         locations: locations,
@@ -287,7 +278,7 @@ function createLaborForceMap(container, year, baseLayout) {
     
     const layout = {
         ...baseLayout,
-        title: `Female Labor Force Participation by State (${year})`,
+        title: `Working Parents Ratio by State (${year})`,
         geo: {
             scope: 'usa',
             showlakes: true,
@@ -298,13 +289,10 @@ function createLaborForceMap(container, year, baseLayout) {
         }
     };
     
-    Plotly.newPlot(container.id, mapData, layout, {responsive: true})
-        .then(() => {
-            showStatus('Labor force map created successfully', 'success');
-        })
+    Plotly.newPlot(container.id, data, layout, {responsive: true})
         .catch(err => {
             console.error('Error creating labor force map:', err);
-            showStatus('Error creating labor force map', 'error');
+            container.innerHTML = '<div class="error">Error creating labor force map visualization</div>';
         });
 }
 
@@ -479,83 +467,61 @@ function calculateCorrelation(array1, array2) {
  * Update visualization based on user selection
  */
 function updateVisualization() {
-    const type = document.getElementById('visualizationType').value;
-    const year = document.getElementById('yearFilter')?.value || '2018';
     const container = document.getElementById('mainVisualization');
+    const visualType = document.getElementById('visualizationType').value;
+    const yearFilter = document.getElementById('yearFilter');
+    const selectedYear = yearFilter.value || '2018';
     
     if (!container) {
         console.error('Visualization container not found!');
-        showStatus('Error: Visualization container not found', 'error');
         return;
     }
     
     // Show loading state
-    container.innerHTML = '<div class="loading-spinner" style="display: flex; justify-content: center; align-items: center; height: 100%;"><p>Loading visualization...</p></div>';
+    container.innerHTML = '<div class="loading">Loading visualization...</div>';
     
-    // Show/hide year filter based on visualization type
-    const yearFilter = document.getElementById('yearFilter');
-    if (yearFilter) {
-        yearFilter.style.display = ['geoChoropleth', 'timeSeriesAnalysis', 'laborForceMap'].includes(type) ? 'inline-block' : 'none';
-    }
+    // Calculate container dimensions
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    // Common layout settings
+    const baseLayout = {
+        width: containerWidth,
+        height: containerHeight,
+        margin: { l: 50, r: 50, t: 50, b: 50 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: {
+            family: 'Arial, sans-serif'
+        }
+    };
     
     try {
-        // Calculate container dimensions based on viewport
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const headerHeight = 120;
-        const marginBottom = 20;
-        const marginSides = 40;
-        
-        // Set container dimensions for wide orientation
-        container.style.width = `${viewportWidth - marginSides}px`;
-        container.style.height = `${Math.min(800, Math.max(400, viewportHeight - headerHeight - marginBottom))}px`;
-        container.style.maxWidth = '2000px'; // Prevent excessive stretching
-        container.style.margin = '0 auto'; // Center the container
-        
-        // Common layout settings for all visualizations
-        const commonLayout = {
-            autosize: true,
-            margin: {
-                l: 60,  // Increased left margin for labels
-                r: 30,  // Reduced right margin
-                t: 50,  // Top margin for title
-                b: 60,  // Increased bottom margin for labels
-                pad: 4
-            },
-            width: container.clientWidth,
-            height: container.clientHeight,
-            showlegend: true,
-            legend: {
-                orientation: 'h',
-                y: -0.2,
-                x: 0.5,
-                xanchor: 'center'
-            }
-        };
-        
-        switch(type) {
+        switch(visualType) {
             case 'geoChoropleth':
-                createHeatMap(container, year, commonLayout);
+                createHeatMap(container, selectedYear, baseLayout);
                 break;
             case 'timeSeriesAnalysis':
-                createTimeSeries(container, year, commonLayout);
+                createTimeSeries(container, selectedYear, baseLayout);
                 break;
             case 'laborForceMap':
-                createLaborForceMap(container, year, commonLayout);
+                createLaborForceMap(container, selectedYear, baseLayout);
                 break;
             case 'costSpiral':
-                createSpiralPlot(container, commonLayout);
+                createSpiralPlot(container, baseLayout);
                 break;
             case 'correlation':
-                createCorrelationAnalysis(container, commonLayout);
+                createCorrelationAnalysis(container, baseLayout);
+                break;
+            case 'socialMedia':
+                createSocialMediaImpact(container);
                 break;
             default:
-                container.innerHTML = '<p>Select a visualization type</p>';
+                container.innerHTML = '<div class="error">Invalid visualization type</div>';
         }
     } catch (error) {
         console.error('Error updating visualization:', error);
-        showStatus('Error updating visualization: ' + error.message, 'error');
-        container.innerHTML = '<p>Error loading visualization</p>';
+        container.innerHTML = '<div class="error">Error creating visualization</div>';
     }
 }
 
