@@ -571,7 +571,7 @@ function displayStaticVisualization(visualizationType) {
     const imagePath = visualizationImages[visualizationType];
     
     if (imagePath) {
-        console.log(`Loading static image: ${imagePath}`);
+        console.log(`Loading static image for ${visualizationType}: ${imagePath}`);
         const img = document.createElement('img');
         img.src = imagePath;
         img.alt = VISUALIZATION_TYPES[visualizationType];
@@ -579,25 +579,42 @@ function displayStaticVisualization(visualizationType) {
         img.style.maxHeight = '100%';
         img.style.display = 'block';
         img.style.margin = '0 auto';
+        
+        // Add loading indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.textContent = 'Loading visualization...';
+        loadingDiv.style.textAlign = 'center';
+        loadingDiv.style.padding = '20px';
+        container.appendChild(loadingDiv);
+        
+        img.onload = function() {
+            console.log(`Successfully loaded image: ${imagePath}`);
+            container.innerHTML = '';
+            container.appendChild(img);
+            
+            // Add note for specific visualizations
+            if (visualizationType === 'violinPlot') {
+                const noteDiv = document.createElement('div');
+                noteDiv.style.textAlign = 'center';
+                noteDiv.style.marginTop = '15px';
+                noteDiv.style.padding = '10px';
+                noteDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                noteDiv.style.borderRadius = '8px';
+                noteDiv.style.fontSize = '1.2em';
+                noteDiv.style.color = '#666';
+                noteDiv.innerHTML = '<strong>Note:</strong> Distribution shows monthly costs for different age groups across all states (2008-2018).';
+                container.appendChild(noteDiv);
+            }
+        };
+        
         img.onerror = function() {
             console.error(`Failed to load image: ${imagePath}`);
-            container.innerHTML = `<div class="error" style="font-size: 1.5em;">Failed to load visualization image: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
+            container.innerHTML = `
+                <div class="error" style="font-size: 1.5em; text-align: center; padding: 20px;">
+                    <p>Failed to load visualization: ${VISUALIZATION_TYPES[visualizationType]}</p>
+                    <p style="font-size: 0.8em; color: #666;">Path: ${imagePath}</p>
+                </div>`;
         };
-        container.appendChild(img);
-        
-        // Add a note for the state costs visualization about NaN values
-        if (visualizationType === 'spiralPlot') {
-            const noteDiv = document.createElement('div');
-            noteDiv.style.textAlign = 'center';
-            noteDiv.style.marginTop = '15px';
-            noteDiv.style.padding = '10px';
-            noteDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-            noteDiv.style.borderRadius = '8px';
-            noteDiv.style.fontSize = '1.2em';
-            noteDiv.style.color = '#666';
-            noteDiv.innerHTML = '<strong>Note:</strong> Some states (DC, CO) have missing data in the dataset. "NaN" values indicate data points that could not be calculated.';
-            container.appendChild(noteDiv);
-        }
     } else {
         console.error(`No image path defined for visualization type: ${visualizationType}`);
         container.innerHTML = `<div class="error" style="font-size: 1.5em;">Visualization not available: ${VISUALIZATION_TYPES[visualizationType]}</div>`;
