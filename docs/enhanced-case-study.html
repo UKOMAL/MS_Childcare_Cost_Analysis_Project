@@ -147,24 +147,42 @@
         
         .download-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #007bff;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0056b3;
             color: white !important;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 15px 30px;
+            border-radius: 8px;
             text-decoration: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             z-index: 1000;
             cursor: pointer;
             border: none;
-            font-size: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .download-btn:hover {
-            background-color: #0056b3;
+            background-color: #004494;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
             color: white !important;
             text-decoration: none;
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        @media print {
+            .download-btn {
+                display: none !important;
+            }
         }
         
         .originality-statement {
@@ -176,7 +194,13 @@
     </style>
 </head>
 <body>
-    <a class="download-btn" onclick="window.print()">Download as PDF</a>
+    <a class="download-btn" onclick="window.print()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 4px;">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M7.5 7.793V1h1v6.793L11.793 5.5l.707.707-4.5 4.5-4.5-4.5.707-.707L7.5 7.793z"/>
+        </svg>
+        Download as PDF
+    </a>
     
     <!-- Title Page -->
     <div class="page">
