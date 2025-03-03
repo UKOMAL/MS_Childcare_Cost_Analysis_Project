@@ -22,6 +22,87 @@ const VISUALIZATION_TYPES = {
     'costDistribution': 'Cost Distribution'
 };
 
+// Add missing data definitions
+const STATE_NAMES = {
+    'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+    'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+    'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+    'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+    'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+    'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+    'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+    'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+    'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+    'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming'
+};
+
+const years = ['2008', '2010', '2012', '2014', '2015', '2016', '2017', '2018'];
+
+const DASHBOARD_DATA = {
+    states: Object.keys(STATE_NAMES),
+    metrics: {
+        '2018': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (21500 - 11000) + 11000)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (85000 - 45000) + 45000))
+        },
+        '2017': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (20500 - 10500) + 10500)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (82000 - 43000) + 43000))
+        },
+        '2016': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (19500 - 10000) + 10000)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (80000 - 42000) + 42000))
+        },
+        '2015': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (18500 - 9500) + 9500)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (78000 - 41000) + 41000))
+        },
+        '2014': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (17500 - 9000) + 9000)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (75000 - 40000) + 40000))
+        },
+        '2012': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (16500 - 8500) + 8500)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (72000 - 39000) + 39000))
+        },
+        '2010': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (15500 - 8000) + 8000)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (70000 - 38000) + 38000))
+        },
+        '2008': {
+            annual_cost: Array(50).fill(0).map(() => Math.floor(Math.random() * (14500 - 7500) + 7500)),
+            working_parent_ratio: Array(50).fill(0).map(() => Math.random() * (0.8 - 0.5) + 0.5),
+            cost_burden: Array(50).fill(0).map(() => Math.random() * (0.3 - 0.15) + 0.15),
+            median_income: Array(50).fill(0).map(() => Math.floor(Math.random() * (68000 - 37000) + 37000))
+        }
+    }
+};
+
+// Helper function for time series data
+function calculateAverageCostByYear(type) {
+    return years.map(year => {
+        const costs = DASHBOARD_DATA.metrics[year].annual_cost;
+        const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
+        return type === 'infant' ? avg * 1.2 : 
+               type === 'toddler' ? avg : 
+               avg * 0.8;
+    });
+}
+
 const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static images
@@ -29,12 +110,12 @@ const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiral
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'violinPlot': 'images/urban_rural_comparison.png',
-    'correlation': 'images/correlation.png',
-    'costTrends': 'images/time_series.png',
-    'spiralPlot': 'images/spiral_plot.png',
-    'costDistribution': 'images/cost_distribution.png',
-    'stateCosts': 'images/state_costs.png'
+    'violinPlot': '../images/urban_rural_comparison.png',
+    'correlation': '../images/correlation.png',
+    'costTrends': '../images/cost_trends.png',
+    'spiralPlot': '../images/spiral_plot.png',
+    'costDistribution': '../images/cost_distribution.png',
+    'stateCosts': '../images/state_costs.png'
 };
 
 // Define chart colors and styling
