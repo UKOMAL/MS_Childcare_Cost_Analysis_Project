@@ -18,7 +18,10 @@ const VISUALIZATION_TYPES = {
     'costMap': 'Cost Map',
     'costTrends': 'Cost Trends',
     'femaleLaborForce': 'Female Labor Force',
-    'childcareCostsMap': 'Childcare Costs Map'
+    'childcareCostsMap': 'Childcare Costs Map',
+    'urbanRuralComparison': 'Urban Rural Comparison',
+    'stateCosts': 'State Costs',
+    'timeSeries': 'Time Series'
 };
 
 // Add missing data definitions
@@ -106,7 +109,16 @@ function calculateAverageCostByYear(type) {
 const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static images
-const staticVisualizations = ['costDistribution', 'costMap', 'costTrends', 'femaleLaborForce', 'childcareCostsMap'];
+const staticVisualizations = [
+    'costDistribution', 
+    'costMap', 
+    'costTrends', 
+    'femaleLaborForce', 
+    'childcareCostsMap',
+    'urbanRuralComparison',
+    'stateCosts',
+    'timeSeries'
+];
 
 // Map visualization types to their image files
 const visualizationImages = {
@@ -114,7 +126,10 @@ const visualizationImages = {
     'costMap': '../images/cost_map.png',
     'costTrends': '../images/cost_trends.png',
     'femaleLaborForce': '../images/female_labor_force.png',
-    'childcareCostsMap': '../images/childcare_costs_map.png'
+    'childcareCostsMap': '../images/childcare_costs_map.png',
+    'urbanRuralComparison': '../images/urban_rural_comparison.png',
+    'stateCosts': '../images/state_costs.png',
+    'timeSeries': '../images/time_series.png'
 };
 
 // Define chart colors and styling
