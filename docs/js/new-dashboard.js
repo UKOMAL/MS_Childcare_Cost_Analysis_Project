@@ -13,7 +13,7 @@ let currentYear = '2018';
 const VISUALIZATION_TYPES = {
     'violinPlot': 'Urban/Rural Cost Distribution',
     'correlation': 'Cost Correlation Analysis',
-    'costTrends': 'Regional Cost Trends',
+    'timeSeriesAnalysis': 'Time Series Analysis',
     'spiralPlot': 'Cost Trends (Spiral View)',
     'costDistribution': 'Cost Distribution',
     'stateCosts': 'State Cost Comparison',
@@ -92,33 +92,34 @@ const DASHBOARD_DATA = {
 };
 
 // Helper function for time series data
-function calculateAverageCostByYear(type) {
-    return years.map(year => {
-        const costs = DASHBOARD_DATA.metrics[year].annual_cost;
-        const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
-        return type === 'infant' ? avg * 1.2 : 
-               type === 'toddler' ? avg : 
-               avg * 0.8;
-    });
+function calculateAverageCostByYear(type, selectedYear = '2018') {
+    return years
+        .filter(year => parseInt(year) <= parseInt(selectedYear))
+        .map(year => {
+            const costs = DASHBOARD_DATA.metrics[year].annual_cost;
+            const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
+            return type === 'infant' ? avg * 1.2 : 
+                   type === 'toddler' ? avg : 
+                   avg * 0.8;
+        });
 }
 
 // Constants for year filtering
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
 
 // Define which visualizations are interactive vs static
 const staticVisualizations = [
     'violinPlot',
     'correlation', 
     'costDistribution',
-    'spiralPlot',
-    'stateCosts'
+    'spiralPlot'
 ];
 
-// Map visualization types to their image files (keep all for reference)
+// Map visualization types to their image files
 const visualizationImages = {
     'violinPlot': './images/urban_rural_comparison.png',
     'correlation': './images/correlation.png',
-    'costTrends': './images/cost_trends.png',
+    'timeSeriesAnalysis': './images/time_series.png',
     'spiralPlot': './images/spiral_plot.png',
     'costDistribution': './images/cost_distribution.png',
     'stateCosts': './images/state_costs.png',
@@ -380,75 +381,58 @@ function createHeatMap(year) {
  */
 function createTimeSeriesChart() {
     const container = document.getElementById('mainVisualization');
+    if (!container) return;
 
-    // Initialize the figure
-    const traces = [];
+    // Get time series data up to the selected year
+    const yearsToShow = years.filter(year => parseInt(year) <= parseInt(currentYear));
+    const infantCosts = calculateAverageCostByYear('infant', currentYear);
+    const toddlerCosts = calculateAverageCostByYear('toddler', currentYear);
+    const preschoolCosts = calculateAverageCostByYear('preschool', currentYear);
 
-    // Calculate the data points up to the selected year
-    const yearsToShow = years.filter(y => parseInt(y) <= parseInt(currentYear));
-
-    // Add trace for infant costs
-    traces.push({
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: 'Infant Care',
-        x: yearsToShow,
-        y: calculateAverageCostByYear('infant').slice(0, yearsToShow.length),
-        line: {
-            color: chartColors.primary,
-            width: 3
-        },
-        marker: {
-            size: 8,
-            color: chartColors.primary,
+    const traces = [
+        {
+            x: yearsToShow,
+            y: infantCosts,
+            name: 'Infant Care',
+            type: 'scatter',
+            mode: 'lines+markers',
             line: {
-                width: 1,
-                color: '#fff'
+                color: chartColors.primary,
+                width: 3
+            },
+            marker: {
+                size: 8
+            }
+        },
+        {
+            x: yearsToShow,
+            y: toddlerCosts,
+            name: 'Toddler Care',
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: {
+                color: chartColors.secondary,
+                width: 3
+            },
+            marker: {
+                size: 8
+            }
+        },
+        {
+            x: yearsToShow,
+            y: preschoolCosts,
+            name: 'Preschool Care',
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: {
+                color: chartColors.accent,
+                width: 3
+            },
+            marker: {
+                size: 8
             }
         }
-    });
-
-    // Add trace for toddler costs
-    traces.push({
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: 'Toddler Care',
-        x: yearsToShow,
-        y: calculateAverageCostByYear('toddler').slice(0, yearsToShow.length),
-        line: {
-            color: chartColors.secondary,
-            width: 3
-        },
-        marker: {
-            size: 8,
-            color: chartColors.secondary,
-            line: {
-                width: 1,
-                color: '#fff'
-            }
-        }
-    });
-
-    // Add trace for preschool costs
-    traces.push({
-        type: 'scatter',
-        mode: 'lines+markers',
-        name: 'Preschool Care',
-        x: yearsToShow,
-        y: calculateAverageCostByYear('preschool').slice(0, yearsToShow.length),
-        line: {
-            color: chartColors.accent,
-            width: 3
-        },
-        marker: {
-            size: 8,
-            color: chartColors.accent,
-            line: {
-                width: 1,
-                color: '#fff'
-            }
-        }
-    });
+    ];
 
     const layout = {
         title: {
@@ -458,40 +442,30 @@ function createTimeSeriesChart() {
             x: chartTitle.x
         },
         xaxis: {
-            title: {
-                text: 'Year',
-                font: chartFont
-            },
+            title: 'Year',
             tickfont: chartFont,
             gridcolor: chartColors.grid,
-            showgrid: true,
             range: ['2008', currentYear]
         },
         yaxis: {
-            title: {
-                text: 'Average Annual Cost ($)',
-                font: chartFont
-            },
+            title: 'Average Annual Cost ($)',
             tickfont: chartFont,
-            tickformat: '$,.0f',
             gridcolor: chartColors.grid,
-            showgrid: true
+            tickformat: '$,.0f'
         },
         legend: {
-            font: chartFont,
-            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            x: 1,
+            xanchor: 'right',
+            y: 1,
+            bgcolor: chartColors.background,
             bordercolor: chartColors.grid,
             borderwidth: 1
         },
         paper_bgcolor: chartColors.background,
         plot_bgcolor: chartColors.background,
-        hovermode: 'closest',
-        margin: {
-            l: 80,
-            r: 40,
-            b: 60,
-            t: 80
-        }
+        font: chartFont,
+        showlegend: true,
+        hovermode: 'closest'
     };
 
     Plotly.newPlot(container, traces, layout, {responsive: true});

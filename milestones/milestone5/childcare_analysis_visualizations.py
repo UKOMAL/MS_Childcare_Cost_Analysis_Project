@@ -11,10 +11,9 @@ This script generates static visualizations for the childcare cost analysis:
 1. Time series analysis of childcare costs
 2. Geographic distribution (choropleth map)
 3. Female labor force participation (geographic distribution)
-4. Urban vs Rural comparison
-5. Cost distribution analysis
-6. Correlation heatmap
-7. Cost trends analysis
+4. Cost distribution analysis
+5. Correlation heatmap
+6. Cost trends analysis
 """
 
 import pandas as pd
@@ -23,381 +22,690 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import geopandas as gpd
 from pathlib import Path
+import os
 
 # Set style for all plots
 plt.style.use('seaborn-v0_8')
-sns.set_palette("husl")
 
-def generate_childcare_data():
-    """Generate sample childcare cost data for different regions."""
-    np.random.seed(42)
-    years = range(2008, 2019)
-    regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West']
-    
-    base_costs = {
-        'Northeast': 18000,
-        'Southeast': 12000,
-        'Midwest': 14000,
-        'Southwest': 11000,
-        'West': 16000
-    }
-    
-    growth_rates = {
-        'Northeast': 0.045,
-        'Southeast': 0.035,
-        'Midwest': 0.038,
-        'Southwest': 0.032,
-        'West': 0.042
-    }
-    
-    data = []
-    for year in years:
-        for region in regions:
-            base = base_costs[region]
-            growth = growth_rates[region]
-            years_since_start = year - 2008
-            cost = base * (1 + growth) ** years_since_start
-            cost *= np.random.normal(1, 0.02)
-            data.append({
-                'Year': year,
-                'Region': region,
-                'Cost': cost
-            })
-    
-    return pd.DataFrame(data)
+# Define color palettes
+colors = sns.cubehelix_palette(8, start=.5, rot=-.75)  # Updated color palette
 
-def generate_state_data():
-    """Generate state-level childcare cost data with yearly trends."""
-    np.random.seed(42)
-    states = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 
-              'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
-              'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
-              'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
-              'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
+# Set up global paths
+script_dir = Path(__file__).parent
+output_dir = script_dir / 'output'
+output_dir.mkdir(exist_ok=True)
+img_dir = output_dir / 'images'
+img_dir.mkdir(exist_ok=True)
+
+# Define state neighbors for missing value imputation
+STATE_NEIGHBORS = {
+    'IN': ['IL', 'KY', 'MI', 'OH'],  # Indiana's neighbors
+    'NM': ['AZ', 'CO', 'OK', 'TX']   # New Mexico's neighbors
+}
+
+def get_state_value(df, state, column, year):
+    """
+    Get value for a state by trying different strategies.
     
-    years = range(2008, 2019)
-    data = []
-    
-    for state in states:
-        base_cost = np.random.uniform(8000, 20000)
-        growth_rate = np.random.uniform(0.02, 0.05)
+    Parameters:
+    -----------
+    df : DataFrame
+        The input dataframe containing the data
+    state : str
+        The state abbreviation
+    column : str
+        The column name for which to get the value
+    year : int
+        The year for which to get the value
         
-        for year in years:
-            years_since_start = year - 2008
-            cost = base_cost * (1 + growth_rate) ** years_since_start
-            
-            urban_cost = cost * np.random.uniform(1.1, 1.3)
-            suburban_cost = cost * np.random.uniform(0.9, 1.1)
-            rural_cost = cost * np.random.uniform(0.7, 0.9)
-            center_cost = cost * np.random.uniform(1.2, 1.4)
-            income_level = np.random.uniform(45000, 85000)
-            population = np.random.uniform(500000, 5000000)
-            labor_force_rate = np.random.uniform(55, 75)
-            
-            data.append({
-                'State': state,
-                'Year': year,
-                'Annual_Cost': cost,
-                'Urban_Cost': urban_cost,
-                'Suburban_Cost': suburban_cost,
-                'Rural_Cost': rural_cost,
-                'Center_Cost': center_cost,
-                'Median_Income': income_level,
-                'Population': population,
-                'Labor_Force_Rate': labor_force_rate
-            })
+    Returns:
+    --------
+    float
+        The imputed value based on the best available strategy
+    """
+    state_data = df[df['State_Abbreviation'] == state]
     
-    return pd.DataFrame(data)
+    # Strategy 1: Try to get the exact value for this state and year
+    exact_value = state_data[state_data['StudyYear'] == year][column].mean()
+    if not pd.isna(exact_value):
+        return exact_value
+    
+    # Strategy 2: Try to get value from the same state in different years
+    state_mean = state_data[column].mean()
+    if not pd.isna(state_mean):
+        return state_mean
+    
+    # Strategy 3: Try to get value from neighboring states in the same year
+    if state in STATE_NEIGHBORS:
+        neighbor_data = df[
+            (df['State_Abbreviation'].isin(STATE_NEIGHBORS[state])) & 
+            (df['StudyYear'] == year)
+        ]
+        neighbor_mean = neighbor_data[column].mean()
+        if not pd.isna(neighbor_mean):
+            return neighbor_mean
+    
+    # Strategy 4: Use the global mean as a last resort
+    return df[column].mean()
 
-def generate_social_media_data():
-    """Generate social media impact data."""
-    np.random.seed(42)
-    platforms = ['Facebook', 'Twitter', 'Instagram', 'LinkedIn']
-    metrics = ['Engagement Rate', 'Reach', 'Shares', 'Comments']
-    data = []
+def load_actual_data():
+    """Load actual data from the National Database of Childcare Prices."""
+    data_path = Path(__file__).parent / '../../data/nationaldatabaseofchildcareprices.xlsx'
+    print(f"\nLoading data from: {data_path}")
     
-    for platform in platforms:
-        for metric in metrics:
-            base_value = np.random.uniform(1000, 5000)
-            for month in range(1, 13):
-                value = base_value * (1 + np.random.uniform(-0.2, 0.3))
-                data.append({
-                    'Platform': platform,
-                    'Metric': metric,
-                    'Month': month,
-                    'Value': value
-                })
+    # Load the data
+    df = pd.read_excel(data_path)
+    print(f"\nInitial data shape: {df.shape}")
     
-    return pd.DataFrame(data)
+    # Based on the technical guide, we'll keep only essential columns
+    # Core location and time identifiers
+    core_columns = ['State_Name', 'State_Abbreviation', 'County_Name', 'County_FIPS_Code', 'StudyYear']
+    
+    # Key demographic variables
+    demographic_columns = ['TotalPop', 'H_Under6_BothWork', 'H_Under6_SingleM', 
+                          'H_6to17_BothWork', 'H_6to17_SingleM', 'MHI_2018']
+    
+    # Key childcare price metrics (keeping only the main provider types)
+    # MC: Center-based care
+    # MFCC: Family childcare homes
+    childcare_columns = ['MCInfant', 'MCToddler', 'MCPreschool',
+                        'MFCCInfant', 'MFCCToddler', 'MFCCPreschool']
+    
+    # Columns to keep
+    columns_to_keep = core_columns + demographic_columns + childcare_columns
+    
+    # Check what percentage of data is missing in key columns
+    print("\nMissing data in key childcare columns:")
+    for col in childcare_columns:
+        missing_pct = df[col].isna().mean() * 100
+        print(f"{col}: {missing_pct:.1f}% missing")
+    
+    # Filter to keep only essential columns
+    df_filtered = df[columns_to_keep].copy()
+    print(f"\nFiltered to {len(columns_to_keep)} essential columns from {df.shape[1]} original columns")
+    
+    print("\nChecking data for IN and NM before any processing:")
+    for state in ['IN', 'NM']:
+        state_data = df_filtered[df_filtered['State_Abbreviation'] == state]
+        if len(state_data) > 0:
+            print(f"\n{state} raw data:")
+            print(f"Number of rows: {len(state_data)}")
+            print(f"Years covered: {sorted(state_data['StudyYear'].unique())}")
+            print("\nSample row for {state}:")
+            print(state_data[['StudyYear', 'State_Abbreviation', 'MCInfant', 'MCToddler', 'MCPreschool']].head(1).to_string())
+            print(f"\nValue counts for MCInfant:")
+            print(state_data['MCInfant'].value_counts(dropna=False))
+    
+    print("\nHandling missing values...")
+    # Create a copy of the dataframe to store the processed data
+    processed_df = df_filtered.copy()
+    
+    # Handle missing values using the state-based approach for key childcare columns
+    for col in childcare_columns:
+        missing_mask = df_filtered[col].isna()
+        if missing_mask.any():
+            print(f"\nHandling {missing_mask.sum()} missing values in {col}")
+            for idx in df_filtered[missing_mask].index:
+                state = df_filtered.loc[idx, 'State_Abbreviation']
+                year = df_filtered.loc[idx, 'StudyYear']
+                value = get_state_value(df_filtered, state, col, year)
+                processed_df.loc[idx, col] = value
+            
+            # Print sample of filled values for verification
+            sample_states = ['IN', 'NM']
+            for state in sample_states:
+                state_data = processed_df[processed_df['State_Abbreviation'] == state]
+                if len(state_data) > 0:
+                    print(f"\n{state} {col} sample filled values (first 5 rows):")
+                    print(state_data[['StudyYear', col]].head().to_string())
+    
+    # Calculate derived metrics
+    print("\nCalculating derived metrics...")
+    processed_df['Annual_Cost_Infant'] = processed_df['MCInfant'] * 12
+    processed_df['Annual_Cost_Toddler'] = processed_df['MCToddler'] * 12
+    processed_df['Annual_Cost_Preschool'] = processed_df['MCPreschool'] * 12
+    processed_df['Cost_Burden'] = (processed_df['Annual_Cost_Infant'] / processed_df['MHI_2018']) * 100
+    processed_df['Working_Parent_Ratio'] = (processed_df['H_Under6_BothWork'] / processed_df['TotalPop']) * 100
+    
+    # Add Urban/Rural classification based on population
+    processed_df['Urban_Rural'] = processed_df['TotalPop'].apply(lambda x: 'Urban' if x > 500000 else 'Rural')
+    
+    # Filter data for 2008-2018
+    processed_df = processed_df[(processed_df['StudyYear'] >= 2008) & (processed_df['StudyYear'] <= 2018)]
+    print(f"\nFiltered data to 2008-2018: {len(processed_df)} rows")
+    
+    # Check processed data
+    print("\nChecking IN and NM data after processing:")
+    for state in ['IN', 'NM']:
+        state_data = processed_df[processed_df['State_Abbreviation'] == state]
+        if len(state_data) > 0:
+            print(f"\n{state} processed data:")
+            print(f"Number of rows: {len(state_data)}")
+            print(f"Years covered: {sorted(state_data['StudyYear'].unique())}")
+            print("\nSummary statistics for Annual_Cost_Infant:")
+            print(state_data['Annual_Cost_Infant'].describe())
+            print("\nSample processed rows:")
+            print(state_data[['StudyYear', 'State_Abbreviation', 'Annual_Cost_Infant', 'MCInfant']].head().to_string())
+            
+            # Print information about data sources
+            print("\nData sources used for MCInfant:")
+            missing_count = df_filtered[df_filtered['State_Abbreviation'] == state]['MCInfant'].isna().sum()
+            if missing_count > 0:
+                print(f"Values imputed from neighboring states: {STATE_NEIGHBORS[state]}")
+    
+    return processed_df
 
 def save_visualizations():
     """Save all static visualizations as PNG files."""
-    script_dir = Path(__file__).parent
-    output_dir = script_dir / 'output'
-    output_dir.mkdir(exist_ok=True)
-    img_dir = output_dir / 'images'
-    img_dir.mkdir(exist_ok=True)
-    
     print("Generating static visualizations...")
     
-    # Set style for all plots
-    plt.style.use('seaborn-v0_8-whitegrid')
+    # Load and process data
+    df = load_actual_data()
     
-    # 1. Geographic Cost Distribution (Choropleth)
-    state_data = generate_state_data()
-    latest_year = state_data['Year'].max()
-    latest_data = state_data[state_data['Year'] == latest_year]
-    
+    # Load geographic data
     shapefile_path = script_dir / 'data/cb_2018_us_state_20m/cb_2018_us_state_20m.shp'
-    states = gpd.read_file(shapefile_path)
-    states = states.merge(latest_data, left_on='STUSPS', right_on='State')
+    states_gdf = gpd.read_file(shapefile_path)
     
-    fig, ax = plt.subplots(figsize=(20, 12))
+    # Generate all visualizations
+    create_time_series(df)
+    create_urban_rural_comparison(df)
+    create_cost_distribution(df)
+    create_state_costs_visualization(df)
+    create_choropleth_maps(df, states_gdf)
+    create_correlation_analysis(df)
+    create_spiral_plot(df)
     
-    # Adjust the map extent to focus on continental US
-    states.plot(column='Annual_Cost', 
-               ax=ax,
-               legend=True,
-               legend_kwds={'label': f'Annual Childcare Cost ({latest_year})',
-                           'orientation': 'horizontal',
-                           'fraction': 0.035,  # Reduced legend size
-                           'pad': 0.01,
-                           'aspect': 30},  # Make legend more compact
-               missing_kwds={'color': 'lightgrey'},
-               cmap='RdYlBu_r',
-               edgecolor='white',
-               linewidth=0.8)
+    print(f"\nAll static visualizations saved in: {img_dir}")
+
+def create_time_series(df):
+    """Create a time series visualization showing trends in childcare costs."""
+    plt.figure(figsize=(12, 8), facecolor='#F0F0F8')
     
-    # Set map bounds to focus on continental US
-    ax.set_xlim(-125, -65)
-    ax.set_ylim(25, 50)
+    # Calculate annual averages by year
+    yearly_data = df.groupby('StudyYear')[['Annual_Cost_Infant', 'Annual_Cost_Toddler', 'Annual_Cost_Preschool']].mean()
     
-    for idx, row in states.iterrows():
-        centroid = row.geometry.centroid
-        # Only label continental US states
-        if row['State'] not in ['AK', 'HI']:
-            cost_value = row['Annual_Cost']
-            text_color = 'white' if cost_value > states['Annual_Cost'].mean() else 'black'
-            ax.annotate(f"{row['State']}\n${cost_value:,.0f}", 
-                       xy=(centroid.x, centroid.y),
-                       horizontalalignment='center',
-                       verticalalignment='center',
-                       fontsize=9,
-                       color=text_color,
-                       weight='bold')
+    # Create color palette using cubehelix
+    palette = sns.cubehelix_palette(start=.5, rot=-.75, n_colors=3)
     
-    ax.axis('off')
-    plt.title(f'Childcare Costs by State ({latest_year})', 
-             pad=20, fontsize=16, fontweight='bold')
-    plt.savefig(img_dir / 'childcare_costs_map.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: childcare_costs_map.png")
+    # Plot the time series
+    plt.plot(yearly_data.index, yearly_data['Annual_Cost_Infant'], marker='o', linewidth=2, 
+            color=palette[0], label='Infant Care')
+    plt.plot(yearly_data.index, yearly_data['Annual_Cost_Toddler'], marker='s', linewidth=2, 
+            color=palette[1], label='Toddler Care')
+    plt.plot(yearly_data.index, yearly_data['Annual_Cost_Preschool'], marker='^', linewidth=2, 
+            color=palette[2], label='Preschool')
     
-    # 2. Female Labor Force Map
-    fig, ax = plt.subplots(figsize=(20, 12))
-    
-    # Adjust the map extent to focus on continental US
-    states.plot(column='Labor_Force_Rate', 
-               ax=ax,
-               legend=True,
-               legend_kwds={'label': 'Female Labor Force\nParticipation Rate (%)',
-                           'orientation': 'horizontal',
-                           'fraction': 0.035,  # Reduced legend size
-                           'pad': 0.01,
-                           'aspect': 30},  # Make legend more compact
-               missing_kwds={'color': 'lightgrey'},
-               cmap='RdPu',
-               edgecolor='white',
-               linewidth=0.8)
-    
-    # Set map bounds to focus on continental US
-    ax.set_xlim(-125, -65)
-    ax.set_ylim(25, 50)
-    
-    for idx, row in states.iterrows():
-        centroid = row.geometry.centroid
-        # Only label continental US states
-        if row['State'] not in ['AK', 'HI']:
-            rate_value = row['Labor_Force_Rate']
-            text_color = 'white' if rate_value > states['Labor_Force_Rate'].mean() else 'black'
-            ax.annotate(f"{row['State']}\n{rate_value:.1f}%", 
-                       xy=(centroid.x, centroid.y),
-                       horizontalalignment='center',
-                       verticalalignment='center',
-                       fontsize=9,
-                       color=text_color,
-                       weight='bold')
-    
-    ax.axis('off')
-    plt.title('Female Labor Force Participation Rate by State', 
-             pad=20, fontsize=16, fontweight='bold')
-    plt.savefig(img_dir / 'female_labor_force.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: female_labor_force.png")
-    
-    # 3. Time Series Analysis
-    data = generate_childcare_data()
-    plt.figure(figsize=(15, 8))
-    colors = ['#FF9999', '#66B2FF', '#99FF99', '#FFCC99', '#FF99CC']
-    
-    for idx, region in enumerate(data['Region'].unique()):
-        region_data = data[data['Region'] == region]
-        plt.plot(region_data['Year'], region_data['Cost'], 
-                label=region, marker='o', linewidth=3, 
-                color=colors[idx], markersize=8)
-        
-        for x, y in zip(region_data['Year'], region_data['Cost']):
-            if x in [2008, 2013, 2018]:
-                plt.annotate(f'${y:,.0f}', 
-                           (x, y), 
-                           textcoords="offset points", 
-                           xytext=(0,10), 
-                           ha='center',
-                           fontsize=9)
-    
-    plt.title('Regional Childcare Cost Trends (2008-2018)', 
-             pad=20, fontsize=16, fontweight='bold')
+    # Customize appearance
+    plt.title('Trends in Average Annual Childcare Costs (2008-2018)', 
+             fontsize=16, fontweight='bold', pad=20)
     plt.xlabel('Year', fontsize=12, fontweight='bold')
-    plt.ylabel('Annual Cost ($)', fontsize=12, fontweight='bold')
-    plt.legend(title='Region', bbox_to_anchor=(1.05, 1), 
-              loc='upper left', fontsize=10)
-    plt.grid(True, alpha=0.3)
+    plt.ylabel('Average Annual Cost ($)', fontsize=12, fontweight='bold')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Format y-axis with dollar signs and commas
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    
+    # Add value labels on the lines
+    for year in yearly_data.index:
+        # Only label first, middle, and last points to avoid clutter
+        if year in [yearly_data.index[0], yearly_data.index[len(yearly_data)//2], yearly_data.index[-1]]:
+            for i, col in enumerate(['Annual_Cost_Infant', 'Annual_Cost_Toddler', 'Annual_Cost_Preschool']):
+                plt.text(year, yearly_data[col][year] * 1.02, 
+                        f'${yearly_data[col][year]:,.0f}', 
+                        ha='center', fontsize=9)
+    
+    plt.legend(loc='upper left', fontsize=10)
     plt.tight_layout()
-    plt.savefig(img_dir / 'time_series.png', dpi=300, bbox_inches='tight')
+    plt.savefig(img_dir / 'time_series.png', dpi=300, bbox_inches='tight', facecolor='#F0F0F8')
     plt.close()
     print("Saved: time_series.png")
+
+def create_urban_rural_comparison(df):
+    """Create a bar chart comparing childcare costs in urban vs. rural areas."""
+    plt.figure(figsize=(12, 8), facecolor='#F0F0F8')
     
-    # 4. State Costs Spiral
-    plt.figure(figsize=(15, 15))
-    theta = np.linspace(0, 4*np.pi, len(data))
-    r = data['Cost'].values
-    x = theta * np.cos(theta)
-    y = theta * np.sin(theta)
+    # Group by urban/rural and calculate means
+    grouped_data = df.groupby('Urban_Rural')[['Annual_Cost_Infant', 'Annual_Cost_Toddler', 'Annual_Cost_Preschool']].mean()
     
-    plt.plot(x, y, '-o', linewidth=2, markersize=6)
+    # Create a bar chart
+    bar_width = 0.25
+    x = np.arange(len(grouped_data.index))
     
-    for i, year in enumerate(data['Year'].unique()):
-        idx = i * 5
-        plt.annotate(str(year), 
-                    (x[idx], y[idx]),
-                    xytext=(10, 10),
-                    textcoords='offset points',
-                    fontsize=10,
-                    fontweight='bold')
+    # Create color palette using cubehelix
+    palette = sns.cubehelix_palette(start=.5, rot=-.75, n_colors=3)
     
-    plt.title('Childcare Cost Evolution (Spiral View)', 
+    # Create the bars
+    plt.bar(x - bar_width, grouped_data['Annual_Cost_Infant'], width=bar_width, 
+           color=palette[0], label='Infant Care')
+    plt.bar(x, grouped_data['Annual_Cost_Toddler'], width=bar_width, 
+           color=palette[1], label='Toddler Care')
+    plt.bar(x + bar_width, grouped_data['Annual_Cost_Preschool'], width=bar_width, 
+           color=palette[2], label='Preschool')
+    
+    # Customize appearance
+    plt.title('Urban vs. Rural Childcare Costs (2008-2018)', 
+             fontsize=16, fontweight='bold', pad=20)
+    plt.xlabel('Area Type', fontsize=12, fontweight='bold')
+    plt.ylabel('Average Annual Cost ($)', fontsize=12, fontweight='bold')
+    plt.xticks(x, grouped_data.index, fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.7, axis='y')
+    
+    # Format y-axis with dollar signs and commas
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    
+    # Add value labels on the bars
+    for i, area in enumerate(grouped_data.index):
+        for j, col in enumerate(['Annual_Cost_Infant', 'Annual_Cost_Toddler', 'Annual_Cost_Preschool']):
+            plt.text(i + (j-1)*bar_width, grouped_data[col][area] + 100, 
+                    f'${grouped_data[col][area]:,.0f}', 
+                    ha='center', fontsize=9)
+    
+    plt.legend(loc='upper right', fontsize=10)
+    plt.tight_layout()
+    plt.savefig(img_dir / 'urban_rural_comparison.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: urban_rural_comparison.png")
+
+def create_cost_distribution(df):
+    """Create a violin plot showing the cost distribution across care types."""
+    # Set up the figure with a nice background
+    plt.figure(figsize=(12, 8), facecolor='white')
+    
+    # Set up care types
+    care_types = ['MCInfant', 'MCToddler', 'MCPreschool']
+    care_labels = ['Infant', 'Toddler', 'Preschool']
+    
+    # Prepare data for violin plot
+    plot_data = pd.DataFrame()
+    for ct, label in zip(care_types, care_labels):
+        temp_df = pd.DataFrame({
+            'Care Type': label,
+            'Monthly Cost ($)': df[ct]
+        })
+        plot_data = pd.concat([plot_data, temp_df])
+    
+    # Create color palette using cubehelix
+    palette = sns.cubehelix_palette(start=.5, rot=-.75, n_colors=3)
+    
+    # Create violin plot with seaborn - fix the warning by explicitly setting hue
+    ax = sns.violinplot(data=plot_data, x='Care Type', y='Monthly Cost ($)',
+                   hue='Care Type', legend=False,
+                   palette=palette,
+                   inner='box',
+                   linewidth=1)
+    
+    plt.title('Distribution of Monthly Childcare Costs by Age Group (2008-2018)',
              pad=20, fontsize=16, fontweight='bold')
-    plt.axis('equal')
-    plt.grid(True, alpha=0.3)
+    plt.xlabel('Care Type', fontsize=12, fontweight='bold')
+    plt.ylabel('Monthly Cost ($)', fontsize=12, fontweight='bold')
+    
+    # Format y-axis with dollar signs
+    from matplotlib.ticker import FuncFormatter
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    
+    # Add grid lines for better readability
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    # Add summary statistics with background boxes for readability
+    for i, care_type in enumerate(care_types):
+        mean_cost = df[care_type].mean()
+        median_cost = df[care_type].median()
+        
+        # Create a background box for the statistics
+        bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8)
+        
+        plt.text(i, df[care_type].max() * 0.95,
+                f'Mean: ${mean_cost:,.0f}\nMedian: ${median_cost:,.0f}',
+                ha='center', va='top',
+                fontsize=10,
+                bbox=bbox_props)
+    
+    # Remove top and right spines
+    sns.despine()
+    
+    # Add note about data
+    plt.figtext(0.99, 0.01, 
+                "Note: Data from all states (2008-2018), including imputed values for missing data", 
+                ha='right', fontsize=8, style='italic')
+    
+    # Save the figure
+    plt.tight_layout()
+    plt.savefig(img_dir / 'cost_distribution.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.close()
+    print("Saved: cost_distribution.png")
+
+def create_choropleth_maps(df, states_gdf):
+    """Create choropleth maps for costs and labor force participation."""
+    # Latest year data
+    latest_year = df['StudyYear'].max()
+    latest_data = df[df['StudyYear'] == latest_year]
+    
+    # Merge with geographic data
+    states = states_gdf.merge(latest_data, left_on='STUSPS', right_on='State_Abbreviation', how='left')
+    
+    # Set up figure for cost map
+    fig, ax = plt.subplots(figsize=(15, 10), facecolor='white')
+    
+    # Use cubehelix color palette
+    cmap = sns.cubehelix_palette(start=.5, rot=-.75, as_cmap=True)
+    
+    # Set bounds to focus on continental US
+    ax.set_xlim(-125, -66.5)
+    ax.set_ylim(24, 50)
+    
+    # Create the choropleth
+    states.plot(column='Annual_Cost_Infant', 
+               ax=ax,
+               cmap=cmap,
+               edgecolor='white',
+               linewidth=0.5,
+               legend=True,
+               legend_kwds={
+                   'label': "Annual Infant Childcare Cost ($)",
+                   'orientation': "horizontal",
+                   'shrink': 0.6,
+                   'fraction': 0.035,
+                   'pad': 0.01,
+                   'fmt': "${x:,.0f}"
+               },
+               missing_kwds={'color': 'lightgray'})
+    
+    # Add state boundaries
+    states_gdf.boundary.plot(ax=ax, color='black', linewidth=0.3, alpha=0.5)
+    
+    # Add state labels with text boxes for better visibility
+    for idx, row in states.iterrows():
+        # Skip Alaska and Hawaii for better focus on continental US
+        if row['STUSPS'] not in ['AK', 'HI'] and not pd.isna(row['Annual_Cost_Infant']):
+            centroid = row.geometry.centroid
+            cost_value = row['Annual_Cost_Infant']
+            
+            # Calculate text color based on cost value
+            text_color = 'white' if cost_value > states['Annual_Cost_Infant'].median() else 'black'
+            
+            # Add a small background box behind the text
+            box_color = 'black' if text_color == 'white' else 'white'
+            bbox_props = dict(boxstyle="round,pad=0.3", fc=box_color, ec=box_color, alpha=0.5)
+            
+            # Add the annotation with the background box
+            ax.annotate(f"{row['STUSPS']}\n${cost_value:,.0f}", 
+                       xy=(centroid.x, centroid.y),
+                       ha='center', va='center',
+                       fontsize=8,
+                       color=text_color,
+                       fontweight='bold',
+                       bbox=bbox_props)
+    
+    # Customize the map
+    ax.set_title(f'Annual Infant Childcare Costs by State ({latest_year})', 
+                fontsize=18, fontweight='bold', pad=20)
+    ax.set_axis_off()
+    
+    # Add note about data
+    note = "Note: Data for IN and NM derived from neighboring states"
+    plt.figtext(0.99, 0.01, note, ha='right', fontsize=8, style='italic')
+    
+    # Save the map
+    plt.tight_layout()
+    plt.savefig(img_dir / 'cost_map.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.close()
+    print("Saved: cost_map.png")
+    
+    # Working parent ratio map - Second Map
+    fig, ax = plt.subplots(figsize=(15, 10), facecolor='white')
+    
+    # Use a different cubehelix palette for the second map
+    cmap2 = sns.cubehelix_palette(start=2.8, rot=-.5, as_cmap=True)
+    
+    # Set bounds to focus on continental US
+    ax.set_xlim(-125, -66.5)
+    ax.set_ylim(24, 50)
+    
+    # Create the choropleth
+    states.plot(column='Working_Parent_Ratio', 
+               ax=ax,
+               cmap=cmap2,
+               edgecolor='white',
+               linewidth=0.5,
+               legend=True,
+               legend_kwds={
+                   'label': "% of Households with Children Under 6,\nBoth Parents Working",
+                   'orientation': "horizontal",
+                   'shrink': 0.6,
+                   'fraction': 0.035,
+                   'pad': 0.01,
+                   'fmt': "{x:.1f}%"
+               },
+               missing_kwds={'color': 'lightgray'})
+    
+    # Add state boundaries
+    states_gdf.boundary.plot(ax=ax, color='black', linewidth=0.3, alpha=0.5)
+    
+    # Add state labels with text boxes for better visibility
+    for idx, row in states.iterrows():
+        # Skip Alaska and Hawaii for better focus on continental US
+        if row['STUSPS'] not in ['AK', 'HI'] and not pd.isna(row['Working_Parent_Ratio']):
+            centroid = row.geometry.centroid
+            ratio_value = row['Working_Parent_Ratio']
+            
+            # Calculate text color based on ratio value
+            text_color = 'white' if ratio_value > states['Working_Parent_Ratio'].median() else 'black'
+            
+            # Add a small background box behind the text
+            box_color = 'black' if text_color == 'white' else 'white'
+            bbox_props = dict(boxstyle="round,pad=0.3", fc=box_color, ec=box_color, alpha=0.5)
+            
+            # Add the annotation with the background box
+            ax.annotate(f"{row['STUSPS']}\n{ratio_value:.1f}%", 
+                       xy=(centroid.x, centroid.y),
+                       ha='center', va='center',
+                       fontsize=8,
+                       color=text_color,
+                       fontweight='bold',
+                       bbox=bbox_props)
+    
+    # Customize the map
+    ax.set_title(f'Working Parents with Young Children by State ({latest_year})', 
+                fontsize=18, fontweight='bold', pad=20)
+    ax.set_axis_off()
+    
+    # Save the map
+    plt.tight_layout()
+    plt.savefig(img_dir / 'labor_force_map.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.close()
+    print("Saved: labor_force_map.png")
+
+def create_correlation_analysis(df):
+    """Create a correlation heatmap for key metrics."""
+    plt.figure(figsize=(12, 10), facecolor='#F0F0F8')
+    
+    # Create correlation matrix with just the columns we need
+    corr_vars = [
+        'Annual_Cost_Infant', 'Annual_Cost_Toddler', 'Annual_Cost_Preschool',
+        'Cost_Burden', 'Working_Parent_Ratio', 'TotalPop', 'MHI_2018'
+    ]
+    
+    # Filter to the latest year data
+    latest_year = df['StudyYear'].max()
+    latest_data = df[df['StudyYear'] == latest_year]
+    
+    # Create the correlation matrix
+    corr_matrix = latest_data[corr_vars].corr()
+    
+    # Generate a mask for the upper triangle
+    mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
+    
+    # Create heatmap with cubehelix palette
+    cmap = sns.cubehelix_palette(start=.5, rot=-.75, as_cmap=True)
+    sns.heatmap(corr_matrix, mask=mask, cmap=cmap, vmax=1, vmin=-1, center=0,
+                square=True, linewidths=.5, cbar_kws={"shrink": .8},
+                annot=True, fmt=".2f")
+    
+    plt.title('Correlation Between Childcare Costs and Socioeconomic Factors', 
+              fontsize=16, fontweight='bold', pad=20)
+    
+    plt.tight_layout()
+    plt.savefig(img_dir / 'correlation.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: correlation.png")
+
+def create_spiral_plot(df):
+    """Create a spiral plot showing childcare costs over time for different care types."""
+    plt.figure(figsize=(12, 12), facecolor='#F0F0F8')
+    
+    # Set up basic plot
+    ax = plt.subplot(111, projection='polar')
+    ax.set_facecolor('#F0F0F8')
+    
+    # Data preparation
+    years = sorted(df['StudyYear'].unique())
+    theta = np.linspace(0, 2*np.pi, len(years), endpoint=False)
+    
+    # Calculate average costs by year for different care types
+    yearly_means = df.groupby('StudyYear').agg({
+        'MCInfant': 'mean',
+        'MCToddler': 'mean',
+        'MCPreschool': 'mean'
+    }).reset_index()
+    
+    # Order by year
+    yearly_means = yearly_means.sort_values('StudyYear')
+    
+    # Create color palette using cubehelix
+    palette = sns.cubehelix_palette(start=.5, rot=-.75, n_colors=3)
+    
+    # Plot each care type
+    care_types = ['MCInfant', 'MCToddler', 'MCPreschool']
+    care_type_labels = ['Infant', 'Toddler', 'Preschool']
+    
+    # Find max value for radius normalization
+    max_value = yearly_means[care_types].max().max()
+    
+    for i, (care_type, label) in enumerate(zip(care_types, care_type_labels)):
+        values = yearly_means[care_type]
+        # Normalize values to [0.2, 1.0] range
+        r = 0.2 + 0.8 * (values / max_value)
+        
+        # Plot line
+        ax.plot(theta, r, '-', color=palette[i], linewidth=2, label=label)
+        
+        # Add points for each year
+        ax.scatter(theta, r, s=100, color=palette[i], alpha=0.8, edgecolor='w')
+        
+        # Add value labels
+        for j, (year, value) in enumerate(zip(years, values)):
+            # Only label first and last year
+            if j == 0 or j == len(years) - 1:
+                angle = theta[j]
+                radius = r[j]
+                
+                # Adjust text position slightly outside the point
+                text_r = radius * 1.1
+                
+                # Use polar to cartesian conversion to place text
+                x = text_r * np.cos(angle)
+                y = text_r * np.sin(angle)
+                
+                # Adjust text alignment based on angle
+                ha = 'left' if x > 0 else 'right'
+                va = 'bottom' if y > 0 else 'top'
+                
+                plt.annotate(f'${value:.0f}',
+                            (angle, radius),
+                            xytext=(x * 1.1, y * 1.1),
+                            textcoords='data',
+                            ha=ha, va=va,
+                            fontsize=10,
+                            fontweight='bold',
+                            color=palette[i])
+    
+    # Set the y-ticks (radial ticks)
+    yticks = np.linspace(0.2, 1.0, 5)
+    ytick_labels = [f'${int(tick * max_value):.0f}' for tick in yticks]
+    ax.set_yticks(yticks)
+    ax.set_yticklabels(ytick_labels)
+    
+    # Set the x-ticks (angular ticks)
+    ax.set_xticks(theta)
+    ax.set_xticklabels(years, fontsize=10)
+    
+    # Add title and legend
+    plt.title('Monthly Childcare Costs by Age Group (2008-2018)', 
+              fontsize=16, fontweight='bold', pad=20)
+    plt.legend(loc='upper right', fontsize=12)
+    
+    plt.tight_layout()
+    plt.savefig(img_dir / 'spiral_plot.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    print("Saved: spiral_plot.png")
+
+def create_state_costs_visualization(df):
+    """Create a horizontal bar chart showing average childcare costs by state with standard deviation."""
+    # Create figure with specific size and layout
+    fig, ax = plt.subplots(figsize=(16, 20))
+    
+    # Calculate mean and standard deviation for each state
+    state_stats = df.groupby('State_Abbreviation')['Annual_Cost_Infant'].agg(['mean', 'std']).reset_index()
+    
+    # Calculate standard deviation as percentage of mean
+    state_stats['std_pct'] = (state_stats['std'] / state_stats['mean']) * 100
+    
+    # Sort by mean cost
+    state_stats = state_stats.sort_values('mean', ascending=True)
+    
+    # Ensure standard deviations are valid
+    state_stats['std_pct'] = state_stats['std_pct'].fillna(0)
+    
+    # Create color mapping using cubehelix
+    norm = plt.Normalize(state_stats['mean'].min(), state_stats['mean'].max())
+    cmap = sns.cubehelix_palette(start=.5, rot=-.75, as_cmap=True)
+    colors = [cmap(norm(x)) for x in state_stats['mean']]
+    
+    # Create horizontal bars with error bars
+    y_pos = np.arange(len(state_stats))
+    bars = ax.barh(y_pos, state_stats['mean'], 
+                  xerr=state_stats['std'],
+                  color=colors,
+                  capsize=5, alpha=0.7)
+    
+    # Customize the plot
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(state_stats['State_Abbreviation'], fontsize=12)
+    ax.set_xlabel('Average Annual Cost ($)', fontsize=14, fontweight='bold')
+    ax.set_ylabel('State', fontsize=14, fontweight='bold')
+    
+    # Set x-axis to start from 0
+    ax.set_xlim(0, state_stats['mean'].max() * 1.2)  # 20% padding for labels
+    
+    # Format x-axis with comma separator and no decimals
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    
+    title = 'Average Childcare Costs by State (2008-2018)\nwith Standard Deviation'
+    ax.set_title(title, fontsize=16, fontweight='bold', pad=20)
+    
+    # Add colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label('Average Annual Cost ($)', fontsize=12, fontweight='bold')
+    
+    # Add grid for better readability
+    ax.grid(True, axis='x', alpha=0.3)
+    
+    # Add value labels with mean and standard deviation percentage
+    for i, (mean, std_pct) in enumerate(zip(state_stats['mean'], state_stats['std_pct'])):
+        ax.text(mean + 100, i, f'${mean:,.0f} (±{std_pct:.1f}%)',
+                va='center', fontsize=9)
+    
+    # Add note about data sources for IN and NM
+    note = "Note: Data for IN and NM includes values derived from neighboring states"
+    plt.figtext(0.99, 0.01, note, ha='right', fontsize=8, style='italic')
+    
+    # Adjust layout and save
     plt.tight_layout()
     plt.savefig(img_dir / 'state_costs.png', dpi=300, bbox_inches='tight')
     plt.close()
     print("Saved: state_costs.png")
-    
-    # 5. Social Media Impact
-    social_data = generate_social_media_data()
-    
-    # First social media visualization
-    plt.figure(figsize=(15, 8))
-    for platform in social_data['Platform'].unique():
-        platform_data = social_data[social_data['Platform'] == platform]
-        plt.plot(platform_data['Month'], 
-                platform_data['Value'], 
-                'o-', 
-                label=platform,
-                linewidth=2,
-                markersize=6)
-    
-    plt.title('Social Media Platform Performance', 
-             pad=20, fontsize=16, fontweight='bold')
-    plt.xlabel('Month', fontsize=12, fontweight='bold')
-    plt.ylabel('Engagement Value', fontsize=12, fontweight='bold')
-    plt.legend(title='Platform', bbox_to_anchor=(1.05, 1))
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(img_dir / 'social_media_1.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: social_media_1.png")
-    
-    # Second social media visualization
-    plt.figure(figsize=(12, 8))
-    pivot_data = social_data.pivot_table(
-        values='Value', 
-        index='Platform',
-        columns='Metric',
-        aggfunc='mean'
-    )
-    
-    sns.heatmap(pivot_data,
-                annot=True,
-                fmt='.0f',
-                cmap='YlOrRd',
-                linewidths=0.5,
-                cbar_kws={'label': 'Average Value'})
-    
-    plt.title('Social Media Metrics Comparison',
-             pad=20, fontsize=16, fontweight='bold')
-    plt.tight_layout()
-    plt.savefig(img_dir / 'social_media_2.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: social_media_2.png")
-    
-    # 6. Correlation Analysis
-    correlation_data = state_data[[
-        'Annual_Cost', 'Urban_Cost', 'Rural_Cost', 'Suburban_Cost', 'Center_Cost',
-        'Median_Income', 'Population', 'Labor_Force_Rate'
-    ]]
-    
-    # Create more readable column names for display
-    column_names = {
-        'Annual_Cost': 'Annual Cost',
-        'Urban_Cost': 'Urban Cost',
-        'Rural_Cost': 'Rural Cost',
-        'Suburban_Cost': 'Suburban Cost',
-        'Center_Cost': 'Center Cost',
-        'Median_Income': 'Median Income',
-        'Population': 'Population',
-        'Labor_Force_Rate': 'Labor Force Rate'
-    }
-    correlation_data = correlation_data.rename(columns=column_names)
-    correlation_matrix = correlation_data.corr()
-    
-    plt.figure(figsize=(15, 12))
-    
-    # Create the heatmap with enhanced styling
-    sns.heatmap(correlation_matrix,
-                annot=True,
-                fmt='.2f',
-                cmap='RdYlBu_r',  # Red-Yellow-Blue diverging colormap
-                center=0,
-                square=True,
-                linewidths=1,
-                cbar_kws={
-                    'label': 'Correlation Coefficient',
-                    'orientation': 'horizontal',
-                    'pad': 0.2
-                },
-                annot_kws={'size': 12})
-    
-    # Enhance title and layout
-    plt.suptitle('Correlation Analysis of Childcare Metrics',
-                y=0.95, fontsize=20, fontweight='bold')
-    plt.title('Relationship Strength Between Different Cost Factors and Demographics',
-             pad=20, fontsize=14, style='italic')
-    
-    # Adjust label properties
-    plt.xticks(rotation=45, ha='right', fontsize=12)
-    plt.yticks(rotation=0, fontsize=12)
-    
-    # Add more padding to prevent label cutoff
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    
-    # Save with high quality
-    plt.savefig(img_dir / 'correlation.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("Saved: correlation.png")
-    
-    print(f"\nAll static visualizations saved in: {img_dir}")
 
 if __name__ == "__main__":
     save_visualizations() 
