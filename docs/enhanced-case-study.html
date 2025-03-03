@@ -94,18 +94,54 @@
         
         @media print {
             body {
-                background: white;
+                background: none;
                 margin: 0;
                 padding: 0;
+                width: 8.5in;
+                height: 11in;
             }
             
             .page {
-                width: 100%;
-                min-height: auto;
-                padding: 0.5in;
+                width: 8.5in;
+                height: 11in;
+                padding: 1in;
                 margin: 0;
                 box-shadow: none;
                 page-break-after: always;
+                background: white;
+            }
+
+            .page-content {
+                width: 6.5in;
+                margin: 0 auto;
+            }
+
+            .download-btn {
+                display: none;
+            }
+
+            img {
+                max-width: 6in;
+                height: auto;
+                margin: 1rem auto;
+                page-break-inside: avoid;
+            }
+
+            h1, h2, h3 {
+                page-break-after: avoid;
+            }
+
+            p, ul, ol {
+                page-break-inside: avoid;
+            }
+
+            .figure {
+                page-break-inside: avoid;
+                margin: 1rem 0;
+            }
+
+            .figure-caption {
+                margin-top: 0.5rem;
             }
         }
         
@@ -114,17 +150,21 @@
             bottom: 20px;
             right: 20px;
             background-color: #007bff;
-            color: white;
+            color: white !important;
             padding: 10px 20px;
             border-radius: 5px;
             text-decoration: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             z-index: 1000;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
         }
         
         .download-btn:hover {
             background-color: #0056b3;
-            color: white;
+            color: white !important;
+            text-decoration: none;
         }
         
         .originality-statement {
@@ -136,7 +176,7 @@
     </style>
 </head>
 <body>
-    <a href="#" onclick="window.print()" class="download-btn">Download as PDF</a>
+    <a class="download-btn" onclick="window.print()">Download as PDF</a>
     
     <!-- Title Page -->
     <div class="page">
@@ -374,6 +414,35 @@
                 }
             });
         });
+
+        // Set up print settings when download button is clicked
+        window.onbeforeprint = function() {
+            let style = document.createElement('style');
+            style.textContent = `
+                @page {
+                    size: letter portrait;
+                    margin: 0;
+                }
+                @media print {
+                    html, body {
+                        width: 8.5in;
+                        height: 11in;
+                    }
+                    .page {
+                        width: 8.5in;
+                        height: 11in;
+                        margin: 0;
+                        padding: 1in;
+                        box-sizing: border-box;
+                    }
+                    .page-content {
+                        width: 6.5in;
+                        margin: 0 auto;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        };
     </script>
 </body>
 </html> 
