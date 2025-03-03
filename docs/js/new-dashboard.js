@@ -389,10 +389,15 @@ function createTimeSeriesChart() {
     const toddlerCosts = calculateAverageCostByYear('toddler', currentYear);
     const preschoolCosts = calculateAverageCostByYear('preschool', currentYear);
 
+    // Slice the data arrays to match the years to show
+    const slicedInfantCosts = infantCosts.slice(0, yearsToShow.length);
+    const slicedToddlerCosts = toddlerCosts.slice(0, yearsToShow.length);
+    const slicedPreschoolCosts = preschoolCosts.slice(0, yearsToShow.length);
+
     const traces = [
         {
             x: yearsToShow,
-            y: infantCosts,
+            y: slicedInfantCosts,
             name: 'Infant Care',
             type: 'scatter',
             mode: 'lines+markers',
@@ -406,7 +411,7 @@ function createTimeSeriesChart() {
         },
         {
             x: yearsToShow,
-            y: toddlerCosts,
+            y: slicedToddlerCosts,
             name: 'Toddler Care',
             type: 'scatter',
             mode: 'lines+markers',
@@ -420,7 +425,7 @@ function createTimeSeriesChart() {
         },
         {
             x: yearsToShow,
-            y: preschoolCosts,
+            y: slicedPreschoolCosts,
             name: 'Preschool Care',
             type: 'scatter',
             mode: 'lines+markers',
@@ -445,7 +450,10 @@ function createTimeSeriesChart() {
             title: 'Year',
             tickfont: chartFont,
             gridcolor: chartColors.grid,
-            range: ['2008', currentYear]
+            range: ['2008', currentYear],
+            tickmode: 'array',
+            ticktext: yearsToShow,
+            tickvals: yearsToShow
         },
         yaxis: {
             title: 'Average Annual Cost ($)',
