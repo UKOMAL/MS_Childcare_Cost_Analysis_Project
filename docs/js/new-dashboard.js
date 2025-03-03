@@ -103,24 +103,27 @@ function calculateAverageCostByYear(type) {
 }
 
 // Constants for year filtering
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'costTrends'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
-// Define which visualizations are interactive vs static images
+// Define which visualizations are interactive vs static
 const staticVisualizations = [
     'violinPlot',
-    'correlation',
-    'spiralPlot',
+    'correlation', 
     'costDistribution',
+    'spiralPlot',
     'stateCosts'
 ];
 
-// Map visualization types to their image files
+// Map visualization types to their image files (keep all for reference)
 const visualizationImages = {
     'violinPlot': './images/urban_rural_comparison.png',
     'correlation': './images/correlation.png',
+    'costTrends': './images/cost_trends.png',
     'spiralPlot': './images/spiral_plot.png',
     'costDistribution': './images/cost_distribution.png',
-    'stateCosts': './images/state_costs.png'
+    'stateCosts': './images/state_costs.png',
+    'geoChoropleth': './images/cost_map.png',
+    'laborForceMap': './images/labor_force_map.png'
 };
 
 // Define chart colors and styling
@@ -449,7 +452,7 @@ function createTimeSeriesChart() {
 
     const layout = {
         title: {
-            text: `Regional Cost Trends (2008-${currentYear})`,
+            text: `Childcare Cost Trends (2008-${currentYear})`,
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
@@ -662,7 +665,7 @@ function updateVisualization() {
         // For interactive visualizations, call the appropriate function
         if (currentVisualization === 'geoChoropleth') {
             createHeatMap(currentYear);
-        } else if (currentVisualization === 'costTrends') {
+        } else if (currentVisualization === 'timeSeriesAnalysis') {
             createTimeSeriesChart();
         } else if (currentVisualization === 'laborForceMap') {
             createLaborForceMap(currentYear);
