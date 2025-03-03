@@ -105,21 +105,21 @@ function calculateAverageCostByYear(type, selectedYear = '2018') {
 }
 
 // Constants for year filtering
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static
 const staticVisualizations = [
     'violinPlot',
     'correlation', 
     'costDistribution',
-    'spiralPlot'
+    'spiralPlot',
+    'stateCosts'
 ];
 
 // Map visualization types to their image files
 const visualizationImages = {
     'violinPlot': './images/urban_rural_comparison.png',
     'correlation': './images/correlation.png',
-    'timeSeriesAnalysis': './images/time_series.png',
     'spiralPlot': './images/spiral_plot.png',
     'costDistribution': './images/cost_distribution.png',
     'stateCosts': './images/state_costs.png',
@@ -637,14 +637,23 @@ function updateVisualization() {
         displayStaticVisualization(currentVisualization);
     } else {
         // For interactive visualizations, call the appropriate function
-        if (currentVisualization === 'geoChoropleth') {
-            createHeatMap(currentYear);
-        } else if (currentVisualization === 'timeSeriesAnalysis') {
-            createTimeSeriesChart();
-        } else if (currentVisualization === 'laborForceMap') {
-            createLaborForceMap(currentYear);
+        switch(currentVisualization) {
+            case 'geoChoropleth':
+                createHeatMap(currentYear);
+                break;
+            case 'timeSeriesAnalysis':
+                createTimeSeriesChart();
+                break;
+            case 'laborForceMap':
+                createLaborForceMap(currentYear);
+                break;
+            default:
+                console.error('Unknown visualization type:', currentVisualization);
         }
     }
+    
+    // Update insights based on the current visualization
+    updateInsights(currentVisualization);
 }
 
 // Initialize dashboard
