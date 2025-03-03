@@ -375,7 +375,6 @@ function createTimeSeriesChart() {
 
     // Initialize the figure
     const traces = [];
-    const colors = chartColors.colorscale.map(item => item[1]);
 
     // Add trace for infant costs
     traces.push({
@@ -385,12 +384,12 @@ function createTimeSeriesChart() {
         x: years,
         y: calculateAverageCostByYear('infant'),
         line: {
-            color: colors[5],
+            color: chartColors.primary,
             width: 3
         },
         marker: {
             size: 8,
-            color: colors[5],
+            color: chartColors.primary,
             line: {
                 width: 1,
                 color: '#fff'
@@ -406,12 +405,12 @@ function createTimeSeriesChart() {
         x: years,
         y: calculateAverageCostByYear('toddler'),
         line: {
-            color: colors[3],
+            color: chartColors.secondary,
             width: 3
         },
         marker: {
             size: 8,
-            color: colors[3],
+            color: chartColors.secondary,
             line: {
                 width: 1,
                 color: '#fff'
@@ -427,12 +426,12 @@ function createTimeSeriesChart() {
         x: years,
         y: calculateAverageCostByYear('preschool'),
         line: {
-            color: colors[1],
+            color: chartColors.accent,
             width: 3
         },
         marker: {
             size: 8,
-            color: colors[1],
+            color: chartColors.accent,
             line: {
                 width: 1,
                 color: '#fff'
@@ -453,7 +452,8 @@ function createTimeSeriesChart() {
                 font: chartFont
             },
             tickfont: chartFont,
-            gridcolor: chartColors.grid
+            gridcolor: chartColors.grid,
+            showgrid: true
         },
         yaxis: {
             title: {
@@ -462,10 +462,14 @@ function createTimeSeriesChart() {
             },
             tickfont: chartFont,
             tickformat: '$,.0f',
-            gridcolor: chartColors.grid
+            gridcolor: chartColors.grid,
+            showgrid: true
         },
         legend: {
-            font: chartFont
+            font: chartFont,
+            bgcolor: 'rgba(255, 255, 255, 0.8)',
+            bordercolor: chartColors.grid,
+            borderwidth: 1
         },
         paper_bgcolor: chartColors.background,
         plot_bgcolor: chartColors.background,
