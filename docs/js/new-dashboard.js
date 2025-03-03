@@ -103,13 +103,12 @@ function calculateAverageCostByYear(type) {
 }
 
 // Constants for year filtering
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'costTrends'];
 
 // Define which visualizations are interactive vs static images
 const staticVisualizations = [
     'violinPlot',
-    'correlation', 
-    'costTrends',
+    'correlation',
     'spiralPlot',
     'costDistribution',
     'stateCosts'
@@ -119,7 +118,6 @@ const staticVisualizations = [
 const visualizationImages = {
     'violinPlot': './images/urban_rural_comparison.png',
     'correlation': './images/correlation.png',
-    'costTrends': './images/cost_trends.png',
     'spiralPlot': './images/spiral_plot.png',
     'costDistribution': './images/cost_distribution.png',
     'stateCosts': './images/state_costs.png'
@@ -664,7 +662,7 @@ function updateVisualization() {
         // For interactive visualizations, call the appropriate function
         if (currentVisualization === 'geoChoropleth') {
             createHeatMap(currentYear);
-        } else if (currentVisualization === 'timeSeriesAnalysis') {
+        } else if (currentVisualization === 'costTrends') {
             createTimeSeriesChart();
         } else if (currentVisualization === 'laborForceMap') {
             createLaborForceMap(currentYear);
