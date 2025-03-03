@@ -449,7 +449,7 @@ function createTimeSeriesChart() {
 
     const layout = {
         title: {
-            text: `Childcare Cost Trends (2008-${currentYear})`,
+            text: `Regional Cost Trends (2008-${currentYear})`,
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
