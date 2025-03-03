@@ -151,6 +151,13 @@
         .year-filter.visible {
             display: inline-block !important;
         }
+        .visualization-title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #4E54C8;
+            font-weight: 600;
+        }
         @media (max-width: 768px) {
             .control-panel {
                 flex-direction: column;
@@ -215,7 +222,6 @@
                 <option value="costTrends">State Cost Comparison</option>
                 <option value="violinPlot">Urban/Rural Cost Comparison</option>
                 <option value="correlation">Cost Correlation Analysis</option>
-                <option value="socialMedia">Cost Distribution</option>
                 <option value="spiralPlot">Cost Trends (Spiral View)</option>
             </select>
             <select id="yearFilter" class="year-filter">
@@ -245,6 +251,7 @@
             </div>
         </div>
 
+        <h2 id="visualizationTitle" class="visualization-title">Cost Distribution Map</h2>
         <div class="visualization-container">
             <div id="mainVisualization"></div>
         </div>

@@ -629,14 +629,17 @@ function updateVisualization() {
     container.innerHTML = '';
     
     // Update the title
-    document.getElementById('visualizationTitle').textContent = VISUALIZATION_TYPES[currentVisualization];
+    const titleElement = document.getElementById('visualizationTitle');
+    if (titleElement) {
+        titleElement.textContent = VISUALIZATION_TYPES[currentVisualization];
+    }
     
     // Hide year filter for visualizations that don't need it
-    const yearFilter = document.getElementById('yearFilterContainer');
+    const yearFilter = document.getElementById('yearFilter');
     if (YEAR_FILTER_VISUALIZATIONS.includes(currentVisualization)) {
-        yearFilter.style.display = 'flex';
+        yearFilter.classList.add('visible');
     } else {
-        yearFilter.style.display = 'none';
+        yearFilter.classList.remove('visible');
     }
     
     // For static visualizations, display the image
@@ -652,15 +655,6 @@ function updateVisualization() {
             createLaborForceMap(currentYear);
         }
     }
-    
-    // Update active visualization button
-    document.querySelectorAll('.viz-button').forEach(button => {
-        if (button.dataset.viz === currentVisualization) {
-            button.classList.add('active');
-        } else {
-            button.classList.remove('active');
-        }
-    });
 }
 
 // Initialize dashboard
@@ -674,13 +668,17 @@ function initDashboard() {
         
         if (visualTypeSelect) {
             visualTypeSelect.addEventListener('change', function() {
+                currentVisualization = this.value;
                 updateYearFilterVisibility();
                 updateVisualization();
             });
         }
         
         if (yearFilter) {
-            yearFilter.addEventListener('change', updateVisualization);
+            yearFilter.addEventListener('change', function() {
+                currentYear = this.value;
+                updateVisualization();
+            });
         }
         
         // Initial setup
