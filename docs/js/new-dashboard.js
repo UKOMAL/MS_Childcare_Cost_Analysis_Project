@@ -11,11 +11,11 @@ let currentYear = '2018';
 
 // Constants
 const VISUALIZATION_TYPES = {
-    'violinPlot': 'Urban/Rural Cost Distribution',
+    'violinPlot': 'Distribution by Age Group',
     'correlation': 'Cost Correlation Analysis',
     'timeSeriesAnalysis': 'Time Series Analysis',
     'spiralPlot': 'Cost Trends (Spiral View)',
-    'costDistribution': 'Cost Distribution',
+    'costDistribution': 'Urban/Rural Cost Distribution',
     'stateCosts': 'State Cost Comparison',
     'geoChoropleth': 'Geographic Cost Distribution',
     'laborForceMap': 'Female Labor Force Participation'
@@ -118,10 +118,10 @@ const staticVisualizations = [
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'violinPlot': './images/urban_rural_comparison.png',
+    'violinPlot': './images/cost_distribution.png',
     'correlation': './images/correlation.png',
     'spiralPlot': './images/spiral_plot.png',
-    'costDistribution': './images/cost_distribution.png',
+    'costDistribution': './images/urban_rural_comparison.png',
     'stateCosts': './images/state_costs.png',
     'geoChoropleth': './images/cost_map.png',
     'laborForceMap': './images/labor_force_map.png',
