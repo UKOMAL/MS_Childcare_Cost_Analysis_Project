@@ -11,17 +11,14 @@ let currentYear = '2018';
 
 // Constants
 const VISUALIZATION_TYPES = {
-    'geoChoropleth': 'Geographic Cost Distribution',
-    'timeSeriesAnalysis': 'Cost Trends Over Time',
-    'laborForceMap': 'Female Labor Force Participation',
+    'violinPlot': 'Urban/Rural Cost Distribution',
+    'correlation': 'Cost Correlation Analysis',
+    'costTrends': 'Regional Cost Trends',
+    'spiralPlot': 'Cost Trends (Spiral View)',
     'costDistribution': 'Cost Distribution',
-    'costMap': 'Cost Map',
-    'costTrends': 'Cost Trends',
-    'femaleLaborForce': 'Female Labor Force',
-    'childcareCostsMap': 'Childcare Costs Map',
-    'urbanRuralComparison': 'Urban Rural Comparison',
-    'stateCosts': 'State Costs',
-    'timeSeries': 'Time Series'
+    'stateCosts': 'State Cost Comparison',
+    'geoChoropleth': 'Geographic Cost Distribution',
+    'laborForceMap': 'Female Labor Force Participation'
 };
 
 // Add missing data definitions
@@ -110,26 +107,26 @@ const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSerie
 
 // Define which visualizations are interactive vs static images
 const staticVisualizations = [
-    'costDistribution', 
-    'costMap', 
-    'costTrends', 
-    'femaleLaborForce', 
-    'childcareCostsMap',
-    'urbanRuralComparison',
+    'violinPlot',
+    'correlation', 
+    'costTrends',
+    'spiralPlot',
+    'costDistribution',
     'stateCosts',
-    'timeSeries'
+    'geoChoropleth',
+    'laborForceMap'
 ];
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'costDistribution': '../images/cost_distribution.png',
-    'costMap': '../images/cost_map.png',
-    'costTrends': '../images/cost_trends.png',
-    'femaleLaborForce': '../images/female_labor_force.png',
-    'childcareCostsMap': '../images/childcare_costs_map.png',
-    'urbanRuralComparison': '../images/urban_rural_comparison.png',
-    'stateCosts': '../images/state_costs.png',
-    'timeSeries': '../images/time_series.png'
+    'violinPlot': './images/urban_rural_comparison.png',
+    'correlation': './images/correlation.png',
+    'costTrends': './images/cost_trends.png',
+    'spiralPlot': './images/spiral_plot.png',
+    'costDistribution': './images/cost_distribution.png',
+    'stateCosts': './images/state_costs.png',
+    'geoChoropleth': './images/cost_map.png',
+    'laborForceMap': './images/labor_force_map.png'
 };
 
 // Define chart colors and styling
