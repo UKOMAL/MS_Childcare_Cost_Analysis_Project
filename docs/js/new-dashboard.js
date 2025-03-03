@@ -124,7 +124,8 @@ const visualizationImages = {
     'costDistribution': './images/cost_distribution.png',
     'stateCosts': './images/state_costs.png',
     'geoChoropleth': './images/cost_map.png',
-    'laborForceMap': './images/labor_force_map.png'
+    'laborForceMap': './images/labor_force_map.png',
+    'timeSeriesAnalysis': './images/time_series.png'
 };
 
 // Define chart colors and styling
