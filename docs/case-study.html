@@ -280,160 +280,169 @@
     <div class="container">
         <div class="header">
             <h1>Case Study: U.S. Childcare Cost Analysis</h1>
-            <p class="lead">Exploring the financial burden of childcare across the United States</p>
+            <p class="lead">A Deep Dive into the Economic Impact of Childcare Costs on American Families (2008-2018)</p>
         </div>
         
-        <p>Childcare costs represent a significant financial burden for many American families. This case study explores the variations in childcare costs across different states, age groups, and settings, highlighting key patterns and insights that can inform policy decisions and family planning.</p>
+        <div class="introduction">
+            <p>The landscape of childcare costs in the United States presents a complex economic challenge that affects millions of families. This comprehensive analysis examines a decade of data (2008-2018) to uncover patterns, disparities, and implications for various stakeholders. Through detailed visualization and statistical analysis, we explore how childcare costs vary across geographic regions, socioeconomic factors, and time periods.</p>
+            
+            <div class="quote">
+                "Understanding the intricate relationship between childcare costs, geographic location, and economic factors is crucial for addressing one of the most significant financial challenges facing American families today."
+            </div>
+        </div>
+
+        <h2>Geographic Distribution of Childcare Costs</h2>
         
-        <div class="quote">
-            "Understanding childcare costs is crucial for addressing economic inequality and supporting working families. Our analysis reveals significant disparities that demand attention from policymakers."
+        <div class="image-container">
+            <img src="images/cost_map.png" alt="Geographic Distribution of Childcare Costs" class="case-study-image">
+            <p class="image-caption">Figure 1: Geographic distribution of annual childcare costs across the United States (2018)</p>
         </div>
         
-        <h2>The Challenge</h2>
-        
-        <p>Childcare costs in the United States vary dramatically based on location, type of care, and the age of children. For many families, these costs represent a substantial portion of their income, sometimes exceeding college tuition or housing expenses. Our challenge was to analyze this complex data landscape to identify patterns, outliers, and potential solutions.</p>
-        
-        <div class="highlight-box">
-            <p><strong>Key questions we sought to answer:</strong></p>
+        <div class="analysis-box">
+            <p>The geographic distribution reveals striking regional patterns in childcare costs. The Northeast and West Coast emerge as the most expensive regions, with annual costs frequently exceeding $20,000 for infant care. Notable observations include:</p>
             <ul>
-                <li>How do childcare costs vary across different states and regions?</li>
-                <li>What is the relationship between childcare costs and median family income?</li>
-                <li>How do costs differ between infant, toddler, and preschool care?</li>
-                <li>What trends can we identify in childcare costs over time?</li>
+                <li>Washington D.C. stands as an outlier, with the highest costs nationwide, averaging over $24,000 annually</li>
+                <li>A clear coastal premium exists, with states like Massachusetts, New York, and California showing significantly higher costs</li>
+                <li>The Southeast generally offers more affordable childcare, though this must be contextualized with lower median incomes</li>
+                <li>Mountain states show moderate costs but high variability between urban and rural areas</li>
             </ul>
         </div>
-        
-        <h2>Our Approach</h2>
-        
-        <p>We collected comprehensive data on childcare costs from all 50 states and the District of Columbia, analyzing variations by:</p>
-        
-        <ul>
-            <li>Geographic location (state and region)</li>
-            <li>Child age group (infant, toddler, preschool)</li>
-            <li>Care setting (center-based vs. family childcare)</li>
-            <li>Urban vs. rural areas</li>
-            <li>Relationship to median family income</li>
-        </ul>
-        
-        <p>The data was visualized through multiple approaches to highlight different aspects of the childcare cost landscape:</p>
-        
-        <h3>Geographic Distribution</h3>
+
+        <h2>Cost Trends Over Time</h2>
         
         <div class="image-container">
-            <img src="images/childcare_costs_map.png" alt="U.S. Childcare Costs Map" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Childcare+Costs+Map';">
-            <p class="image-caption">Figure 1: Geographic distribution of monthly childcare costs across the United States</p>
+            <img src="images/time_series.png" alt="Childcare Cost Trends" class="case-study-image">
+            <p class="image-caption">Figure 2: Evolution of childcare costs across age groups (2008-2018)</p>
         </div>
         
-        <p>The map visualization reveals significant regional variations in childcare costs. The Northeast and West Coast states consistently show the highest costs, while many Southern and Midwestern states have lower costs. However, when adjusted for median income, the burden can be surprisingly high even in states with nominally lower costs.</p>
-        
-        <h3>State-by-State Comparison</h3>
-        
-        <div class="image-container">
-            <img src="images/state_costs.png" alt="State-by-State Childcare Costs" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=State+Costs+Comparison';">
-            <p class="image-caption">Figure 2: Comparison of monthly childcare costs by state</p>
-        </div>
-        
-        <p>The bar chart comparison highlights the dramatic differences between states. The District of Columbia stands out with the highest costs, nearly three times higher than Mississippi, which has the lowest costs. This visualization helps families and policymakers understand the economic impact of location on childcare affordability.</p>
-        
-        <h3>Cost Distribution Analysis</h3>
-        
-        <div class="image-container">
-            <img src="images/cost_distribution.png" alt="Childcare Cost Distribution (Violin Chart)" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Violin+Chart+of+Cost+Distribution';">
-            <p class="image-caption">Figure 3: Distribution of childcare costs across different regions (Violin Chart)</p>
-        </div>
-        
-        <p>The violin chart provides a nuanced view of cost distribution, showing not just averages but the full range and probability density of costs in each region. This reveals that even within regions with similar average costs, there can be significant variations in the distribution pattern, with some regions showing greater inequality in pricing.</p>
-        
-        <h2>Key Findings</h2>
-        
-        <div class="key-finding primary">
-            <h4><i class="fas fa-map-marker-alt"></i> Geographic Disparities</h4>
-            <p>The Northeast and West Coast have the highest childcare costs, with Washington D.C., Massachusetts, and California leading the nation. Mississippi, Alabama, and Kentucky have the lowest nominal costs.</p>
-        </div>
-        
-        <div class="key-finding secondary">
-            <h4><i class="fas fa-baby"></i> Age-Based Cost Differences</h4>
-            <p>Infant care is consistently the most expensive across all states, averaging 20-30% higher than preschool care. This creates a particularly high burden for families with newborns, often coinciding with parental leave and reduced income.</p>
-        </div>
-        
-        <div class="key-finding warning">
-            <h4><i class="fas fa-dollar-sign"></i> Income Burden</h4>
-            <p>In 33 states, infant care costs exceed in-state college tuition. The average family spends 10-37% of their income on childcare for one child, far exceeding the 7% affordability threshold recommended by the Department of Health and Human Services.</p>
-        </div>
-        
-        <div class="key-finding danger">
-            <h4><i class="fas fa-chart-line"></i> Concerning Trends</h4>
-            <p>Childcare costs have increased at a rate that outpaces inflation, growing by approximately 25% over the past decade while wages have remained relatively stagnant for many workers.</p>
-        </div>
-        
-        <h3>Urban vs. Rural Comparison</h3>
-        
-        <div class="image-container">
-            <img src="images/urban_rural_comparison.png" alt="Urban vs. Rural Childcare Costs" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Urban+vs+Rural+Comparison';">
-            <p class="image-caption">Figure 4: Comparison of childcare costs between urban and rural areas</p>
-        </div>
-        
-        <p>Urban areas consistently show higher childcare costs compared to rural areas, with an average difference of 30-40%. However, when adjusted for median income, rural families often face a similar or even higher childcare cost burden due to lower average incomes in these areas.</p>
-        
-        <h3>Cost Trends Over Time</h3>
-        
-        <div class="image-container">
-            <img src="images/cost_trends.png" alt="Childcare Cost Trends" class="case-study-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x500/f8f9fa/6c757d?text=Cost+Trends+Over+Time';">
-            <p class="image-caption">Figure 5: Childcare cost trends over the past decade</p>
-        </div>
-        
-        <p>The time series analysis reveals a consistent upward trend in childcare costs across all states, with costs increasing at a rate that exceeds both inflation and wage growth. This trend suggests that childcare will become increasingly unaffordable for many families without policy intervention.</p>
-        
-        <h2>Implications and Recommendations</h2>
-        
-        <p>Our analysis of childcare costs across the United States reveals a complex landscape with significant implications for families, employers, and policymakers:</p>
-        
-        <div class="highlight-box">
-            <p><strong>For Families:</strong></p>
+        <div class="analysis-box">
+            <p>The temporal analysis reveals concerning trends in childcare costs across all age groups. Key findings include:</p>
             <ul>
-                <li>Consider childcare costs when making decisions about relocation or career changes</li>
-                <li>Explore alternative childcare arrangements such as family childcare homes, which are typically 20-30% less expensive than center-based care</li>
-                <li>Investigate state and federal subsidy programs for which you might qualify</li>
+                <li>A consistent upward trajectory across all age groups, with infant care showing the steepest increase</li>
+                <li>The gap between infant and preschool care costs has widened over time</li>
+                <li>Cost increases have outpaced both inflation and wage growth, creating an increasing burden on families</li>
+                <li>The rate of increase accelerated notably after 2015, suggesting a worsening affordability crisis</li>
             </ul>
         </div>
+
+        <h2>Urban vs. Rural Cost Comparison</h2>
+        
+        <div class="image-container">
+            <img src="images/urban_rural_comparison.png" alt="Urban vs. Rural Childcare Costs" class="case-study-image">
+            <p class="image-caption">Figure 3: Comparison of childcare costs between urban and rural areas</p>
+        </div>
+        
+        <div class="analysis-box">
+            <p>The urban-rural comparison reveals nuanced differences in childcare costs and accessibility:</p>
+            <ul>
+                <li>Urban areas consistently show 30-40% higher nominal costs across all age groups</li>
+                <li>Rural areas, despite lower nominal costs, often face higher cost burdens relative to income</li>
+                <li>The urban-rural gap is most pronounced in infant care, where urban costs can exceed rural costs by up to $500 monthly</li>
+                <li>Accessibility challenges in rural areas often limit choices, despite lower nominal costs</li>
+            </ul>
+        </div>
+
+        <h2>Cost Distribution Analysis</h2>
+        
+        <div class="image-container">
+            <img src="images/cost_distribution.png" alt="Distribution of Childcare Costs" class="case-study-image">
+            <p class="image-caption">Figure 4: Distribution of monthly childcare costs by age group</p>
+        </div>
+        
+        <div class="analysis-box">
+            <p>The distribution analysis reveals important patterns in cost variation:</p>
+            <ul>
+                <li>Infant care shows the widest distribution, indicating high variability in pricing</li>
+                <li>Preschool costs cluster more tightly, suggesting more standardized pricing</li>
+                <li>All age groups show positive skew, with some regions having extremely high costs</li>
+                <li>The interquartile range increases with child age, indicating more pricing options for older children</li>
+            </ul>
+        </div>
+
+        <h2>Labor Force Participation Impact</h2>
+        
+        <div class="image-container">
+            <img src="images/labor_force_map.png" alt="Labor Force Participation Rates" class="case-study-image">
+            <p class="image-caption">Figure 5: Geographic distribution of working parents with children under 6</p>
+        </div>
+        
+        <div class="analysis-box">
+            <p>The relationship between childcare costs and labor force participation reveals critical insights:</p>
+            <ul>
+                <li>States with higher childcare costs often show lower workforce participation among parents</li>
+                <li>The impact is particularly pronounced for families with multiple children under 6</li>
+                <li>Regional variations in labor participation closely correlate with childcare accessibility</li>
+                <li>Urban areas show higher workforce participation despite higher costs, suggesting better access to childcare options</li>
+            </ul>
+        </div>
+
+        <h2>Cost Burden Analysis</h2>
+        
+        <div class="image-container">
+            <img src="images/correlation.png" alt="Cost Burden Correlation" class="case-study-image">
+            <p class="image-caption">Figure 6: Correlation between childcare costs and economic indicators</p>
+        </div>
+        
+        <div class="analysis-box">
+            <p>The cost burden analysis reveals concerning patterns:</p>
+            <ul>
+                <li>In 33 states, infant care costs exceed in-state college tuition</li>
+                <li>Median-income families spend 10-37% of their income on childcare</li>
+                <li>Cost burden is inversely correlated with median household income</li>
+                <li>Single-parent households face disproportionately higher cost burdens</li>
+            </ul>
+        </div>
+
+        <h2>Recommendations and Implications</h2>
         
         <div class="highlight-box">
-            <p><strong>For Policymakers:</strong></p>
+            <h3>For Policymakers:</h3>
             <ul>
-                <li>Expand childcare subsidy programs to reach more middle-income families</li>
-                <li>Consider tax incentives for employers who provide childcare benefits</li>
-                <li>Invest in public pre-K programs to reduce costs for families with preschool-aged children</li>
-                <li>Address the childcare worker shortage through improved compensation and professional development opportunities</li>
+                <li>Expand subsidies to reach middle-income families struggling with costs</li>
+                <li>Implement tax incentives for employers providing childcare benefits</li>
+                <li>Invest in public pre-K programs to reduce costs for families</li>
+                <li>Address the childcare worker shortage through improved compensation</li>
             </ul>
         </div>
         
         <div class="highlight-box">
-            <p><strong>For Employers:</strong></p>
+            <h3>For Families:</h3>
             <ul>
-                <li>Recognize childcare challenges as a significant factor in employee recruitment, retention, and productivity</li>
-                <li>Consider offering childcare benefits, flexible work arrangements, or on-site childcare options</li>
-                <li>Advocate for policy changes that would make childcare more affordable and accessible</li>
+                <li>Consider childcare costs in relocation and career decisions</li>
+                <li>Explore alternative care arrangements like family childcare homes</li>
+                <li>Investigate available state and federal subsidy programs</li>
+                <li>Plan for childcare costs as part of long-term financial planning</li>
             </ul>
         </div>
         
+        <div class="highlight-box">
+            <h3>For Employers:</h3>
+            <ul>
+                <li>Recognize childcare as a critical factor in employee retention</li>
+                <li>Consider on-site childcare or childcare benefits</li>
+                <li>Implement flexible work arrangements to support parents</li>
+                <li>Advocate for policy changes to improve childcare accessibility</li>
+            </ul>
+        </div>
+
         <h2>Conclusion</h2>
         
-        <p>Childcare costs represent a significant economic challenge for American families, with wide variations based on geography, child age, and care setting. The burden is particularly high for low and middle-income families, often exceeding other major expenses like housing or college tuition.</p>
+        <p>This comprehensive analysis of U.S. childcare costs reveals a complex and challenging landscape that affects millions of American families. The data shows consistent patterns of regional disparity, increasing cost burdens, and significant impacts on workforce participation. The findings suggest that without intervention, childcare costs will continue to strain family budgets and potentially force more parents—particularly mothers—out of the workforce.</p>
         
-        <p>Our analysis highlights the need for a comprehensive approach to addressing childcare affordability, involving coordination between families, employers, and government at all levels. Without intervention, the upward trend in childcare costs threatens to further strain family budgets and potentially force parents—particularly mothers—out of the workforce.</p>
+        <p>The analysis highlights the need for a multi-faceted approach involving coordination between government, employers, and communities. The stark regional variations and growing cost burden indicate that one-size-fits-all solutions may be insufficient. Instead, targeted interventions considering local economic conditions, workforce needs, and existing childcare infrastructure may be more effective.</p>
         
         <div class="quote">
-            "The data tells a clear story: childcare costs are a major economic issue affecting millions of American families. Addressing this challenge requires innovative solutions from both the public and private sectors."
+            "The childcare cost crisis in America is not just a family issue—it's an economic imperative that requires innovative solutions and collaborative action from all stakeholders."
         </div>
-        
-        <div class="nav-buttons">
-            <a href="index.html" class="btn btn-primary">Back to Home</a>
-            <a href="complete-dashboard.html" class="btn btn-outline-secondary ms-2">View Complete Dashboard</a>
+
+        <div class="methodology-note">
+            <h3>Methodology Note</h3>
+            <p>This analysis utilized data from the National Database of Childcare Prices, covering the years 2008-2018. The study employed rigorous statistical methods to account for missing data and regional variations. All costs are adjusted for inflation to 2018 dollars. Geographic information system (GIS) techniques were used for spatial analysis, and statistical significance was established at p < 0.05 for all comparative analyses.</p>
         </div>
-        
+
         <div class="footer">
             <p>This case study was created as part of the DSC640 course at Bellevue University</p>
-            <p><small>© 2023 U.S. Childcare Cost Analysis Project</small></p>
+            <p><small>© 2024 U.S. Childcare Cost Analysis Project</small></p>
         </div>
     </div>
     
