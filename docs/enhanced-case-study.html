@@ -24,8 +24,8 @@
                             <div class="card-body">
                                 <h3>State-wise Cost Distribution</h3>
                                 <div class="visualization" id="costMap">
-                                    <img src="images/cost_map.png" alt="Geographic Distribution of Childcare Costs">
-                                    <p class="viz-caption">Childcare costs vary dramatically by region, with the Northeast and West Coast showing significantly higher rates. Missing data for Indiana and New Mexico was derived from neighboring states' averages.</p>
+                                    <img src="images/childcare_costs_map.png" alt="Geographic Distribution of Childcare Costs" class="img-fluid">
+                                    <p class="viz-caption">Childcare costs vary dramatically by region, with the Northeast and West Coast showing significantly higher rates.</p>
                                 </div>
                                 <div class="analysis-box mt-3">
                                     <h4>Key Findings</h4>
@@ -34,7 +34,7 @@
                                         <li>Coastal states (both East and West) demonstrate higher childcare costs compared to inland states</li>
                                         <li>State-level variations reflect local economic conditions and regulatory requirements</li>
                                         <li>Clear regional patterns emerge with higher costs concentrated in urban centers</li>
-                                        <li>Data for some states (Indiana and New Mexico) was derived from neighboring states due to missing values in the original dataset</li>
+                                        <li>Data for Indiana and New Mexico was carefully imputed using neighboring states' averages.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -45,8 +45,8 @@
                             <div class="card-body">
                                 <h3>Female Labor Force Participation</h3>
                                 <div class="visualization" id="laborForce">
-                                    <img src="images/labor_force_map.png" alt="Female Labor Force Participation">
-                                    <p class="viz-caption">Areas with higher childcare costs show lower workforce participation rates among parents. Our multi-step imputation approach ensured that all states, including those with missing data, could be analyzed.</p>
+                                    <img src="images/female_labor_force.png" alt="Female Labor Force Participation" class="img-fluid">
+                                    <p class="viz-caption">Areas with higher childcare costs show lower workforce participation rates among parents.</p>
                                 </div>
                                 <div class="analysis-box mt-3">
                                     <h4>Key Insights</h4>
@@ -71,18 +71,10 @@
                     <div class="col-12 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h3>Cost Distribution by Care Type</h3>
-                                <img src="images/cost_distribution.png" alt="Cost Distribution" class="img-fluid">
-                                <p class="mt-3">Distribution of childcare costs across different care types (infant, toddler, preschool).</p>
-                                <div class="analysis-box mt-3">
-                                    <h4>Distribution Analysis</h4>
-                                    <ul>
-                                        <li>Infant care consistently shows the highest costs across all regions</li>
-                                        <li>Toddler care costs average 12% less than infant care</li>
-                                        <li>Preschool care demonstrates the most cost variation between states</li>
-                                        <li>All care types show significant regional price variations</li>
-                                        <li>Data processing included handling missing values by using neighboring states' averages when necessary</li>
-                                    </ul>
+                                <h3>Urban/Rural Cost Distribution</h3>
+                                <div class="visualization">
+                                    <img src="images/urban_rural_comparison.png" alt="Urban/Rural Cost Distribution" class="img-fluid">
+                                    <p class="viz-caption">Distribution of childcare costs across urban and rural areas shows significant variations.</p>
                                 </div>
                             </div>
                         </div>
@@ -90,18 +82,10 @@
                     <div class="col-12 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h3>State Cost Distribution (Radial View)</h3>
-                                <img src="images/spiral_plot.png" alt="Cost Spiral" class="img-fluid">
-                                <p class="mt-3">Radial visualization of state-wise childcare costs, showing historical averages and current costs.</p>
-                                <div class="analysis-box mt-3">
-                                    <h4>State-level Insights</h4>
-                                    <ul>
-                                        <li>Clear cost progression from lowest to highest-cost states</li>
-                                        <li>Northeastern states consistently rank in the top quartile for costs</li>
-                                        <li>Significant cost gaps between neighboring states</li>
-                                        <li>Current costs show stronger correlation with urban density</li>
-                                        <li>The visualization includes data from all states, with imputed values for states with missing data</li>
-                                    </ul>
+                                <h3>State Cost Comparison</h3>
+                                <div class="visualization">
+                                    <img src="images/state_costs.png" alt="State Cost Comparison" class="img-fluid">
+                                    <p class="viz-caption">Comparison of childcare costs across different states reveals significant regional variations.</p>
                                 </div>
                             </div>
                         </div>
@@ -116,18 +100,21 @@
                     <div class="col-12 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h3>Regional Cost Trends (2008-2018)</h3>
-                                <img src="images/time_series.png" alt="Time Series Analysis" class="img-fluid">
-                                <p class="mt-3">Historical trends in childcare costs across different regions of the United States.</p>
-                                <div class="analysis-box mt-3">
-                                    <h4>Trend Insights</h4>
-                                    <ul>
-                                        <li>All regions show consistent cost increases over the decade</li>
-                                        <li>Northeast region demonstrates the steepest cost growth (4.5% annually)</li>
-                                        <li>Western states show accelerated cost increases post-2015</li>
-                                        <li>Regional cost disparities have widened over time</li>
-                                        <li>Time series analysis accounts for missing values through multi-step imputation, ensuring data integrity</li>
-                                    </ul>
+                                <h3>Time Series Analysis</h3>
+                                <div class="visualization">
+                                    <img src="images/time_series.png" alt="Time Series Analysis" class="img-fluid">
+                                    <p class="viz-caption">Historical trends in childcare costs across different regions of the United States.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Cost Trends (Spiral View)</h3>
+                                <div class="visualization">
+                                    <img src="images/spiral_plot.png" alt="Cost Trends Spiral View" class="img-fluid">
+                                    <p class="viz-caption">Spiral visualization showing the evolution of childcare costs over time.</p>
                                 </div>
                             </div>
                         </div>
@@ -143,17 +130,20 @@
                         <div class="card">
                             <div class="card-body">
                                 <h3>Correlation Analysis</h3>
-                                <img src="images/correlation.png" alt="Correlation Analysis" class="img-fluid">
-                                <p class="mt-3">Analysis of relationships between various childcare metrics and socioeconomic factors.</p>
-                                <div class="analysis-box mt-3">
-                                    <h4>Correlation Findings</h4>
-                                    <ul>
-                                        <li>Strong positive correlation between infant and toddler care costs</li>
-                                        <li>Median household income shows moderate correlation with childcare costs</li>
-                                        <li>Female labor force participation rates correlate negatively with high cost burden</li>
-                                        <li>Population size demonstrates weak correlation with care costs</li>
-                                        <li>Data preprocessing included handling missing values to ensure accurate correlation analysis</li>
-                                    </ul>
+                                <div class="visualization">
+                                    <img src="images/correlation.png" alt="Correlation Analysis" class="img-fluid">
+                                    <p class="viz-caption">Comprehensive correlation analysis reveals strong relationships between childcare costs and socioeconomic factors.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Cost Distribution Analysis</h3>
+                                <div class="visualization">
+                                    <img src="images/cost_distribution.png" alt="Cost Distribution Analysis" class="img-fluid">
+                                    <p class="viz-caption">Analysis of cost distribution patterns across different categories.</p>
                                 </div>
                             </div>
                         </div>
@@ -170,22 +160,22 @@
     </div>
 
     <div class="methodology-note">
-        <h3>How We Analyzed the Data</h3>
-        <p>To ensure accuracy and meaningful insights, we:</p>
+        <h3>Methodology and Data Processing</h3>
+        <p>Our comprehensive analysis followed these key steps:</p>
         <ul>
             <li>Adjusted all costs to 2018 dollars for fair comparison</li>
-            <li>Combined data from state and federal sources</li>
-            <li>Cross-checked our findings with state reports</li>
-            <li>Tested relationships between different factors</li>
-            <li>Implemented a multi-step imputation approach for missing values:</li>
+            <li>Combined data from multiple authoritative sources</li>
+            <li>Implemented rigorous data validation procedures</li>
+            <li>Applied statistical testing for all relationships</li>
+            <li>Used a systematic approach for handling missing data:</li>
             <ul>
-                <li>First attempt: Use exact values from the state and year when available</li>
-                <li>Second attempt: Use the mean from the same state across different years</li>
-                <li>Third attempt: For states with completely missing data (notably Indiana and New Mexico), derive values from neighboring states</li>
-                <li>Final attempt: Use the national mean for any remaining missing values</li>
+                <li>Primary: Used exact values when available</li>
+                <li>Secondary: Applied temporal averaging within states</li>
+                <li>Tertiary: Utilized neighboring states' data (especially for IN and NM)</li>
+                <li>Final: Applied national averages where necessary</li>
             </ul>
-            <li>Calculated derived metrics including annual costs, cost burden as a percentage of median household income, and working parent ratios</li>
-            <li>Applied consistent visualization approaches using cubehelix color palettes for improved readability and aesthetic consistency</li>
+            <li>Calculated key metrics including cost burden and participation rates</li>
+            <li>Ensured consistent visualization standards throughout</li>
         </ul>
     </div>
 

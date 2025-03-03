@@ -1,0 +1,196 @@
+/* Case Study Styles */
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+}
+
+.container-fluid {
+    max-width: 1400px;
+    padding: 0 30px;
+}
+
+/* Header Styles */
+header h1 {
+    color: #4E54C8;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+header .lead {
+    color: #666;
+    font-size: 1.25rem;
+}
+
+/* Section Styles */
+section {
+    margin-bottom: 3rem;
+}
+
+section h2 {
+    color: #4E54C8;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    margin-bottom: 2rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.card h3 {
+    color: #4E54C8;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+/* Visualization Styles */
+.visualization {
+    margin-bottom: 1.5rem;
+}
+
+.visualization img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.viz-caption {
+    color: #666;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+/* Analysis Box Styles */
+.analysis-box {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+}
+
+.analysis-box h4 {
+    color: #4E54C8;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.analysis-box ul {
+    padding-left: 1.2rem;
+}
+
+.analysis-box li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+/* Methodology Note Styles */
+.methodology-note {
+    background-color: white;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.methodology-note h3 {
+    color: #4E54C8;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.methodology-note ul {
+    padding-left: 1.2rem;
+}
+
+.methodology-note li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+/* Key Finding Styles */
+.key-finding {
+    background-color: white;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.key-finding h3 {
+    color: #4E54C8;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.key-finding ul {
+    padding-left: 1.2rem;
+}
+
+.key-finding li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+/* Footer Styles */
+footer {
+    padding: 2rem 0;
+    background-color: white;
+    border-top: 1px solid #e9ecef;
+}
+
+footer p {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 0 15px;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .methodology-note,
+    .key-finding {
+        padding: 1.5rem;
+        margin: 1.5rem auto;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .visualization img {
+        max-width: 100%;
+        page-break-inside: avoid;
+    }
+    
+    section {
+        page-break-inside: avoid;
+    }
+} 
