@@ -112,9 +112,7 @@ const staticVisualizations = [
     'costTrends',
     'spiralPlot',
     'costDistribution',
-    'stateCosts',
-    'geoChoropleth',
-    'laborForceMap'
+    'stateCosts'
 ];
 
 // Map visualization types to their image files
@@ -124,9 +122,7 @@ const visualizationImages = {
     'costTrends': './images/cost_trends.png',
     'spiralPlot': './images/spiral_plot.png',
     'costDistribution': './images/cost_distribution.png',
-    'stateCosts': './images/state_costs.png',
-    'geoChoropleth': './images/cost_map.png',
-    'laborForceMap': './images/labor_force_map.png'
+    'stateCosts': './images/state_costs.png'
 };
 
 // Define chart colors and styling
