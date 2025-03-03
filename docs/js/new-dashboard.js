@@ -103,19 +103,20 @@ function calculateAverageCostByYear(type) {
     });
 }
 
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
+// Constants for year filtering
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
 
 // Define which visualizations are interactive vs static images
 const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'costDistribution', 'stateCosts'];
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'violinPlot': '../images/urban_rural_comparison.png',
-    'correlation': '../images/correlation.png',
-    'costTrends': '../images/cost_trends.png',
-    'spiralPlot': '../images/spiral_plot.png',
-    'costDistribution': '../images/cost_distribution.png',
-    'stateCosts': '../images/state_costs.png'
+    'violinPlot': './images/urban_rural_comparison.png',
+    'correlation': './images/correlation.png',
+    'costTrends': './images/cost_trends.png',
+    'spiralPlot': './images/spiral_plot.png',
+    'costDistribution': './images/cost_distribution.png',
+    'stateCosts': './images/state_costs.png'
 };
 
 // Define chart colors and styling
@@ -368,7 +369,7 @@ function createHeatMap(year) {
 }
 
 /**
- * Create a time series chart showing cost trends over time without imputation notes
+ * Create a time series chart showing cost trends over time
  */
 function createTimeSeriesChart() {
     const container = document.getElementById('mainVisualization');
@@ -376,13 +377,16 @@ function createTimeSeriesChart() {
     // Initialize the figure
     const traces = [];
 
+    // Calculate the data points up to the selected year
+    const yearsToShow = years.filter(y => parseInt(y) <= parseInt(currentYear));
+
     // Add trace for infant costs
     traces.push({
         type: 'scatter',
         mode: 'lines+markers',
         name: 'Infant Care',
-        x: years,
-        y: calculateAverageCostByYear('infant'),
+        x: yearsToShow,
+        y: calculateAverageCostByYear('infant').slice(0, yearsToShow.length),
         line: {
             color: chartColors.primary,
             width: 3
@@ -402,8 +406,8 @@ function createTimeSeriesChart() {
         type: 'scatter',
         mode: 'lines+markers',
         name: 'Toddler Care',
-        x: years,
-        y: calculateAverageCostByYear('toddler'),
+        x: yearsToShow,
+        y: calculateAverageCostByYear('toddler').slice(0, yearsToShow.length),
         line: {
             color: chartColors.secondary,
             width: 3
@@ -423,8 +427,8 @@ function createTimeSeriesChart() {
         type: 'scatter',
         mode: 'lines+markers',
         name: 'Preschool Care',
-        x: years,
-        y: calculateAverageCostByYear('preschool'),
+        x: yearsToShow,
+        y: calculateAverageCostByYear('preschool').slice(0, yearsToShow.length),
         line: {
             color: chartColors.accent,
             width: 3
@@ -441,7 +445,7 @@ function createTimeSeriesChart() {
 
     const layout = {
         title: {
-            text: 'Childcare Cost Trends (2008-2018)',
+            text: `Childcare Cost Trends (2008-${currentYear})`,
             font: chartTitle.font,
             xref: chartTitle.xref,
             x: chartTitle.x
@@ -453,7 +457,8 @@ function createTimeSeriesChart() {
             },
             tickfont: chartFont,
             gridcolor: chartColors.grid,
-            showgrid: true
+            showgrid: true,
+            range: ['2008', currentYear]
         },
         yaxis: {
             title: {
