@@ -12,14 +12,13 @@ let currentYear = '2018';
 // Constants
 const VISUALIZATION_TYPES = {
     'geoChoropleth': 'Geographic Cost Distribution',
-    'stateCosts': 'State Cost Comparison',
     'timeSeriesAnalysis': 'Cost Trends Over Time',
     'laborForceMap': 'Female Labor Force Participation',
-    'violinPlot': 'Cost Distribution by Urban/Rural',
-    'correlation': 'Correlation Analysis',
-    'costTrends': 'Cost Trends by Region',
-    'spiralPlot': 'Cost Trends (Spiral View)',
-    'costDistribution': 'Cost Distribution'
+    'costDistribution': 'Cost Distribution',
+    'costMap': 'Cost Map',
+    'costTrends': 'Cost Trends',
+    'femaleLaborForce': 'Female Labor Force',
+    'childcareCostsMap': 'Childcare Costs Map'
 };
 
 // Add missing data definitions
@@ -104,19 +103,18 @@ function calculateAverageCostByYear(type) {
 }
 
 // Constants for year filtering
-const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap'];
+const YEAR_FILTER_VISUALIZATIONS = ['geoChoropleth', 'laborForceMap', 'timeSeriesAnalysis'];
 
 // Define which visualizations are interactive vs static images
-const staticVisualizations = ['violinPlot', 'correlation', 'costTrends', 'spiralPlot', 'costDistribution', 'stateCosts'];
+const staticVisualizations = ['costDistribution', 'costMap', 'costTrends', 'femaleLaborForce', 'childcareCostsMap'];
 
 // Map visualization types to their image files
 const visualizationImages = {
-    'violinPlot': './images/urban_rural_comparison.png',
-    'correlation': './images/correlation.png',
-    'costTrends': './images/cost_trends.png',
-    'spiralPlot': './images/spiral_plot.png',
-    'costDistribution': './images/cost_distribution.png',
-    'stateCosts': './images/state_costs.png'
+    'costDistribution': '../images/cost_distribution.png',
+    'costMap': '../images/cost_map.png',
+    'costTrends': '../images/cost_trends.png',
+    'femaleLaborForce': '../images/female_labor_force.png',
+    'childcareCostsMap': '../images/childcare_costs_map.png'
 };
 
 // Define chart colors and styling
@@ -596,7 +594,7 @@ function displayStaticVisualization(visualizationType) {
         container.appendChild(img);
         
         // Add a note for the state costs visualization about NaN values
-        if (visualizationType === 'costTrends') {
+        if (visualizationType === 'spiralPlot') {
             const noteDiv = document.createElement('div');
             noteDiv.style.textAlign = 'center';
             noteDiv.style.marginTop = '15px';
